@@ -1,39 +1,6 @@
 import React from 'react';
 import { MOCK_COLLECTIONS } from '../constants';
-import { Collection } from '../types';
-import { ShoppingCart, Zap } from 'lucide-react';
-import Button from '../components/Button';
-import { useAuth } from '../contexts/AuthContext';
-
-const CollectionCard: React.FC<{ collection: Collection }> = ({ collection }) => {
-  const { user, purchaseCollection } = useAuth();
-  const isOwned = user?.purchasedCollections?.includes(collection.id);
-
-  return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden group flex flex-col">
-      <img src={collection.coverImage} alt={collection.name} className="w-full h-48 object-cover" />
-      <div className="p-6 flex flex-col flex-grow">
-        <h3 className="text-xl font-bold mb-2">{collection.name}</h3>
-        <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 flex-grow">{collection.description}</p>
-        <div className="flex items-center text-sm text-gray-500 dark:text-gray-300 mb-4">
-            <Zap size={16} className="mr-2 text-primary-500"/>
-            <span>{collection.promptCount} prompts</span>
-        </div>
-        <div className="flex justify-between items-center mt-auto">
-          <span className="text-2xl font-bold text-primary-500">${collection.price}</span>
-          <Button 
-            icon={isOwned ? undefined : <ShoppingCart size={16} />}
-            onClick={() => purchaseCollection(collection.id)}
-            disabled={isOwned}
-          >
-            {isOwned ? 'Owned' : 'Purchase'}
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
+import CollectionCard from '../components/CollectionCard';
 
 const MarketplacePage: React.FC = () => {
   return (

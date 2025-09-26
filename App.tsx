@@ -10,6 +10,7 @@ import CommunityPage from './pages/CommunityPage';
 import MarketplacePage from './pages/MarketplacePage';
 import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
+import CollectionPage from './pages/CollectionPage';
 
 const App: React.FC = () => {
   return (
@@ -26,6 +27,7 @@ const App: React.FC = () => {
                   <Route path="/marketplace" element={<MarketplacePage />} />
                   <Route path="/dashboard" element={<DashboardPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/collection/:collectionId" element={<CollectionPage />} />
                 </Routes>
               </main>
               <Footer />

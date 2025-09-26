@@ -58,8 +58,9 @@ export const MOCK_COLLECTIONS: Collection[] = [
         description: 'A curated collection of essential prompts for academic success, from essay writing to research assistance.',
         creator: MOCK_USERS[0],
         price: 9.99,
-        promptCount: 10,
-        coverImage: 'https://picsum.photos/seed/c1/600/400'
+        promptCount: 1,
+        coverImage: 'https://picsum.photos/seed/c1/600/400',
+        promptIds: ['p1']
     },
     {
         id: 'c2',
@@ -67,8 +68,9 @@ export const MOCK_COLLECTIONS: Collection[] = [
         description: 'Unlock stunning AI art with this pack of 25 advanced prompts for MidJourney, covering various styles.',
         creator: MOCK_USERS[1],
         price: 19.99,
-        promptCount: 25,
-        coverImage: 'https://picsum.photos/seed/c2/600/400'
+        promptCount: 1,
+        coverImage: 'https://picsum.photos/seed/c2/600/400',
+        promptIds: ['p2']
     },
     {
         id: 'c3',
@@ -76,7 +78,8 @@ export const MOCK_COLLECTIONS: Collection[] = [
         description: 'Supercharge your marketing and business strategy with these 15 powerful prompts for entrepreneurs.',
         creator: MOCK_USERS[0],
         price: 14.99,
-        promptCount: 15,
-        coverImage: 'https://picsum.photos/seed/c3/600/400'
+        promptCount: 1,
+        coverImage: 'https://picsum.photos/seed/c3/600/400',
+        promptIds: ['p3']
     }
 ];

@@ -6,9 +6,10 @@ import { useAuth } from '../contexts/AuthContext';
 interface PromptCardProps {
   prompt: Prompt;
   onVote: (id: string, type: 'up' | 'down') => void;
+  onClick: (prompt: Prompt) => void;
 }
 
-const PromptCard: React.FC<PromptCardProps> = ({ prompt, onVote }) => {
+const PromptCard: React.FC<PromptCardProps> = ({ prompt, onVote, onClick }) => {
   const { user, login, toggleSavePrompt } = useAuth();
   const isSaved = user?.savedPrompts?.includes(prompt.id);
 
@@ -24,8 +25,19 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, onVote }) => {
     }
   };
 
+  const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Prevent click from triggering when clicking on a button inside the card
+    if ((e.target as HTMLElement).closest('button')) {
+      return;
+    }
+    onClick(prompt);
+  };
+
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col">
+    <div 
+      className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col cursor-pointer"
+      onClick={handleCardClick}
+    >
       <div className="p-6 flex-grow">
         <div className="flex justify-between items-start">
           <div className="flex-1">

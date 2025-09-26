@@ -31,6 +31,7 @@ export interface Collection {
   price: number;
   promptCount: number;
   coverImage: string;
+  promptIds: string[];
 }
 
 export type AIModel = 'ChatGPT' | 'Claude' | 'Gemini' | 'MidJourney' | 'DALL-E';

@@ -7,19 +7,9 @@ import { Link } from 'react-router-dom';
 import Modal from '../components/Modal';
 import Button from '../components/Button';
 import PromptCard from '../components/PromptCard';
-import { Collection } from '../types';
-
-const PurchasedCollectionCard: React.FC<{ collection: Collection }> = ({ collection }) => (
-    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md flex items-center space-x-4 transition-shadow hover:shadow-lg">
-        <img src={collection.coverImage} alt={collection.name} className="w-24 h-16 object-cover rounded-md" />
-        <div className="flex-grow">
-            <h4 className="font-bold text-gray-900 dark:text-white">{collection.name}</h4>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{collection.promptCount} prompts</p>
-        </div>
-        <Button variant="secondary" size="sm">View</Button>
-    </div>
-);
-
+import { Prompt } from '../types';
+import PromptDetailModal from '../components/PromptDetailModal';
+import CollectionCard from '../components/CollectionCard';
 
 const ProfilePage: React.FC = () => {
   const { user, updateUserProfile } = useAuth();
@@ -28,6 +18,7 @@ const ProfilePage: React.FC = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [bio, setBio] = useState('');
   const [avatar, setAvatar] = useState('');
+  const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -44,6 +35,14 @@ const ProfilePage: React.FC = () => {
     e.preventDefault();
     updateUserProfile({ bio, avatar });
     setIsEditModalOpen(false);
+  };
+  
+  const handlePromptClick = (prompt: Prompt) => {
+    setSelectedPrompt(prompt);
+  };
+
+  const handleCloseDetailModal = () => {
+    setSelectedPrompt(null);
   };
   
   const userPrompts = prompts.filter(p => user.submittedPrompts?.includes(p.id));
@@ -78,7 +77,7 @@ const ProfilePage: React.FC = () => {
         {userPrompts.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {userPrompts.map(prompt => (
-              <PromptCard key={prompt.id} prompt={prompt} onVote={voteOnPrompt} />
+              <PromptCard key={prompt.id} prompt={prompt} onVote={voteOnPrompt} onClick={handlePromptClick} />
             ))}
           </div>
         ) : (
@@ -96,7 +95,7 @@ const ProfilePage: React.FC = () => {
         {savedPrompts.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {savedPrompts.map(prompt => (
-              <PromptCard key={prompt.id} prompt={prompt} onVote={voteOnPrompt} />
+              <PromptCard key={prompt.id} prompt={prompt} onVote={voteOnPrompt} onClick={handlePromptClick} />
             ))}
           </div>
         ) : (
@@ -114,7 +113,7 @@ const ProfilePage: React.FC = () => {
         {userCollections.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {userCollections.map(collection => (
-              <PurchasedCollectionCard key={collection.id} collection={collection} />
+              <CollectionCard key={collection.id} collection={collection} />
             ))}
           </div>
         ) : (
@@ -155,6 +154,12 @@ const ProfilePage: React.FC = () => {
           </div>
         </form>
       </Modal>
+      
+      <PromptDetailModal
+        isOpen={!!selectedPrompt}
+        onClose={handleCloseDetailModal}
+        prompt={selectedPrompt}
+      />
     </div>
   );
 };

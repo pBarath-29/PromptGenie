@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from '@google/genai';
-import { AIModel, Category } from '../types';
+import { AIModel, Category, Prompt } from '../types';
 
 if (!process.env.API_KEY) {
   console.warn("API_KEY environment variable not set. Prompt generation will fail.");
@@ -63,4 +63,27 @@ Return your response as a single JSON object.`;
     console.error('Error calling Gemini API:', error);
     throw new Error('Failed to generate prompt from Gemini API.');
   }
+};
+
+export const generateExampleOutput = async (prompt: Prompt): Promise<string> => {
+    const systemInstruction = `You are an AI model tasked with generating an example output for a given prompt.
+The user has provided a prompt designed for the "${prompt.model}" model.
+The prompt is: "${prompt.prompt}"
+
+Your task is to generate a concise and relevant example of what this prompt might produce. Keep the output clean and directly related to the prompt's instructions.`;
+    
+    try {
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt.prompt,
+            config: {
+                systemInstruction,
+            },
+        });
+
+        return response.text;
+    } catch (error) {
+        console.error('Error generating example output from Gemini API:', error);
+        throw new Error('Failed to generate example output from Gemini API.');
+    }
 };

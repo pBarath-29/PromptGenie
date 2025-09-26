@@ -6,12 +6,14 @@ import Modal from '../components/Modal';
 import { Plus } from 'lucide-react';
 import { AI_MODELS, CATEGORIES } from '../constants';
 import { useAuth } from '../contexts/AuthContext';
-import { Category, AIModel } from '../types';
+import { Category, AIModel, Prompt } from '../types';
+import PromptDetailModal from '../components/PromptDetailModal';
 
 const CommunityPage: React.FC = () => {
   const { prompts, voteOnPrompt, addPrompt } = usePrompts();
   const { user, login, addSubmittedPrompt } = useAuth();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
+  const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -43,7 +45,7 @@ const CommunityPage: React.FC = () => {
     });
     addSubmittedPrompt(newPromptId);
 
-    setIsModalOpen(false);
+    setIsSubmitModalOpen(false);
     // Reset form
     setTitle('');
     setDescription('');
@@ -51,13 +53,21 @@ const CommunityPage: React.FC = () => {
     setTags('');
   };
 
-  const handleOpenModal = () => {
+  const handleOpenSubmitModal = () => {
     if (user) {
-      setIsModalOpen(true);
+      setIsSubmitModalOpen(true);
     } else {
       login();
     }
   }
+
+  const handlePromptClick = (prompt: Prompt) => {
+    setSelectedPrompt(prompt);
+  };
+
+  const handleCloseDetailModal = () => {
+    setSelectedPrompt(null);
+  };
 
   return (
     <div className="space-y-8">
@@ -66,18 +76,18 @@ const CommunityPage: React.FC = () => {
           <h1 className="text-3xl font-bold">Community Prompts</h1>
           <p className="text-gray-500 dark:text-gray-400">Discover, vote, and share the best prompts from the community.</p>
         </div>
-        <Button onClick={handleOpenModal} icon={<Plus size={18}/>}>
+        <Button onClick={handleOpenSubmitModal} icon={<Plus size={18}/>}>
           Submit a Prompt
         </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {prompts.map(prompt => (
-          <PromptCard key={prompt.id} prompt={prompt} onVote={voteOnPrompt} />
+          <PromptCard key={prompt.id} prompt={prompt} onVote={voteOnPrompt} onClick={handlePromptClick} />
         ))}
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Submit a New Prompt">
+      <Modal isOpen={isSubmitModalOpen} onClose={() => setIsSubmitModalOpen(false)} title="Submit a New Prompt">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium">Title</label>
@@ -114,6 +124,12 @@ const CommunityPage: React.FC = () => {
           </div>
         </form>
       </Modal>
+
+      <PromptDetailModal
+        isOpen={!!selectedPrompt}
+        onClose={handleCloseDetailModal}
+        prompt={selectedPrompt}
+      />
 
     </div>
   );
