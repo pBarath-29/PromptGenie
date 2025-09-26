@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePrompts } from '../contexts/PromptContext';
-import { MOCK_COLLECTIONS } from '../constants';
+import { useCollections } from '../contexts/CollectionContext';
 import { Award, Edit, BookOpen, ShoppingBag, Bookmark } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Modal from '../components/Modal';
@@ -10,15 +10,21 @@ import PromptCard from '../components/PromptCard';
 import { Prompt } from '../types';
 import PromptDetailModal from '../components/PromptDetailModal';
 import CollectionCard from '../components/CollectionCard';
+import EditPromptModal from '../components/EditPromptModal';
+import ConfirmationModal from '../components/ConfirmationModal';
 
 const ProfilePage: React.FC = () => {
-  const { user, updateUserProfile } = useAuth();
-  const { prompts, voteOnPrompt } = usePrompts();
+  const { user, updateUserProfile, removeSubmittedPrompt } = useAuth();
+  const { prompts, voteOnPrompt, updatePrompt, deletePrompt } = usePrompts();
+  const { collections } = useCollections();
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [bio, setBio] = useState('');
   const [avatar, setAvatar] = useState('');
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
+  const [promptToEdit, setPromptToEdit] = useState<Prompt | null>(null);
+  const [promptToDelete, setPromptToDelete] = useState<string | null>(null);
+
 
   useEffect(() => {
     if (user) {
@@ -37,16 +43,27 @@ const ProfilePage: React.FC = () => {
     setIsEditModalOpen(false);
   };
   
-  const handlePromptClick = (prompt: Prompt) => {
-    setSelectedPrompt(prompt);
+  const handlePromptClick = (prompt: Prompt) => setSelectedPrompt(prompt);
+  const handleCloseDetailModal = () => setSelectedPrompt(null);
+  const handleEditClick = (prompt: Prompt) => setPromptToEdit(prompt);
+  const handleDeleteClick = (promptId: string) => setPromptToDelete(promptId);
+
+  const handlePromptUpdate = (updatedData: Omit<Prompt, 'author' | 'upvotes' | 'downvotes' | 'createdAt'>) => {
+    if (!promptToEdit) return;
+    const updatedPrompt = { ...promptToEdit, ...updatedData };
+    updatePrompt(updatedPrompt);
+    setPromptToEdit(null);
   };
 
-  const handleCloseDetailModal = () => {
-    setSelectedPrompt(null);
+  const handleConfirmDelete = () => {
+      if (!promptToDelete) return;
+      deletePrompt(promptToDelete);
+      removeSubmittedPrompt(promptToDelete);
+      setPromptToDelete(null);
   };
   
   const userPrompts = prompts.filter(p => user.submittedPrompts?.includes(p.id));
-  const userCollections = MOCK_COLLECTIONS.filter(c => user.purchasedCollections?.includes(c.id));
+  const userCollections = collections.filter(c => user.purchasedCollections?.includes(c.id));
   const savedPrompts = prompts.filter(p => user.savedPrompts?.includes(p.id));
 
   return (
@@ -77,7 +94,14 @@ const ProfilePage: React.FC = () => {
         {userPrompts.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {userPrompts.map(prompt => (
-              <PromptCard key={prompt.id} prompt={prompt} onVote={voteOnPrompt} onClick={handlePromptClick} />
+              <PromptCard 
+                key={prompt.id} 
+                prompt={prompt} 
+                onVote={voteOnPrompt} 
+                onClick={handlePromptClick}
+                onEdit={handleEditClick}
+                onDelete={handleDeleteClick}
+              />
             ))}
           </div>
         ) : (
@@ -95,7 +119,14 @@ const ProfilePage: React.FC = () => {
         {savedPrompts.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {savedPrompts.map(prompt => (
-              <PromptCard key={prompt.id} prompt={prompt} onVote={voteOnPrompt} onClick={handlePromptClick} />
+               <PromptCard 
+                key={prompt.id} 
+                prompt={prompt} 
+                onVote={voteOnPrompt} 
+                onClick={handlePromptClick}
+                onEdit={handleEditClick}
+                onDelete={handleDeleteClick}
+              />
             ))}
           </div>
         ) : (
@@ -159,6 +190,23 @@ const ProfilePage: React.FC = () => {
         isOpen={!!selectedPrompt}
         onClose={handleCloseDetailModal}
         prompt={selectedPrompt}
+      />
+
+      <EditPromptModal
+          isOpen={!!promptToEdit}
+          onClose={() => setPromptToEdit(null)}
+          onSubmit={handlePromptUpdate}
+          prompt={promptToEdit}
+      />
+
+      <ConfirmationModal
+          isOpen={!!promptToDelete}
+          onClose={() => setPromptToDelete(null)}
+          onConfirm={handleConfirmDelete}
+          title="Delete Prompt"
+          message="Are you sure you want to delete this prompt? This action cannot be undone."
+          confirmButtonText="Delete"
+          confirmButtonVariant="danger"
       />
     </div>
   );

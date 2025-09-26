@@ -10,6 +10,7 @@ export interface Prompt {
   downvotes: number;
   createdAt: string;
   model: AIModel;
+  isPublic: boolean;
 }
 
 export interface User {
@@ -21,6 +22,7 @@ export interface User {
   submittedPrompts?: string[];
   purchasedCollections?: string[];
   savedPrompts?: string[];
+  createdCollections?: string[];
 }
 
 export interface Collection {

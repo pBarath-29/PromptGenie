@@ -4,9 +4,9 @@ export const AI_MODELS: AIModel[] = ['ChatGPT', 'Claude', 'Gemini', 'MidJourney'
 export const CATEGORIES: Category[] = ['Education', 'Coding', 'Business', 'Art', 'Marketing', 'Fun'];
 
 export const MOCK_USERS: User[] = [
-  { id: 'u1', name: 'Alex Doe', avatar: 'https://i.pravatar.cc/150?u=u1', bio: 'Prompt engineering enthusiast.', badges: ['Prompt Master', 'Top Creator'], submittedPrompts: ['p1', 'p3'], purchasedCollections: ['c2'], savedPrompts: ['p2'] },
-  { id: 'u2', name: 'Jane Smith', avatar: 'https://i.pravatar.cc/150?u=u2', bio: 'AI Artist and developer.', badges: ['Community Star'], submittedPrompts: ['p2'], purchasedCollections: [], savedPrompts: [] },
-  { id: 'u3', name: 'Sam Wilson', avatar: 'https://i.pravatar.cc/150?u=u3', submittedPrompts: [], purchasedCollections: [], savedPrompts: [] },
+  { id: 'u1', name: 'Alex Doe', avatar: 'https://i.pravatar.cc/150?u=u1', bio: 'Prompt engineering enthusiast.', badges: ['Prompt Master', 'Top Creator'], submittedPrompts: ['p1', 'p3', 'p5'], purchasedCollections: ['c2'], savedPrompts: ['p2'], createdCollections: ['c1', 'c3'] },
+  { id: 'u2', name: 'Jane Smith', avatar: 'https://i.pravatar.cc/150?u=u2', bio: 'AI Artist and developer.', badges: ['Community Star'], submittedPrompts: ['p2', 'p4', 'p6', 'p7'], purchasedCollections: [], savedPrompts: [], createdCollections: ['c2'] },
+  { id: 'u3', name: 'Sam Wilson', avatar: 'https://i.pravatar.cc/150?u=u3', submittedPrompts: [], purchasedCollections: [], savedPrompts: [], createdCollections: [] },
 ];
 
 export const MOCK_PROMPTS: Prompt[] = [
@@ -22,6 +22,7 @@ export const MOCK_PROMPTS: Prompt[] = [
     downvotes: 5,
     createdAt: '2023-10-26T10:00:00Z',
     model: 'ChatGPT',
+    isPublic: true,
   },
   {
     id: 'p2',
@@ -35,6 +36,7 @@ export const MOCK_PROMPTS: Prompt[] = [
     downvotes: 3,
     createdAt: '2023-10-25T14:30:00Z',
     model: 'MidJourney',
+    isPublic: true,
   },
   {
     id: 'p3',
@@ -48,38 +50,95 @@ export const MOCK_PROMPTS: Prompt[] = [
     downvotes: 2,
     createdAt: '2023-10-24T09:00:00Z',
     model: 'Gemini',
+    isPublic: true,
+  },
+   {
+    id: 'p4',
+    title: 'Social Media Content Calendar',
+    prompt: 'Create a comprehensive social media content calendar for one month for a new sustainable fashion brand. The target audience is millennials who are environmentally conscious. Include post ideas for Instagram (feed, stories, reels), Facebook, and Twitter. Specify the content format (e.g., image, video, carousel), a catchy caption, and relevant hashtags for each post.',
+    description: 'A detailed prompt to generate a full month of social media content, tailored for a specific brand and audience.',
+    author: MOCK_USERS[1],
+    category: 'Marketing',
+    tags: ['Social Media', 'Marketing', 'Content Strategy'],
+    upvotes: 150,
+    downvotes: 7,
+    createdAt: '2023-10-27T11:00:00Z',
+    model: 'Claude',
+    isPublic: true,
+  },
+  {
+    id: 'p5',
+    title: 'Interactive History Lesson Plan',
+    prompt: 'Design an interactive lesson plan for a 10th-grade history class on the topic of the Silk Road. The lesson should be 60 minutes long and include a warm-up activity, a main interactive component (e.g., a role-playing simulation, a virtual tour), and an assessment. The goal is to make the learning process engaging and memorable. Provide all necessary materials and instructions.',
+    description: 'Generate a creative and engaging history lesson plan to captivate students.',
+    author: MOCK_USERS[0],
+    category: 'Education',
+    tags: ['Lesson Plan', 'History', 'Education'],
+    upvotes: 85,
+    downvotes: 4,
+    createdAt: '2023-10-28T09:30:00Z',
+    model: 'Gemini',
+    isPublic: true,
+  },
+  {
+    id: 'p6',
+    title: 'Minimalist Logo Design Concepts',
+    prompt: 'Generate 5 minimalist logo concepts for a tech startup called "Synapse". The company focuses on AI-powered data analysis. The logo should be clean, modern, and memorable. Describe the concept behind each logo. Use a simple color palette. --style raw',
+    description: 'Get several distinct and professional logo ideas for your brand.',
+    author: MOCK_USERS[1],
+    category: 'Art',
+    tags: ['Logo Design', 'Branding', 'Minimalist'],
+    upvotes: 190,
+    downvotes: 6,
+    createdAt: '2023-10-29T16:00:00Z',
+    model: 'DALL-E',
+    isPublic: true,
+  },
+  {
+    id: 'p7',
+    title: 'Watercolor Fantasy Landscape',
+    prompt: 'whimsical watercolor painting of a glowing forest with giant mushrooms and sparkling streams, fireflies illuminating the path, vibrant and dreamy color palette, in the style of Studio Ghibli, detailed, high resolution',
+    description: 'Create magical and enchanting landscapes with a beautiful watercolor aesthetic.',
+    author: MOCK_USERS[1],
+    category: 'Art',
+    tags: ['Watercolor', 'Fantasy', 'Landscape', 'Studio Ghibli'],
+    upvotes: 210,
+    downvotes: 4,
+    createdAt: '2023-10-30T12:00:00Z',
+    model: 'MidJourney',
+    isPublic: true,
   },
 ];
 
 export const MOCK_COLLECTIONS: Collection[] = [
     {
         id: 'c1',
-        name: 'Top 10 Student Prompts',
-        description: 'A curated collection of essential prompts for academic success, from essay writing to research assistance.',
+        name: 'Student Success Pack',
+        description: 'A curated collection of essential prompts for academic success, from essay writing to creating engaging lesson plans.',
         creator: MOCK_USERS[0],
         price: 9.99,
-        promptCount: 1,
+        promptCount: 2,
         coverImage: 'https://picsum.photos/seed/c1/600/400',
-        promptIds: ['p1']
+        promptIds: ['p1', 'p5']
     },
     {
         id: 'c2',
-        name: 'MidJourney Master Pack',
-        description: 'Unlock stunning AI art with this pack of 25 advanced prompts for MidJourney, covering various styles.',
+        name: 'AI Artistry Master Pack',
+        description: 'Unlock stunning AI art with this pack of 3 advanced prompts for MidJourney & DALL-E, covering various styles from sci-fi to branding and fantasy.',
         creator: MOCK_USERS[1],
         price: 19.99,
-        promptCount: 1,
+        promptCount: 3,
         coverImage: 'https://picsum.photos/seed/c2/600/400',
-        promptIds: ['p2']
+        promptIds: ['p2', 'p6', 'p7']
     },
     {
         id: 'c3',
-        name: 'Business Growth Toolkit',
-        description: 'Supercharge your marketing and business strategy with these 15 powerful prompts for entrepreneurs.',
+        name: 'Developer & Marketing Starter Kit',
+        description: 'Supercharge your projects with this diverse kit. Includes prompts for code refactoring and creating a full social media content calendar.',
         creator: MOCK_USERS[0],
         price: 14.99,
-        promptCount: 1,
+        promptCount: 2,
         coverImage: 'https://picsum.photos/seed/c3/600/400',
-        promptIds: ['p3']
+        promptIds: ['p3', 'p4']
     }
 ];

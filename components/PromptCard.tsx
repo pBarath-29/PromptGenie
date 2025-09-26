@@ -1,23 +1,29 @@
 import React from 'react';
 import { Prompt } from '../types';
-import { ThumbsUp, ThumbsDown, Copy, Bookmark } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Copy, Bookmark, Edit, Trash2, Globe, Star } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import Button from './Button';
 
 interface PromptCardProps {
   prompt: Prompt;
   onVote: (id: string, type: 'up' | 'down') => void;
   onClick: (prompt: Prompt) => void;
+  onEdit: (prompt: Prompt) => void;
+  onDelete: (promptId: string) => void;
 }
 
-const PromptCard: React.FC<PromptCardProps> = ({ prompt, onVote, onClick }) => {
+const PromptCard: React.FC<PromptCardProps> = ({ prompt, onVote, onClick, onEdit, onDelete }) => {
   const { user, login, toggleSavePrompt } = useAuth();
   const isSaved = user?.savedPrompts?.includes(prompt.id);
+  const isAuthor = user?.id === prompt.author.id;
 
-  const handleCopy = () => {
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
     navigator.clipboard.writeText(prompt.prompt);
   };
 
-  const handleSave = () => {
+  const handleSave = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (!user) {
       login();
     } else {
@@ -26,12 +32,21 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, onVote, onClick }) => {
   };
 
   const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    // Prevent click from triggering when clicking on a button inside the card
     if ((e.target as HTMLElement).closest('button')) {
       return;
     }
     onClick(prompt);
   };
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onEdit(prompt);
+  }
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDelete(prompt.id);
+  }
 
   return (
     <div 
@@ -44,6 +59,12 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, onVote, onClick }) => {
             <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 mb-2">
               <span className="font-semibold px-2 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 rounded-full">{prompt.category}</span>
               <span className="font-semibold px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full">{prompt.model}</span>
+              {!prompt.isPublic && (
+                <span className="flex items-center font-semibold px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 rounded-full text-xs">
+                  <Star size={12} className="mr-1" />
+                  Premium
+                </span>
+              )}
             </div>
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{prompt.title}</h3>
             <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{prompt.description}</p>
@@ -61,16 +82,26 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, onVote, onClick }) => {
       </div>
       <div className="bg-gray-50 dark:bg-gray-700/50 px-6 py-3 flex justify-between items-center">
         <div className="flex items-center space-x-4">
-          <button onClick={() => onVote(prompt.id, 'up')} className="flex items-center space-x-1 text-gray-500 hover:text-green-500 transition-colors">
+          <button onClick={(e) => { e.stopPropagation(); onVote(prompt.id, 'up'); }} className="flex items-center space-x-1 text-gray-500 hover:text-green-500 transition-colors" disabled={!prompt.isPublic}>
             <ThumbsUp size={16} />
             <span>{prompt.upvotes}</span>
           </button>
-          <button onClick={() => onVote(prompt.id, 'down')} className="flex items-center space-x-1 text-gray-500 hover:text-red-500 transition-colors">
+          <button onClick={(e) => { e.stopPropagation(); onVote(prompt.id, 'down'); }} className="flex items-center space-x-1 text-gray-500 hover:text-red-500 transition-colors" disabled={!prompt.isPublic}>
             <ThumbsDown size={16} />
             <span>{prompt.downvotes}</span>
           </button>
         </div>
         <div className="flex items-center space-x-2">
+          {isAuthor && (
+            <>
+              <button onClick={handleEdit} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" title="Edit Prompt">
+                <Edit size={18} />
+              </button>
+              <button onClick={handleDelete} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 text-red-500 transition-colors" title="Delete Prompt">
+                <Trash2 size={18} />
+              </button>
+            </>
+          )}
           <button 
             onClick={handleSave} 
             className={`p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors ${isSaved ? 'text-primary-500' : ''}`} 

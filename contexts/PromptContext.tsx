@@ -5,6 +5,8 @@ import { MOCK_PROMPTS } from '../constants';
 interface PromptContextType {
   prompts: Prompt[];
   addPrompt: (prompt: Prompt) => void;
+  updatePrompt: (updatedPrompt: Prompt) => void;
+  deletePrompt: (promptId: string) => void;
   voteOnPrompt: (id: string, type: 'up' | 'down') => void;
 }
 
@@ -15,6 +17,16 @@ export const PromptProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const addPrompt = (prompt: Prompt) => {
     setPrompts(prevPrompts => [prompt, ...prevPrompts]);
+  };
+  
+  const updatePrompt = (updatedPrompt: Prompt) => {
+    setPrompts(prevPrompts =>
+      prevPrompts.map(p => (p.id === updatedPrompt.id ? updatedPrompt : p))
+    );
+  };
+
+  const deletePrompt = (promptId: string) => {
+    setPrompts(prevPrompts => prevPrompts.filter(p => p.id !== promptId));
   };
 
   const voteOnPrompt = (id: string, type: 'up' | 'down') => {
@@ -33,7 +45,7 @@ export const PromptProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   return (
-    <PromptContext.Provider value={{ prompts, addPrompt, voteOnPrompt }}>
+    <PromptContext.Provider value={{ prompts, addPrompt, updatePrompt, deletePrompt, voteOnPrompt }}>
       {children}
     </PromptContext.Provider>
   );

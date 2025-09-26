@@ -9,7 +9,9 @@ interface AuthContextType {
   updateUserProfile: (data: { bio?: string; avatar?: string }) => void;
   purchaseCollection: (collectionId: string) => void;
   addSubmittedPrompt: (promptId: string) => void;
+  removeSubmittedPrompt: (promptId: string) => void;
   toggleSavePrompt: (promptId: string) => void;
+  addCreatedCollection: (collectionId: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -68,6 +70,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
   };
 
+  const removeSubmittedPrompt = (promptId: string) => {
+    if (user) {
+      setUser(prevUser => {
+        if (!prevUser) return null;
+        const newSubmittedPrompts = prevUser.submittedPrompts?.filter(id => id !== promptId);
+        return { ...prevUser, submittedPrompts: newSubmittedPrompts };
+      });
+    }
+  };
+
   const toggleSavePrompt = (promptId: string) => {
     if (!user) return;
     
@@ -88,8 +100,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
   };
 
+  const addCreatedCollection = (collectionId: string) => {
+    if (user) {
+      setUser(prevUser => prevUser ? {
+        ...prevUser,
+        createdCollections: [...(prevUser.createdCollections || []), collectionId],
+      } : null);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, updateUserProfile, purchaseCollection, addSubmittedPrompt, toggleSavePrompt }}>
+    <AuthContext.Provider value={{ user, login, logout, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, addCreatedCollection }}>
       {children}
     </AuthContext.Provider>
   );

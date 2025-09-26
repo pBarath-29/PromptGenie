@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MOCK_COLLECTIONS } from '../constants';
+import { useCollections } from '../contexts/CollectionContext';
 import { usePrompts } from '../contexts/PromptContext';
 import PromptCard from '../components/PromptCard';
 import PromptDetailModal from '../components/PromptDetailModal';
@@ -9,12 +9,13 @@ import { ArrowLeft, Package } from 'lucide-react';
 
 const CollectionPage: React.FC = () => {
     const { collectionId } = useParams<{ collectionId: string }>();
+    const { collections } = useCollections();
     const { prompts, voteOnPrompt } = usePrompts();
     const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
 
     const collection = useMemo(() => 
-        MOCK_COLLECTIONS.find(c => c.id === collectionId),
-        [collectionId]
+        collections.find(c => c.id === collectionId),
+        [collectionId, collections]
     );
 
     const collectionPrompts = useMemo(() =>
@@ -66,7 +67,7 @@ const CollectionPage: React.FC = () => {
             <h2 className="text-2xl font-bold">Prompts in this collection ({collectionPrompts.length})</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {collectionPrompts.map(prompt => (
-                    <PromptCard key={prompt.id} prompt={prompt} onVote={voteOnPrompt} onClick={handlePromptClick} />
+                    <PromptCard key={prompt.id} prompt={prompt} onVote={voteOnPrompt} onClick={handlePromptClick} onEdit={() => {}} onDelete={() => {}}/>
                 ))}
             </div>
             
