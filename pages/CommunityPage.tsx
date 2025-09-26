@@ -5,35 +5,44 @@ import Button from '../components/Button';
 import Modal from '../components/Modal';
 import { Plus } from 'lucide-react';
 import { AI_MODELS, CATEGORIES } from '../constants';
+import { useAuth } from '../contexts/AuthContext';
+import { Category, AIModel } from '../types';
 
 const CommunityPage: React.FC = () => {
   const { prompts, voteOnPrompt, addPrompt } = usePrompts();
+  const { user, login, addSubmittedPrompt } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [promptText, setPromptText] = useState('');
-  const [category, setCategory] = useState(CATEGORIES[0]);
-  const [model, setModel] = useState(AI_MODELS[0]);
+  const [category, setCategory] = useState<Category>(CATEGORIES[0]);
+  const [model, setModel] = useState<AIModel>(AI_MODELS[0]);
   const [tags, setTags] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, user would be from auth context
-    const mockAuthor = { id: 'u4', name: 'New User', avatar: 'https://i.pravatar.cc/150?u=u4' };
+    if (!user) {
+      alert("Please log in to submit a prompt.");
+      return;
+    }
+
+    const newPromptId = `p${Date.now()}`;
     addPrompt({
-      id: `p${Date.now()}`,
+      id: newPromptId,
       title,
       description,
       prompt: promptText,
       category,
       model,
-      tags: tags.split(',').map(t => t.trim()),
-      author: mockAuthor,
+      tags: tags.split(',').map(t => t.trim()).filter(Boolean),
+      author: user,
       upvotes: 0,
       downvotes: 0,
       createdAt: new Date().toISOString()
     });
+    addSubmittedPrompt(newPromptId);
+
     setIsModalOpen(false);
     // Reset form
     setTitle('');
@@ -42,6 +51,14 @@ const CommunityPage: React.FC = () => {
     setTags('');
   };
 
+  const handleOpenModal = () => {
+    if (user) {
+      setIsModalOpen(true);
+    } else {
+      login();
+    }
+  }
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -49,7 +66,7 @@ const CommunityPage: React.FC = () => {
           <h1 className="text-3xl font-bold">Community Prompts</h1>
           <p className="text-gray-500 dark:text-gray-400">Discover, vote, and share the best prompts from the community.</p>
         </div>
-        <Button onClick={() => setIsModalOpen(true)} icon={<Plus size={18}/>}>
+        <Button onClick={handleOpenModal} icon={<Plus size={18}/>}>
           Submit a Prompt
         </Button>
       </div>

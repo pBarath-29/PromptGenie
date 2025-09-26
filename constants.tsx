@@ -4,9 +4,9 @@ export const AI_MODELS: AIModel[] = ['ChatGPT', 'Claude', 'Gemini', 'MidJourney'
 export const CATEGORIES: Category[] = ['Education', 'Coding', 'Business', 'Art', 'Marketing', 'Fun'];
 
 export const MOCK_USERS: User[] = [
-  { id: 'u1', name: 'Alex Doe', avatar: 'https://i.pravatar.cc/150?u=u1', bio: 'Prompt engineering enthusiast.', badges: ['Prompt Master', 'Top Creator'] },
-  { id: 'u2', name: 'Jane Smith', avatar: 'https://i.pravatar.cc/150?u=u2', bio: 'AI Artist and developer.', badges: ['Community Star'] },
-  { id: 'u3', name: 'Sam Wilson', avatar: 'https://i.pravatar.cc/150?u=u3' },
+  { id: 'u1', name: 'Alex Doe', avatar: 'https://i.pravatar.cc/150?u=u1', bio: 'Prompt engineering enthusiast.', badges: ['Prompt Master', 'Top Creator'], submittedPrompts: ['p1', 'p3'], purchasedCollections: ['c2'], savedPrompts: ['p2'] },
+  { id: 'u2', name: 'Jane Smith', avatar: 'https://i.pravatar.cc/150?u=u2', bio: 'AI Artist and developer.', badges: ['Community Star'], submittedPrompts: ['p2'], purchasedCollections: [], savedPrompts: [] },
+  { id: 'u3', name: 'Sam Wilson', avatar: 'https://i.pravatar.cc/150?u=u3', submittedPrompts: [], purchasedCollections: [], savedPrompts: [] },
 ];
 
 export const MOCK_PROMPTS: Prompt[] = [

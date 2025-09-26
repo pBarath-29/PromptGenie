@@ -18,6 +18,9 @@ export interface User {
   avatar: string;
   bio?: string;
   badges?: string[];
+  submittedPrompts?: string[];
+  purchasedCollections?: string[];
+  savedPrompts?: string[];
 }
 
 export interface Collection {

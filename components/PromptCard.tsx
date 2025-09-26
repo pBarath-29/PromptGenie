@@ -1,6 +1,7 @@
 import React from 'react';
 import { Prompt } from '../types';
 import { ThumbsUp, ThumbsDown, Copy, Bookmark } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface PromptCardProps {
   prompt: Prompt;
@@ -8,8 +9,19 @@ interface PromptCardProps {
 }
 
 const PromptCard: React.FC<PromptCardProps> = ({ prompt, onVote }) => {
+  const { user, login, toggleSavePrompt } = useAuth();
+  const isSaved = user?.savedPrompts?.includes(prompt.id);
+
   const handleCopy = () => {
     navigator.clipboard.writeText(prompt.prompt);
+  };
+
+  const handleSave = () => {
+    if (!user) {
+      login();
+    } else {
+      toggleSavePrompt(prompt.id);
+    }
   };
 
   return (
@@ -47,8 +59,12 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, onVote }) => {
           </button>
         </div>
         <div className="flex items-center space-x-2">
-          <button className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" title="Save Prompt">
-            <Bookmark size={18} />
+          <button 
+            onClick={handleSave} 
+            className={`p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors ${isSaved ? 'text-primary-500' : ''}`} 
+            title={isSaved ? "Unsave Prompt" : "Save Prompt"}
+          >
+            <Bookmark size={18} fill={isSaved ? 'currentColor' : 'none'} />
           </button>
           <button onClick={handleCopy} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" title="Copy Prompt">
             <Copy size={18} />
