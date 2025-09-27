@@ -1,3 +1,10 @@
+export interface Comment {
+  id: string;
+  author: User;
+  text: string;
+  createdAt: string;
+}
+
 export interface Prompt {
   id: string;
   title: string;
@@ -6,8 +13,9 @@ export interface Prompt {
   author: User;
   category: Category;
   tags: string[];
-  upvotes: number;
-  downvotes: number;
+  averageRating: number;
+  ratingsCount: number;
+  comments: Comment[];
   createdAt: string;
   model: AIModel;
   isPublic: boolean;

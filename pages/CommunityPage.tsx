@@ -10,11 +10,13 @@ import Button from '../components/Button';
 import SubmitPromptModal from '../components/SubmitPromptModal';
 import EditPromptModal from '../components/EditPromptModal';
 import ConfirmationModal from '../components/ConfirmationModal';
+import { useNavigate } from 'react-router-dom';
 
 
 const CommunityPage: React.FC = () => {
-    const { prompts, voteOnPrompt, addPrompt, updatePrompt, deletePrompt } = usePrompts();
-    const { user, login, addSubmittedPrompt, removeSubmittedPrompt } = useAuth();
+    const { prompts, addPrompt, updatePrompt, deletePrompt } = usePrompts();
+    const { user, addSubmittedPrompt, removeSubmittedPrompt } = useAuth();
+    const navigate = useNavigate();
     
     const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
@@ -43,7 +45,7 @@ const CommunityPage: React.FC = () => {
             })
             .sort((a, b) => {
                 if (sortBy === 'popular') {
-                    return (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes);
+                    return b.averageRating - a.averageRating;
                 }
                 return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
             });
@@ -56,20 +58,21 @@ const CommunityPage: React.FC = () => {
 
     const handleOpenSubmitModal = () => {
         if (!user) {
-            login();
+            navigate('/login');
         } else {
             setIsSubmitModalOpen(true);
         }
     };
 
-    const handlePromptSubmit = (newPromptData: Omit<Prompt, 'id' | 'author' | 'upvotes' | 'downvotes' | 'createdAt'>) => {
+    const handlePromptSubmit = (newPromptData: Omit<Prompt, 'id' | 'author' | 'averageRating' | 'ratingsCount' | 'comments' | 'createdAt'>) => {
         if (!user) return;
         const newPrompt: Prompt = {
             id: `p${Date.now()}`,
             ...newPromptData,
             author: user,
-            upvotes: 0,
-            downvotes: 0,
+            averageRating: 0,
+            ratingsCount: 0,
+            comments: [],
             createdAt: new Date().toISOString(),
         };
         addPrompt(newPrompt);
@@ -77,7 +80,7 @@ const CommunityPage: React.FC = () => {
         setIsSubmitModalOpen(false);
     };
 
-    const handlePromptUpdate = (updatedData: Omit<Prompt, 'author' | 'upvotes' | 'downvotes' | 'createdAt'>) => {
+    const handlePromptUpdate = (updatedData: Omit<Prompt, 'author' | 'averageRating' | 'ratingsCount' | 'comments' | 'createdAt'>) => {
         if (!promptToEdit) return;
         const updatedPrompt = { ...promptToEdit, ...updatedData };
         updatePrompt(updatedPrompt);
@@ -162,7 +165,6 @@ const CommunityPage: React.FC = () => {
                         <PromptCard 
                             key={prompt.id} 
                             prompt={prompt} 
-                            onVote={voteOnPrompt} 
                             onClick={handlePromptClick}
                             onEdit={handleEditClick}
                             onDelete={handleDeleteClick}

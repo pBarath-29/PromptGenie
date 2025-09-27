@@ -8,7 +8,7 @@ import { ChevronDown } from 'lucide-react';
 interface EditPromptModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: Omit<Prompt, 'author' | 'upvotes' | 'downvotes' | 'createdAt'>) => void;
+  onSubmit: (data: Omit<Prompt, 'author' | 'averageRating' | 'ratingsCount' | 'comments' | 'createdAt'>) => void;
   prompt: Prompt | null;
 }
 
@@ -19,6 +19,7 @@ const EditPromptModal: React.FC<EditPromptModalProps> = ({ isOpen, onClose, onSu
   const [category, setCategory] = useState<Category>('Education');
   const [model, setModel] = useState<AIModel>('Gemini');
   const [tags, setTags] = useState('');
+  const [isPublic, setIsPublic] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -29,6 +30,7 @@ const EditPromptModal: React.FC<EditPromptModalProps> = ({ isOpen, onClose, onSu
       setCategory(prompt.category);
       setModel(prompt.model);
       setTags(prompt.tags.join(', '));
+      setIsPublic(prompt.isPublic);
     }
   }, [prompt]);
 
@@ -49,6 +51,7 @@ const EditPromptModal: React.FC<EditPromptModalProps> = ({ isOpen, onClose, onSu
       category,
       model,
       tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
+      isPublic,
     });
   };
 

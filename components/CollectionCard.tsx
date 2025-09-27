@@ -3,15 +3,16 @@ import { Collection } from '../types';
 import { ShoppingCart, Zap, Eye } from 'lucide-react';
 import Button from './Button';
 import { useAuth } from '../contexts/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const CollectionCard: React.FC<{ collection: Collection }> = ({ collection }) => {
-  const { user, purchaseCollection, login } = useAuth();
+  const { user, purchaseCollection } = useAuth();
+  const navigate = useNavigate();
   const isOwned = user?.purchasedCollections?.includes(collection.id);
 
   const handlePurchase = () => {
     if (!user) {
-      login();
+      navigate('/login');
       return;
     }
     purchaseCollection(collection.id);

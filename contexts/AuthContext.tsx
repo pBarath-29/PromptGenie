@@ -4,7 +4,8 @@ import { MOCK_USERS } from '../constants';
 
 interface AuthContextType {
   user: User | null;
-  login: () => void;
+  login: (email: string, password?: string) => Promise<void>;
+  signup: (name: string, email: string, password?: string) => Promise<void>;
   logout: () => void;
   updateUserProfile: (data: { bio?: string; avatar?: string }) => void;
   purchaseCollection: (collectionId: string) => void;
@@ -29,6 +30,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   });
 
+  // This is a mock user store for demonstration. In a real app, this would be your user database.
+  const [users, setUsers] = useState<User[]>(MOCK_USERS);
+
   useEffect(() => {
     if (user) {
       localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
@@ -37,9 +41,45 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, [user]);
 
-  const login = () => {
-    // In a real app, this would involve an API call
-    setUser(MOCK_USERS[0]);
+  const login = (email: string, password?: string): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => { // Simulate API latency
+        const foundUser = users.find(u => u.name.toLowerCase().replace(' ', '') + '@example.com' === email.toLowerCase());
+        if (foundUser) {
+          setUser(foundUser);
+          resolve();
+        } else {
+          reject(new Error('Invalid email or password. Try alexdoe@example.com'));
+        }
+      }, 500);
+    });
+  };
+
+  const signup = (name: string, email: string, password?: string): Promise<void> => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => { // Simulate API latency
+            const existingUser = users.find(u => u.name.toLowerCase().replace(' ', '') + '@example.com' === email.toLowerCase());
+            if(existingUser) {
+                reject(new Error('An account with this email already exists.'));
+                return;
+            }
+
+            const newUser: User = {
+                id: `u${Date.now()}`,
+                name,
+                avatar: `https://i.pravatar.cc/150?u=${`u${Date.now()}`}`,
+                bio: '',
+                badges: ['New Member'],
+                submittedPrompts: [],
+                purchasedCollections: [],
+                savedPrompts: [],
+                createdCollections: []
+            };
+            setUsers(prev => [...prev, newUser]);
+            setUser(newUser);
+            resolve();
+        }, 500)
+    });
   };
 
   const logout = () => {
@@ -110,7 +150,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, addCreatedCollection }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, addCreatedCollection }}>
       {children}
     </AuthContext.Provider>
   );

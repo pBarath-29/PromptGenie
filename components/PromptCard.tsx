@@ -1,19 +1,20 @@
 import React from 'react';
 import { Prompt } from '../types';
-import { ThumbsUp, ThumbsDown, Copy, Bookmark, Edit, Trash2, Globe, Star } from 'lucide-react';
+import { Copy, Bookmark, Edit, Trash2, Star, MessageSquare } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import Button from './Button';
+import StarRating from './StarRating';
+import { useNavigate } from 'react-router-dom';
 
 interface PromptCardProps {
   prompt: Prompt;
-  onVote: (id: string, type: 'up' | 'down') => void;
   onClick: (prompt: Prompt) => void;
   onEdit: (prompt: Prompt) => void;
   onDelete: (promptId: string) => void;
 }
 
-const PromptCard: React.FC<PromptCardProps> = ({ prompt, onVote, onClick, onEdit, onDelete }) => {
-  const { user, login, toggleSavePrompt } = useAuth();
+const PromptCard: React.FC<PromptCardProps> = ({ prompt, onClick, onEdit, onDelete }) => {
+  const { user, toggleSavePrompt } = useAuth();
+  const navigate = useNavigate();
   const isSaved = user?.savedPrompts?.includes(prompt.id);
   const isAuthor = user?.id === prompt.author.id;
 
@@ -25,7 +26,7 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, onVote, onClick, onEdit
   const handleSave = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!user) {
-      login();
+      navigate('/login');
     } else {
       toggleSavePrompt(prompt.id);
     }
@@ -81,15 +82,13 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, onVote, onClick, onEdit
         </div>
       </div>
       <div className="bg-gray-50 dark:bg-gray-700/50 px-6 py-3 flex justify-between items-center">
-        <div className="flex items-center space-x-4">
-          <button onClick={(e) => { e.stopPropagation(); onVote(prompt.id, 'up'); }} className="flex items-center space-x-1 text-gray-500 hover:text-green-500 transition-colors" disabled={!prompt.isPublic}>
-            <ThumbsUp size={16} />
-            <span>{prompt.upvotes}</span>
-          </button>
-          <button onClick={(e) => { e.stopPropagation(); onVote(prompt.id, 'down'); }} className="flex items-center space-x-1 text-gray-500 hover:text-red-500 transition-colors" disabled={!prompt.isPublic}>
-            <ThumbsDown size={16} />
-            <span>{prompt.downvotes}</span>
-          </button>
+        <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+          <StarRating rating={prompt.averageRating} />
+          <span className="text-xs">({prompt.ratingsCount})</span>
+          <div className="flex items-center space-x-1">
+              <MessageSquare size={16} />
+              <span>{prompt.comments.length}</span>
+          </div>
         </div>
         <div className="flex items-center space-x-2">
           {isAuthor && (

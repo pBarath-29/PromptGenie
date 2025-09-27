@@ -15,7 +15,7 @@ import ConfirmationModal from '../components/ConfirmationModal';
 
 const ProfilePage: React.FC = () => {
   const { user, updateUserProfile, removeSubmittedPrompt } = useAuth();
-  const { prompts, voteOnPrompt, updatePrompt, deletePrompt } = usePrompts();
+  const { prompts, updatePrompt, deletePrompt } = usePrompts();
   const { collections } = useCollections();
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -48,7 +48,7 @@ const ProfilePage: React.FC = () => {
   const handleEditClick = (prompt: Prompt) => setPromptToEdit(prompt);
   const handleDeleteClick = (promptId: string) => setPromptToDelete(promptId);
 
-  const handlePromptUpdate = (updatedData: Omit<Prompt, 'author' | 'upvotes' | 'downvotes' | 'createdAt'>) => {
+  const handlePromptUpdate = (updatedData: Omit<Prompt, 'author' | 'averageRating' | 'ratingsCount' | 'comments' | 'createdAt'>) => {
     if (!promptToEdit) return;
     const updatedPrompt = { ...promptToEdit, ...updatedData };
     updatePrompt(updatedPrompt);
@@ -97,7 +97,6 @@ const ProfilePage: React.FC = () => {
               <PromptCard 
                 key={prompt.id} 
                 prompt={prompt} 
-                onVote={voteOnPrompt} 
                 onClick={handlePromptClick}
                 onEdit={handleEditClick}
                 onDelete={handleDeleteClick}
@@ -122,7 +121,6 @@ const ProfilePage: React.FC = () => {
                <PromptCard 
                 key={prompt.id} 
                 prompt={prompt} 
-                onVote={voteOnPrompt} 
                 onClick={handlePromptClick}
                 onEdit={handleEditClick}
                 onDelete={handleDeleteClick}

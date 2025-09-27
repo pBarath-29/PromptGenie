@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { Sun, Moon, LogIn, User as UserIcon, Zap } from 'lucide-react';
@@ -8,8 +8,9 @@ import ConfirmationModal from './ConfirmationModal';
 
 const Header: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
-  const { user, login, logout } = useAuth();
+  const { user, logout } = useAuth();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -17,6 +18,10 @@ const Header: React.FC = () => {
         ? 'bg-primary-500 text-white'
         : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
     }`;
+    
+  const handleLoginClick = () => {
+    navigate('/login');
+  }
 
   return (
     <>
@@ -54,7 +59,7 @@ const Header: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <Button onClick={login} icon={<LogIn size={16}/>}>
+                <Button onClick={handleLoginClick} icon={<LogIn size={16}/>}>
                   Login
                 </Button>
               )}

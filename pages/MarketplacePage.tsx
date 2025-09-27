@@ -7,14 +7,17 @@ import { usePrompts } from '../contexts/PromptContext';
 import SubmitCollectionModal from '../components/SubmitCollectionModal';
 import { Collection, Prompt } from '../types';
 import Button from '../components/Button';
+import { useNavigate } from 'react-router-dom';
 
-type NewPromptData = Omit<Prompt, 'id' | 'author' | 'upvotes' | 'downvotes' | 'createdAt' | 'isPublic'>;
+// FIX: Removed non-existent properties 'upvotes' and 'downvotes' from Omit and replaced with correct properties 'averageRating', 'ratingsCount', and 'comments'.
+type NewPromptData = Omit<Prompt, 'id' | 'author' | 'averageRating' | 'ratingsCount' | 'comments' | 'createdAt' | 'isPublic'>;
 type NewCollectionData = Omit<Collection, 'id' | 'creator' | 'promptCount' | 'promptIds'>;
 
 const MarketplacePage: React.FC = () => {
     const { collections, addCollection } = useCollections();
     const { addPrompt } = usePrompts();
-    const { user, login, addCreatedCollection, addSubmittedPrompt } = useAuth();
+    const { user, addCreatedCollection, addSubmittedPrompt } = useAuth();
+    const navigate = useNavigate();
     
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState<'prompts-desc' | 'price-asc' | 'price-desc'>('prompts-desc');
@@ -45,7 +48,7 @@ const MarketplacePage: React.FC = () => {
 
     const handleOpenSubmitModal = () => {
         if (!user) {
-            login();
+            navigate('/login');
         } else {
             setIsSubmitModalOpen(true);
         }
@@ -60,8 +63,10 @@ const MarketplacePage: React.FC = () => {
                 ...promptData,
                 id: `p${Date.now()}-${index}`,
                 author: user,
-                upvotes: 0,
-                downvotes: 0,
+                // FIX: Replaced non-existent properties 'upvotes' and 'downvotes' with 'averageRating', 'ratingsCount', and 'comments' to match the Prompt type definition.
+                averageRating: 0,
+                ratingsCount: 0,
+                comments: [],
                 createdAt: new Date().toISOString(),
                 isPublic: false, // Mark as exclusive to the collection
             };

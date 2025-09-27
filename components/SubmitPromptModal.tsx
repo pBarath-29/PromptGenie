@@ -2,21 +2,13 @@ import React, { useState } from 'react';
 import Modal from './Modal';
 import Button from './Button';
 import { AI_MODELS, CATEGORIES } from '../constants';
-import { AIModel, Category } from '../types';
+import { AIModel, Category, Prompt } from '../types';
 import { ChevronDown } from 'lucide-react';
 
 interface SubmitPromptModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: {
-    title: string;
-    prompt: string;
-    description: string;
-    category: Category;
-    model: AIModel;
-    tags: string[];
-    isPublic: boolean;
-  }) => void;
+  onSubmit: (data: Omit<Prompt, 'id' | 'author' | 'averageRating' | 'ratingsCount' | 'comments' | 'createdAt'>) => void;
 }
 
 const SubmitPromptModal: React.FC<SubmitPromptModalProps> = ({ isOpen, onClose, onSubmit }) => {

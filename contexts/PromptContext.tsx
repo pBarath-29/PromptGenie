@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Prompt } from '../types';
+import { Prompt, Comment, User } from '../types';
 import { MOCK_PROMPTS } from '../constants';
 
 interface PromptContextType {
@@ -7,7 +7,8 @@ interface PromptContextType {
   addPrompt: (prompt: Prompt) => void;
   updatePrompt: (updatedPrompt: Prompt) => void;
   deletePrompt: (promptId: string) => void;
-  voteOnPrompt: (id: string, type: 'up' | 'down') => void;
+  addRating: (promptId: string, rating: number) => void;
+  addComment: (promptId: string, comment: { author: User; text: string }) => void;
 }
 
 const PromptContext = createContext<PromptContextType | undefined>(undefined);
@@ -29,14 +30,17 @@ export const PromptProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setPrompts(prevPrompts => prevPrompts.filter(p => p.id !== promptId));
   };
 
-  const voteOnPrompt = (id: string, type: 'up' | 'down') => {
+  const addRating = (promptId: string, rating: number) => {
     setPrompts(prevPrompts =>
       prevPrompts.map(p => {
-        if (p.id === id) {
+        if (p.id === promptId) {
+          const totalRating = p.averageRating * p.ratingsCount;
+          const newRatingsCount = p.ratingsCount + 1;
+          const newAverageRating = (totalRating + rating) / newRatingsCount;
           return {
             ...p,
-            upvotes: type === 'up' ? p.upvotes + 1 : p.upvotes,
-            downvotes: type === 'down' ? p.downvotes + 1 : p.downvotes,
+            ratingsCount: newRatingsCount,
+            averageRating: newAverageRating,
           };
         }
         return p;
@@ -44,8 +48,23 @@ export const PromptProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     );
   };
 
+  const addComment = (promptId: string, comment: { author: User; text: string }) => {
+    const newComment: Comment = {
+      ...comment,
+      id: `c${Date.now()}`,
+      createdAt: new Date().toISOString(),
+    };
+    setPrompts(prevPrompts =>
+      prevPrompts.map(p =>
+        p.id === promptId
+          ? { ...p, comments: [newComment, ...p.comments] }
+          : p
+      )
+    );
+  };
+
   return (
-    <PromptContext.Provider value={{ prompts, addPrompt, updatePrompt, deletePrompt, voteOnPrompt }}>
+    <PromptContext.Provider value={{ prompts, addPrompt, updatePrompt, deletePrompt, addRating, addComment }}>
       {children}
     </PromptContext.Provider>
   );
