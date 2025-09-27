@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
-import { Sun, Moon, LogIn, Zap, Menu, X } from 'lucide-react';
-import Button from './Button';
+import { Sun, Moon, Zap, Menu, X } from 'lucide-react';
 import ConfirmationModal from './ConfirmationModal';
 
 const Header: React.FC = () => {
@@ -11,7 +10,6 @@ const Header: React.FC = () => {
   const { user, logout } = useAuth();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const navigate = useNavigate();
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -27,11 +25,6 @@ const Header: React.FC = () => {
         : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
     }`;
     
-  const handleLoginClick = () => {
-    setIsMobileMenuOpen(false);
-    navigate('/login');
-  }
-
   const handleLogoutClick = () => {
     setIsMobileMenuOpen(false);
     setIsLogoutModalOpen(true);
@@ -76,9 +69,7 @@ const Header: React.FC = () => {
                     </div>
                   </div>
                 ) : (
-                  <Button onClick={handleLoginClick} icon={<LogIn size={16}/>}>
-                    Login
-                  </Button>
+                  null
                 )}
               </div>
               <div className="md:hidden">
@@ -123,11 +114,7 @@ const Header: React.FC = () => {
                   </button>
                 </div>
               ) : (
-                <div className="px-2">
-                  <Button onClick={handleLoginClick} icon={<LogIn size={16}/>} className="w-full">
-                    Login
-                  </Button>
-                </div>
+                null
               )}
             </div>
           </div>
