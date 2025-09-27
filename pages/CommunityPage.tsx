@@ -8,21 +8,17 @@ import { ChevronDown, Search, PlusCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import Button from '../components/Button';
 import SubmitPromptModal from '../components/SubmitPromptModal';
-import EditPromptModal from '../components/EditPromptModal';
-import ConfirmationModal from '../components/ConfirmationModal';
 import { useNavigate } from 'react-router-dom';
 
 
 const CommunityPage: React.FC = () => {
-    const { prompts, addPrompt, updatePrompt, deletePrompt } = usePrompts();
-    const { user, addSubmittedPrompt, removeSubmittedPrompt } = useAuth();
+    const { prompts, addPrompt } = usePrompts();
+    const { user, addSubmittedPrompt } = useAuth();
     const navigate = useNavigate();
     
     const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
-    const [promptToEdit, setPromptToEdit] = useState<Prompt | null>(null);
-    const [promptToDelete, setPromptToDelete] = useState<string | null>(null);
-
+    
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all');
     const [selectedModel, setSelectedModel] = useState<AIModel | 'all'>('all');
@@ -53,9 +49,7 @@ const CommunityPage: React.FC = () => {
 
     const handlePromptClick = (prompt: Prompt) => setSelectedPrompt(prompt);
     const handleCloseDetailModal = () => setSelectedPrompt(null);
-    const handleEditClick = (prompt: Prompt) => setPromptToEdit(prompt);
-    const handleDeleteClick = (promptId: string) => setPromptToDelete(promptId);
-
+    
     const handleOpenSubmitModal = () => {
         if (!user) {
             navigate('/login');
@@ -78,20 +72,6 @@ const CommunityPage: React.FC = () => {
         addPrompt(newPrompt);
         addSubmittedPrompt(newPrompt.id);
         setIsSubmitModalOpen(false);
-    };
-
-    const handlePromptUpdate = (updatedData: Omit<Prompt, 'author' | 'averageRating' | 'ratingsCount' | 'comments' | 'createdAt'>) => {
-        if (!promptToEdit) return;
-        const updatedPrompt = { ...promptToEdit, ...updatedData };
-        updatePrompt(updatedPrompt);
-        setPromptToEdit(null);
-    };
-
-    const handleConfirmDelete = () => {
-        if (!promptToDelete) return;
-        deletePrompt(promptToDelete);
-        removeSubmittedPrompt(promptToDelete);
-        setPromptToDelete(null);
     };
 
     return (
@@ -166,8 +146,6 @@ const CommunityPage: React.FC = () => {
                             key={prompt.id} 
                             prompt={prompt} 
                             onClick={handlePromptClick}
-                            onEdit={handleEditClick}
-                            onDelete={handleDeleteClick}
                         />
                     ))}
                 </div>
@@ -188,23 +166,6 @@ const CommunityPage: React.FC = () => {
                 isOpen={isSubmitModalOpen}
                 onClose={() => setIsSubmitModalOpen(false)}
                 onSubmit={handlePromptSubmit}
-            />
-            
-            <EditPromptModal
-                isOpen={!!promptToEdit}
-                onClose={() => setPromptToEdit(null)}
-                onSubmit={handlePromptUpdate}
-                prompt={promptToEdit}
-            />
-
-            <ConfirmationModal
-                isOpen={!!promptToDelete}
-                onClose={() => setPromptToDelete(null)}
-                onConfirm={handleConfirmDelete}
-                title="Delete Prompt"
-                message="Are you sure you want to delete this prompt? This action cannot be undone."
-                confirmButtonText="Delete"
-                confirmButtonVariant="danger"
             />
         </div>
     );

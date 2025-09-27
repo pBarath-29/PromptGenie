@@ -5,6 +5,9 @@ import { AIModel, Category } from '../types';
 import Button from '../components/Button';
 import useSpeechRecognition from '../hooks/useSpeechRecognition';
 import { generateOptimizedPrompt } from '../services/geminiService';
+import { useHistory } from '../contexts/HistoryContext';
+import { useAuth } from '../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 
 const HomePage: React.FC = () => {
     const [request, setRequest] = useState('');
@@ -13,6 +16,8 @@ const HomePage: React.FC = () => {
     const [generatedPrompt, setGeneratedPrompt] = useState<{ title: string; prompt: string; tags: string[] } | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { addToHistory } = useHistory();
+    const { user } = useAuth();
 
     const {
         isListening,
@@ -22,6 +27,10 @@ const HomePage: React.FC = () => {
     } = useSpeechRecognition({ onResult: setRequest });
 
     const handleGenerate = async () => {
+        if (!user) {
+            setError("Please log in to generate prompts.");
+            return;
+        }
         if (!request.trim()) {
             setError('Please describe what kind of prompt you want.');
             return;
@@ -32,8 +41,9 @@ const HomePage: React.FC = () => {
         try {
             const result = await generateOptimizedPrompt(request, model, category);
             setGeneratedPrompt(result);
+            addToHistory(result);
         } catch (err) {
-            setError('Failed to generate prompt. Please check your API key and try again.');
+            setError((err as Error).message);
             console.error(err);
         } finally {
             setIsLoading(false);
@@ -58,35 +68,38 @@ const HomePage: React.FC = () => {
             </section>
 
             <div className="max-w-4xl mx-auto p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl space-y-6">
-                <div>
+                <div className={`${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     <label htmlFor="request" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Describe your goal</label>
                     <div className="relative">
                         <textarea
                             id="request"
                             rows={4}
-                            className="w-full p-4 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700"
+                            className="w-full p-4 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700 disabled:bg-gray-200 dark:disabled:bg-gray-700/50"
                             placeholder="e.g., 'A marketing campaign slogan for a new coffee brand'"
                             value={request}
                             onChange={(e) => setRequest(e.target.value)}
+                            disabled={!user}
                         />
                         <button 
                             onClick={isListening ? stopListening : startListening}
                             className={`absolute top-3 right-3 p-2 rounded-full transition-colors ${isListening ? 'bg-red-500 text-white animate-pulse' : 'hover:bg-gray-200 dark:hover:bg-gray-600'}`}
                             title={isListening ? 'Stop recording' : 'Start recording'}
+                            disabled={!user}
                         >
                             <Mic size={20} />
                         </button>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     <div className="relative">
                         <label htmlFor="model" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">AI Model</label>
                         <select
                             id="model"
-                            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700"
+                            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700 disabled:bg-gray-200 dark:disabled:bg-gray-700/50"
                             value={model}
                             onChange={(e) => setModel(e.target.value as AIModel)}
+                            disabled={!user}
                         >
                             {AI_MODELS.map(m => <option key={m} value={m}>{m}</option>)}
                         </select>
@@ -96,9 +109,10 @@ const HomePage: React.FC = () => {
                         <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
                         <select
                             id="category"
-                            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700"
+                            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700 disabled:bg-gray-200 dark:disabled:bg-gray-700/50"
                             value={category}
                             onChange={(e) => setCategory(e.target.value as Category)}
+                            disabled={!user}
                         >
                             {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                         </select>
@@ -106,9 +120,21 @@ const HomePage: React.FC = () => {
                     </div>
                 </div>
 
-                <Button onClick={handleGenerate} isLoading={isLoading} className="w-full !py-3 !text-base" icon={<Zap size={20}/>}>
-                    Generate Prompt
+                <Button 
+                    onClick={handleGenerate} 
+                    isLoading={isLoading} 
+                    className="w-full !py-3 !text-base" 
+                    icon={<Zap size={20}/>}
+                    disabled={!user || isLoading}
+                >
+                    {user ? 'Generate Prompt' : 'Login to Generate Prompts'}
                 </Button>
+
+                 {!user && (
+                    <p className="text-center text-sm text-yellow-600 dark:text-yellow-400 mt-2 p-3 bg-yellow-100/50 dark:bg-yellow-900/30 rounded-lg">
+                        Please <Link to="/login" className="font-bold underline hover:text-yellow-500">log in</Link> or <Link to="/signup" className="font-bold underline hover:text-yellow-500">sign up</Link> to generate prompts.
+                    </p>
+                )}
             </div>
 
             {error && <div className="text-center text-red-500">{error}</div>}

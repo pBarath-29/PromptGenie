@@ -2,21 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePrompts } from '../contexts/PromptContext';
 import { useCollections } from '../contexts/CollectionContext';
-import { Award, Edit, BookOpen, ShoppingBag, Bookmark } from 'lucide-react';
+import { useHistory } from '../contexts/HistoryContext';
+import { Award, Edit, BookOpen, ShoppingBag, Bookmark, Package, History } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Modal from '../components/Modal';
 import Button from '../components/Button';
 import PromptCard from '../components/PromptCard';
-import { Prompt } from '../types';
+import { Prompt, HistoryItem } from '../types';
 import PromptDetailModal from '../components/PromptDetailModal';
 import CollectionCard from '../components/CollectionCard';
 import EditPromptModal from '../components/EditPromptModal';
 import ConfirmationModal from '../components/ConfirmationModal';
+import HistoryDetailModal from '../components/HistoryDetailModal';
 
 const ProfilePage: React.FC = () => {
   const { user, updateUserProfile, removeSubmittedPrompt } = useAuth();
   const { prompts, updatePrompt, deletePrompt } = usePrompts();
   const { collections } = useCollections();
+  const { history } = useHistory();
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [bio, setBio] = useState('');
@@ -24,6 +27,7 @@ const ProfilePage: React.FC = () => {
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
   const [promptToEdit, setPromptToEdit] = useState<Prompt | null>(null);
   const [promptToDelete, setPromptToDelete] = useState<string | null>(null);
+  const [selectedHistoryItem, setSelectedHistoryItem] = useState<HistoryItem | null>(null);
 
 
   useEffect(() => {
@@ -63,7 +67,8 @@ const ProfilePage: React.FC = () => {
   };
   
   const userPrompts = prompts.filter(p => user.submittedPrompts?.includes(p.id));
-  const userCollections = collections.filter(c => user.purchasedCollections?.includes(c.id));
+  const userCreatedCollections = collections.filter(c => user.createdCollections?.includes(c.id));
+  const userPurchasedCollections = collections.filter(c => user.purchasedCollections?.includes(c.id));
   const savedPrompts = prompts.filter(p => user.savedPrompts?.includes(p.id));
 
   return (
@@ -88,6 +93,36 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <section>
+        <h2 className="text-2xl font-bold mb-4 flex items-center"><History className="mr-3 text-primary-500"/> My Generation History</h2>
+        {history.length > 0 ? (
+          <div className="space-y-3">
+            {history.map(item => (
+              <div 
+                key={item.id} 
+                onClick={() => setSelectedHistoryItem(item)} 
+                className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-gray-200 dark:border-gray-700"
+              >
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="font-semibold text-gray-800 dark:text-gray-100">{item.title}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{item.tags.join(', ')}</p>
+                  </div>
+                  <span className="text-sm text-gray-500 dark:text-gray-400 flex-shrink-0 ml-4">{new Date(item.createdAt).toLocaleDateString()}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 px-4 border-2 border-dashed rounded-lg">
+            <p className="text-gray-500 dark:text-gray-400">You haven't generated any prompts yet.</p>
+            <Link to="/">
+                <Button className="mt-4">Generate Your First Prompt</Button>
+            </Link>
+          </div>
+        )}
+      </section>
       
       <section>
         <h2 className="text-2xl font-bold mb-4 flex items-center"><BookOpen className="mr-3 text-primary-500"/> My Submitted Prompts</h2>
@@ -114,6 +149,24 @@ const ProfilePage: React.FC = () => {
       </section>
 
       <section>
+        <h2 className="text-2xl font-bold mb-4 flex items-center"><Package className="mr-3 text-primary-500"/> My Created Collections</h2>
+        {userCreatedCollections.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {userCreatedCollections.map(collection => (
+              <CollectionCard key={collection.id} collection={collection} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 px-4 border-2 border-dashed rounded-lg">
+            <p className="text-gray-500 dark:text-gray-400">You haven't created any collections yet.</p>
+             <Link to="/marketplace">
+                <Button className="mt-4">Create Your First Collection</Button>
+            </Link>
+          </div>
+        )}
+      </section>
+
+      <section>
         <h2 className="text-2xl font-bold mb-4 flex items-center"><Bookmark className="mr-3 text-primary-500"/> My Saved Prompts</h2>
         {savedPrompts.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -122,8 +175,6 @@ const ProfilePage: React.FC = () => {
                 key={prompt.id} 
                 prompt={prompt} 
                 onClick={handlePromptClick}
-                onEdit={handleEditClick}
-                onDelete={handleDeleteClick}
               />
             ))}
           </div>
@@ -139,9 +190,9 @@ const ProfilePage: React.FC = () => {
 
       <section>
         <h2 className="text-2xl font-bold mb-4 flex items-center"><ShoppingBag className="mr-3 text-primary-500"/> My Purchased Collections</h2>
-        {userCollections.length > 0 ? (
+        {userPurchasedCollections.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {userCollections.map(collection => (
+            {userPurchasedCollections.map(collection => (
               <CollectionCard key={collection.id} collection={collection} />
             ))}
           </div>
@@ -205,6 +256,12 @@ const ProfilePage: React.FC = () => {
           message="Are you sure you want to delete this prompt? This action cannot be undone."
           confirmButtonText="Delete"
           confirmButtonVariant="danger"
+      />
+
+      <HistoryDetailModal
+        isOpen={!!selectedHistoryItem}
+        onClose={() => setSelectedHistoryItem(null)}
+        item={selectedHistoryItem}
       />
     </div>
   );

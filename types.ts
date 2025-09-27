@@ -44,5 +44,13 @@ export interface Collection {
   promptIds: string[];
 }
 
+export interface HistoryItem {
+  id: string;
+  title: string;
+  prompt: string;
+  tags: string[];
+  createdAt: string;
+}
+
 export type AIModel = 'ChatGPT' | 'Claude' | 'Gemini' | 'MidJourney' | 'DALL-E';
 export type Category = 'Education' | 'Coding' | 'Business' | 'Art' | 'Marketing' | 'Fun';

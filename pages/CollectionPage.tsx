@@ -69,7 +69,7 @@ const CollectionPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {collectionPrompts.map(prompt => (
                     // FIX: Removed the `onVote` prop as it is not a valid prop for PromptCard.
-                    <PromptCard key={prompt.id} prompt={prompt} onClick={handlePromptClick} onEdit={() => {}} onDelete={() => {}}/>
+                    <PromptCard key={prompt.id} prompt={prompt} onClick={handlePromptClick} />
                 ))}
             </div>
             

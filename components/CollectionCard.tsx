@@ -9,6 +9,7 @@ const CollectionCard: React.FC<{ collection: Collection }> = ({ collection }) =>
   const { user, purchaseCollection } = useAuth();
   const navigate = useNavigate();
   const isOwned = user?.purchasedCollections?.includes(collection.id);
+  const isCreator = user?.id === collection.creator.id;
 
   const handlePurchase = () => {
     if (!user) {
@@ -38,7 +39,7 @@ const CollectionCard: React.FC<{ collection: Collection }> = ({ collection }) =>
 
         <div className="flex justify-between items-center mt-auto pt-4 border-t dark:border-gray-700">
           <span className="text-2xl font-bold text-primary-500">${collection.price}</span>
-          {isOwned ? (
+          {(isOwned || isCreator) ? (
             <Link to={`/collection/${collection.id}`}>
                 <Button icon={<Eye size={16} />}>
                     View
@@ -48,9 +49,8 @@ const CollectionCard: React.FC<{ collection: Collection }> = ({ collection }) =>
             <Button 
                 icon={<ShoppingCart size={16} />}
                 onClick={handlePurchase}
-                disabled={isOwned}
             >
-                {isOwned ? 'Owned' : 'Purchase'}
+                Purchase
             </Button>
           )}
         </div>

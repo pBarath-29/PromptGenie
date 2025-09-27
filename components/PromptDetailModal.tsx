@@ -46,7 +46,7 @@ const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, o
             setExample({ type: 'text', content: result });
           }
         } catch (err) {
-          setError('Could not generate an example. Please try again later.');
+          setError((err as Error).message);
           console.error(err);
         } finally {
           setIsLoading(false);

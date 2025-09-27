@@ -8,8 +8,8 @@ import { useNavigate } from 'react-router-dom';
 interface PromptCardProps {
   prompt: Prompt;
   onClick: (prompt: Prompt) => void;
-  onEdit: (prompt: Prompt) => void;
-  onDelete: (promptId: string) => void;
+  onEdit?: (prompt: Prompt) => void;
+  onDelete?: (promptId: string) => void;
 }
 
 const PromptCard: React.FC<PromptCardProps> = ({ prompt, onClick, onEdit, onDelete }) => {
@@ -41,12 +41,12 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, onClick, onEdit, onDele
 
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onEdit(prompt);
+    onEdit?.(prompt);
   }
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onDelete(prompt.id);
+    onDelete?.(prompt.id);
   }
 
   return (
@@ -91,7 +91,7 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, onClick, onEdit, onDele
           </div>
         </div>
         <div className="flex items-center space-x-2">
-          {isAuthor && (
+          {isAuthor && onEdit && onDelete && (
             <>
               <button onClick={handleEdit} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" title="Edit Prompt">
                 <Edit size={18} />
