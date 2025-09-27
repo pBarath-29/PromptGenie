@@ -3,7 +3,7 @@ import { Prompt } from '../types';
 import Modal from './Modal';
 import Button from './Button';
 import { Copy, Loader, Sparkles, Check, Book, Cpu, Tag as TagIcon } from 'lucide-react';
-import { generateExampleOutput } from '../services/geminiService';
+import { generateExampleOutput, generateExampleImage } from '../services/geminiService';
 
 interface PromptDetailModalProps {
   prompt: Prompt | null;
@@ -11,8 +11,13 @@ interface PromptDetailModalProps {
   onClose: () => void;
 }
 
+type ExampleOutput = {
+    type: 'text' | 'image';
+    content: string;
+}
+
 const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, onClose }) => {
-  const [example, setExample] = useState<string>('');
+  const [example, setExample] = useState<ExampleOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -22,10 +27,15 @@ const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, o
       const generateExample = async () => {
         setIsLoading(true);
         setError(null);
-        setExample('');
+        setExample(null);
         try {
-          const result = await generateExampleOutput(prompt);
-          setExample(result);
+          if (prompt.model === 'MidJourney' || prompt.model === 'DALL-E') {
+            const imageUrl = await generateExampleImage(prompt.prompt);
+            setExample({ type: 'image', content: imageUrl });
+          } else {
+            const result = await generateExampleOutput(prompt);
+            setExample({ type: 'text', content: result });
+          }
         } catch (err) {
           setError('Could not generate an example. Please try again later.');
           console.error(err);
@@ -107,8 +117,15 @@ const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, o
               </div>
             )}
             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-            {!isLoading && !error && (
-              <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap text-sm">{example}</p>
+            {!isLoading && !error && example && (
+              <>
+                {example.type === 'text' && (
+                  <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap text-sm">{example.content}</p>
+                )}
+                {example.type === 'image' && (
+                  <img src={example.content} alt="Generated example" className="rounded-lg max-w-full max-h-80 object-contain"/>
+                )}
+              </>
             )}
           </div>
         </div>
