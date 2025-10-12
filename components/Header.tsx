@@ -40,7 +40,7 @@ const Header: React.FC = () => {
             <div className="flex items-center space-x-8">
               <NavLink to="/" className="flex items-center space-x-2 text-xl font-bold text-primary-600 dark:text-primary-400">
                 <Zap size={24} />
-                <span>PromptGenie</span>
+                <span>Prompter</span>
               </NavLink>
               <nav className="hidden md:flex space-x-4">
                 <NavLink to="/" className={navLinkClass}>Generator</NavLink>

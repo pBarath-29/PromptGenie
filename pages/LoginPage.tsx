@@ -34,7 +34,7 @@ const LoginPage: React.FC = () => {
         <div>
            <div className="flex justify-center items-center space-x-2 text-3xl font-bold text-primary-600 dark:text-primary-400">
                 <Zap size={32} />
-                <span>PromptGenie</span>
+                <span>Prompter</span>
             </div>
           <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
             Sign in to your account

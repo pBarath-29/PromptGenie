@@ -32,13 +32,29 @@ const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, o
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Reset state on open or prompt change to avoid showing stale data
+    setExample(null);
+    setError(null);
+    setIsLoading(false);
+    
     if (isOpen && prompt) {
+      // If the prompt has a user-submitted example, use it.
+      if (prompt.exampleOutput) {
+        const isUrl = prompt.exampleOutput.startsWith('http');
+        if (isUrl) {
+            setExample({ type: 'image', content: prompt.exampleOutput });
+        } else {
+            setExample({ type: 'text', content: prompt.exampleOutput });
+        }
+        return; // Don't generate anything
+      }
+
+      // Otherwise, generate an example.
+      const isImageModel = prompt.model === 'MidJourney' || prompt.model === 'DALL-E';
       const generateExample = async () => {
         setIsLoading(true);
-        setError(null);
-        setExample(null);
         try {
-          if (prompt.model === 'MidJourney' || prompt.model === 'DALL-E') {
+          if (isImageModel) {
             const imageUrl = await generateExampleImage(prompt.prompt);
             setExample({ type: 'image', content: imageUrl });
           } else {
@@ -136,7 +152,13 @@ const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, o
             <Sparkles size={20} className="mr-2 text-primary-500"/>
             Example Output
           </h3>
-          <div className="p-4 border-2 border-dashed rounded-lg min-h-[150px] flex items-center justify-center bg-gray-50 dark:bg-gray-900/50">
+          <div className="p-4 border-2 border-dashed rounded-lg min-h-[150px] flex items-center justify-center bg-gray-50 dark:bg-gray-900/50 relative">
+            {!prompt.exampleOutput && !isLoading && example && (
+                <div className="absolute top-2 right-2 text-xs bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 px-2 py-1 rounded-full font-semibold flex items-center space-x-1">
+                    <Sparkles size={12} />
+                    <span>AI-Generated</span>
+                </div>
+            )}
             {isLoading && (
               <div className="text-center flex flex-col items-center justify-center space-y-2">
                 <Loader size={32} className="animate-spin text-primary-500" />
@@ -153,6 +175,9 @@ const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, o
                   <img src={example.content} alt="Generated example" className="rounded-lg max-w-full max-h-80 object-contain"/>
                 )}
               </>
+            )}
+             {!isLoading && !error && !example && (
+                <p className="text-sm text-gray-500 dark:text-gray-400">No example output was provided for this prompt.</p>
             )}
           </div>
         </div>

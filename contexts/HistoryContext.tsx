@@ -8,7 +8,7 @@ interface HistoryContextType {
 
 const HistoryContext = createContext<HistoryContextType | undefined>(undefined);
 
-const HISTORY_STORAGE_KEY = 'promptgenie-history';
+const HISTORY_STORAGE_KEY = 'prompter-history';
 
 export const HistoryProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [history, setHistory] = useState<HistoryItem[]>(() => {

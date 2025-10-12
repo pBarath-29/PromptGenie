@@ -34,7 +34,7 @@ export const generateOptimizedPrompt = async (
   category: Category
 ): Promise<{ title: string; prompt: string; tags: string[] }> => {
   
-  const systemInstruction = `You are PromptGenie, an expert in AI prompt engineering. A user wants a prompt for the AI model "${model}".
+  const systemInstruction = `You are Prompter, an expert in AI prompt engineering. A user wants a prompt for the AI model "${model}".
 The user's goal is: "${userInput}".
 The prompt should be in the category: "${category}".
 

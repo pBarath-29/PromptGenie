@@ -19,6 +19,7 @@ export interface Prompt {
   createdAt: string;
   model: AIModel;
   isPublic: boolean;
+  exampleOutput?: string;
 }
 
 export interface User {
