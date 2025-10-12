@@ -1,7 +1,8 @@
-import { AIModel, Category, Collection, Prompt, User } from './types';
+import { AIModel, Category, Collection, Prompt, User, Tone } from './types';
 
 export const AI_MODELS: AIModel[] = ['ChatGPT', 'Claude', 'Gemini', 'MidJourney', 'DALL-E'];
 export const CATEGORIES: Category[] = ['Education', 'Coding', 'Business', 'Art', 'Marketing', 'Fun'];
+export const TONES: Tone[] = ['Professional', 'Casual', 'Creative', 'Academic', 'Humorous'];
 
 export const MOCK_USERS: User[] = [
   { id: 'u1', name: 'Alex Doe', avatar: 'https://i.pravatar.cc/150?u=u1', bio: 'Prompt engineering enthusiast.', badges: ['Prompt Master', 'Top Creator'], submittedPrompts: ['p1', 'p3', 'p5'], purchasedCollections: ['c2'], savedPrompts: ['p2'], createdCollections: ['c1', 'c3'] },

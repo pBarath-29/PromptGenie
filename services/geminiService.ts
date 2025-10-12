@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from '@google/genai';
-import { AIModel, Category, Prompt } from '../types';
+import { Category, Prompt, Tone } from '../types';
 
 if (!process.env.API_KEY) {
   console.warn("API_KEY environment variable not set. Prompt generation will fail.");
@@ -30,15 +30,15 @@ const handleGeminiError = (error: unknown, context: string): Error => {
 
 export const generateOptimizedPrompt = async (
   userInput: string,
-  model: AIModel,
+  tone: Tone,
   category: Category
 ): Promise<{ title: string; prompt: string; tags: string[] }> => {
   
-  const systemInstruction = `You are Prompter, an expert in AI prompt engineering. A user wants a prompt for the AI model "${model}".
+  const systemInstruction = `You are Prompter, an expert in AI prompt engineering. A user wants a prompt for an AI model.
 The user's goal is: "${userInput}".
-The prompt should be in the category: "${category}".
+The prompt should have a "${tone}" tone and be in the category: "${category}".
 
-Based on this, generate a complete, structured, and optimized prompt. The prompt should be creative, detailed, and follow best practices for the specified AI model.
+Based on this, generate a complete, structured, and optimized prompt. The prompt should be creative, detailed, and follow best practices for writing high-quality prompts.
 
 Return your response as a single JSON object.`;
 

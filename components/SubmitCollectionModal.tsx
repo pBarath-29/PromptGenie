@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 import Button from './Button';
 import { Collection, Prompt, AIModel, Category } from '../types';
@@ -22,7 +22,16 @@ const NewPromptForm: React.FC<{onAddPrompt: (prompt: NewPromptData) => void}> = 
     const [category, setCategory] = useState<Category>('Education');
     const [model, setModel] = useState<AIModel>('Gemini');
     const [tags, setTags] = useState('');
+    const [exampleOutput, setExampleOutput] = useState('');
+    const [outputType, setOutputType] = useState<'text' | 'image'>('text');
     const [error, setError] = useState('');
+
+    useEffect(() => {
+        const isTraditionallyImageModel = model === 'MidJourney' || model === 'DALL-E';
+        setOutputType(isTraditionallyImageModel ? 'image' : 'text');
+        setExampleOutput('');
+    }, [model]);
+
 
     const handleAdd = () => {
         if (!title.trim() || !prompt.trim() || !description.trim()) {
@@ -31,10 +40,13 @@ const NewPromptForm: React.FC<{onAddPrompt: (prompt: NewPromptData) => void}> = 
         }
         onAddPrompt({
             title, prompt, description, category, model,
-            tags: tags.split(',').map(t => t.trim()).filter(Boolean)
+            tags: tags.split(',').map(t => t.trim()).filter(Boolean),
+            exampleOutput: exampleOutput.trim() || undefined,
         });
         // Reset form
         setTitle(''); setPrompt(''); setDescription(''); setTags(''); setError('');
+        setExampleOutput('');
+        setOutputType('text');
     };
 
     return (
@@ -43,6 +55,68 @@ const NewPromptForm: React.FC<{onAddPrompt: (prompt: NewPromptData) => void}> = 
              <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="Prompt Title" className="w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600"/>
              <textarea value={prompt} onChange={e => setPrompt(e.target.value)} placeholder="Prompt text..." rows={4} className="w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 font-mono text-sm"/>
              <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="Prompt description..." rows={2} className="w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600"/>
+             
+            <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Example Output Type (Optional)
+                </label>
+                <div className="flex items-center space-x-4">
+                    <label className="flex items-center cursor-pointer">
+                        <input
+                            type="radio"
+                            name="outputType"
+                            value="text"
+                            checked={outputType === 'text'}
+                            onChange={() => setOutputType('text')}
+                            className="focus:ring-primary-500 h-4 w-4 text-primary-600 border-gray-300"
+                        />
+                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Text</span>
+                    </label>
+                    <label className="flex items-center cursor-pointer">
+                        <input
+                            type="radio"
+                            name="outputType"
+                            value="image"
+                            checked={outputType === 'image'}
+                            onChange={() => setOutputType('image')}
+                            className="focus:ring-primary-500 h-4 w-4 text-primary-600 border-gray-300"
+                        />
+                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Image URL</span>
+                    </label>
+                </div>
+            </div>
+
+            <div>
+                <label htmlFor="exampleOutput" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {outputType === 'image' ? 'Example Output Image URL' : 'Example Output Text'}
+                </label>
+                {outputType === 'image' ? (
+                    <input
+                        id="exampleOutput"
+                        type="text"
+                        value={exampleOutput}
+                        onChange={(e) => setExampleOutput(e.target.value)}
+                        placeholder="e.g., https://example.com/image.png"
+                        className="w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600"
+                    />
+                ) : (
+                    <textarea
+                        id="exampleOutput"
+                        rows={4}
+                        value={exampleOutput}
+                        onChange={(e) => setExampleOutput(e.target.value)}
+                        placeholder="Provide an example of what this prompt might generate."
+                        className="w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600"
+                    />
+                )}
+                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {outputType === 'image'
+                        ? 'Provide a direct URL to an image that demonstrates the output.'
+                        : 'This helps others understand what to expect from your prompt.'
+                    }
+                </p>
+            </div>
+
              <div className="grid grid-cols-2 gap-2">
                 <select value={category} onChange={e => setCategory(e.target.value as Category)} className="w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600">
                     {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}

@@ -55,3 +55,4 @@ export interface HistoryItem {
 
 export type AIModel = 'ChatGPT' | 'Claude' | 'Gemini' | 'MidJourney' | 'DALL-E';
 export type Category = 'Education' | 'Coding' | 'Business' | 'Art' | 'Marketing' | 'Fun';
+export type Tone = 'Professional' | 'Casual' | 'Creative' | 'Academic' | 'Humorous';

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Zap, Mic, Copy, Loader, ChevronDown } from 'lucide-react';
-import { AI_MODELS, CATEGORIES } from '../constants';
-import { AIModel, Category } from '../types';
+import { TONES, CATEGORIES } from '../constants';
+import { Tone, Category } from '../types';
 import Button from '../components/Button';
 import useSpeechRecognition from '../hooks/useSpeechRecognition';
 import { generateOptimizedPrompt } from '../services/geminiService';
@@ -11,7 +11,7 @@ import { Link } from 'react-router-dom';
 
 const HomePage: React.FC = () => {
     const [request, setRequest] = useState('');
-    const [model, setModel] = useState<AIModel>('Gemini');
+    const [tone, setTone] = useState<Tone>('Professional');
     const [category, setCategory] = useState<Category>('Coding');
     const [generatedPrompt, setGeneratedPrompt] = useState<{ title: string; prompt: string; tags: string[] } | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -39,7 +39,7 @@ const HomePage: React.FC = () => {
         setError(null);
         setGeneratedPrompt(null);
         try {
-            const result = await generateOptimizedPrompt(request, model, category);
+            const result = await generateOptimizedPrompt(request, tone, category);
             setGeneratedPrompt(result);
             addToHistory(result);
         } catch (err) {
@@ -63,7 +63,7 @@ const HomePage: React.FC = () => {
                     Generate Smarter Prompts <span className="text-primary-500">Instantly</span>
                 </h1>
                 <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-500 dark:text-gray-400">
-                    Describe your goal, choose your AI model, and let our AI craft the perfect, optimized prompt for you.
+                    Describe your goal, choose your desired tone, and let our AI craft the perfect, optimized prompt for you.
                 </p>
             </section>
 
@@ -93,15 +93,15 @@ const HomePage: React.FC = () => {
 
                 <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     <div className="relative">
-                        <label htmlFor="model" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">AI Model</label>
+                        <label htmlFor="tone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tone</label>
                         <select
-                            id="model"
+                            id="tone"
                             className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700 disabled:bg-gray-200 dark:disabled:bg-gray-700/50"
-                            value={model}
-                            onChange={(e) => setModel(e.target.value as AIModel)}
+                            value={tone}
+                            onChange={(e) => setTone(e.target.value as Tone)}
                             disabled={!user}
                         >
-                            {AI_MODELS.map(m => <option key={m} value={m}>{m}</option>)}
+                            {TONES.map(t => <option key={t} value={t}>{t}</option>)}
                         </select>
                         <ChevronDown size={20} className="absolute right-3 top-9 text-gray-400 pointer-events-none"/>
                     </div>
