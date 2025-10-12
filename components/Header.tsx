@@ -59,8 +59,13 @@ const Header: React.FC = () => {
               <div className="hidden md:flex items-center space-x-4">
                 {user ? (
                   <div className="relative group">
-                    <button className="flex items-center space-x-2">
+                    <button className="flex items-center space-x-2 relative">
                       <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full" />
+                       {user.subscriptionTier === 'pro' && (
+                        <span className="absolute -top-1 -right-1 bg-gradient-to-br from-yellow-400 to-orange-500 text-black font-bold text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full shadow-md ring-2 ring-white dark:ring-gray-800">
+                            PRO
+                        </span>
+                      )}
                     </button>
                     <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 opacity-0 group-hover:opacity-100 transition-opacity invisible group-hover:visible">
                       <NavLink to="/profile" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Profile</NavLink>
@@ -98,7 +103,14 @@ const Header: React.FC = () => {
               {user ? (
                 <div className="px-2 space-y-1">
                   <div className="flex items-center px-3 mb-3">
-                    <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full flex-shrink-0" />
+                    <div className="relative flex-shrink-0">
+                      <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full" />
+                      {user.subscriptionTier === 'pro' && (
+                          <span className="absolute -top-1 -right-1 bg-gradient-to-br from-yellow-400 to-orange-500 text-black font-bold text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full shadow-md ring-2 ring-white dark:ring-gray-800">
+                              PRO
+                          </span>
+                      )}
+                    </div>
                     <div className="ml-3">
                       <p className="text-base font-medium text-gray-800 dark:text-white">{user.name}</p>
                       <p className="text-sm font-medium text-gray-500 dark:text-gray-400">View profile</p>

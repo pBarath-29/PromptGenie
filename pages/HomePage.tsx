@@ -8,6 +8,9 @@ import { generateOptimizedPrompt } from '../services/geminiService';
 import { useHistory } from '../contexts/HistoryContext';
 import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
+import UpgradeModal from '../components/UpgradeModal';
+import { FREE_TIER_LIMIT } from '../config';
+import AdModal from '../components/AdModal';
 
 const HomePage: React.FC = () => {
     const [request, setRequest] = useState('');
@@ -17,7 +20,12 @@ const HomePage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { addToHistory } = useHistory();
-    const { user } = useAuth();
+    const { user, getGenerationsLeft, incrementGenerationCount, upgradeToPro } = useAuth();
+    const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+    const [isAdModalOpen, setIsAdModalOpen] = useState(false);
+
+    const generationsLeft = user ? getGenerationsLeft() : 0;
+    const canGenerate = generationsLeft > 0;
 
     const {
         isListening,
@@ -26,15 +34,7 @@ const HomePage: React.FC = () => {
         stopListening,
     } = useSpeechRecognition({ onResult: setRequest });
 
-    const handleGenerate = async () => {
-        if (!user) {
-            setError("Please log in to generate prompts.");
-            return;
-        }
-        if (!request.trim()) {
-            setError('Please describe what kind of prompt you want.');
-            return;
-        }
+    const proceedWithGeneration = async () => {
         setIsLoading(true);
         setError(null);
         setGeneratedPrompt(null);
@@ -42,6 +42,7 @@ const HomePage: React.FC = () => {
             const result = await generateOptimizedPrompt(request, tone, category);
             setGeneratedPrompt(result);
             addToHistory(result);
+            incrementGenerationCount();
         } catch (err) {
             setError((err as Error).message);
             console.error(err);
@@ -49,11 +50,42 @@ const HomePage: React.FC = () => {
             setIsLoading(false);
         }
     };
+
+    const handleGenerate = async () => {
+        if (!user) {
+            setError("Please log in to generate prompts.");
+            return;
+        }
+        if (!canGenerate) {
+            setIsUpgradeModalOpen(true);
+            return;
+        }
+        if (!request.trim()) {
+            setError('Please describe what kind of prompt you want.');
+            return;
+        }
+        
+        if (user.subscriptionTier === 'free') {
+            setIsAdModalOpen(true);
+        } else {
+            proceedWithGeneration();
+        }
+    };
     
     const handleCopy = () => {
         if (generatedPrompt) {
             navigator.clipboard.writeText(generatedPrompt.prompt);
         }
+    };
+    
+    const handleUpgrade = () => {
+        upgradeToPro();
+        setIsUpgradeModalOpen(false);
+    }
+
+    const handleAdClose = () => {
+        setIsAdModalOpen(false);
+        proceedWithGeneration();
     };
 
     return (
@@ -120,6 +152,12 @@ const HomePage: React.FC = () => {
                     </div>
                 </div>
 
+                {user && user.subscriptionTier === 'free' && (
+                    <div className="text-center text-sm text-gray-500 dark:text-gray-400 p-3 bg-gray-100 dark:bg-gray-700/50 rounded-lg">
+                        You have <span className="font-bold text-primary-500">{generationsLeft}</span> of {FREE_TIER_LIMIT} free generations left this month.
+                    </div>
+                )}
+
                 <Button 
                     onClick={handleGenerate} 
                     isLoading={isLoading} 
@@ -162,6 +200,16 @@ const HomePage: React.FC = () => {
                     </div>
                 </div>
             )}
+
+            <UpgradeModal 
+                isOpen={isUpgradeModalOpen}
+                onClose={() => setIsUpgradeModalOpen(false)}
+                onUpgrade={handleUpgrade}
+            />
+            <AdModal
+                isOpen={isAdModalOpen}
+                onClose={handleAdClose}
+            />
         </div>
     );
 };

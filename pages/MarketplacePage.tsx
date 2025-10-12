@@ -8,6 +8,7 @@ import SubmitCollectionModal from '../components/SubmitCollectionModal';
 import { Collection, Prompt } from '../types';
 import Button from '../components/Button';
 import { useNavigate } from 'react-router-dom';
+import CollectionPreviewModal from '../components/CollectionPreviewModal';
 
 // FIX: Removed non-existent properties 'upvotes' and 'downvotes' from Omit and replaced with correct properties 'averageRating', 'ratingsCount', and 'comments'.
 type NewPromptData = Omit<Prompt, 'id' | 'author' | 'averageRating' | 'ratingsCount' | 'comments' | 'createdAt' | 'isPublic'>;
@@ -22,6 +23,7 @@ const MarketplacePage: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState<'prompts-desc' | 'price-asc' | 'price-desc'>('prompts-desc');
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
+    const [collectionToPreview, setCollectionToPreview] = useState<Collection | null>(null);
 
     const filteredCollections = useMemo(() => {
         return collections
@@ -88,6 +90,15 @@ const MarketplacePage: React.FC = () => {
         setIsSubmitModalOpen(false);
     };
 
+    const handlePreviewClick = (collection: Collection) => {
+        setCollectionToPreview(collection);
+    };
+    
+    const handleClosePreview = () => {
+        setCollectionToPreview(null);
+    };
+
+
     return (
         <div className="space-y-8">
             <section className="text-center">
@@ -133,7 +144,11 @@ const MarketplacePage: React.FC = () => {
             {filteredCollections.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {filteredCollections.map(collection => (
-                        <CollectionCard key={collection.id} collection={collection} />
+                        <CollectionCard 
+                          key={collection.id} 
+                          collection={collection} 
+                          onPreview={handlePreviewClick}
+                        />
                     ))}
                 </div>
             ) : (
@@ -141,6 +156,12 @@ const MarketplacePage: React.FC = () => {
                     <p className="text-gray-500 dark:text-gray-400">No collections found. Try adjusting your search.</p>
                 </div>
             )}
+
+            <CollectionPreviewModal
+                isOpen={!!collectionToPreview}
+                onClose={handleClosePreview}
+                collection={collectionToPreview}
+            />
 
             <SubmitCollectionModal
                 isOpen={isSubmitModalOpen}

@@ -32,6 +32,9 @@ export interface User {
   purchasedCollections?: string[];
   savedPrompts?: string[];
   createdCollections?: string[];
+  subscriptionTier: 'free' | 'pro';
+  promptGenerations: number;
+  lastGenerationReset: string; // Format 'YYYY-MM'
 }
 
 export interface Collection {

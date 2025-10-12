@@ -5,9 +5,46 @@ export const CATEGORIES: Category[] = ['Education', 'Coding', 'Business', 'Art',
 export const TONES: Tone[] = ['Professional', 'Casual', 'Creative', 'Academic', 'Humorous'];
 
 export const MOCK_USERS: User[] = [
-  { id: 'u1', name: 'Alex Doe', avatar: 'https://i.pravatar.cc/150?u=u1', bio: 'Prompt engineering enthusiast.', badges: ['Prompt Master', 'Top Creator'], submittedPrompts: ['p1', 'p3', 'p5'], purchasedCollections: ['c2'], savedPrompts: ['p2'], createdCollections: ['c1', 'c3'] },
-  { id: 'u2', name: 'Jane Smith', avatar: 'https://i.pravatar.cc/150?u=u2', bio: 'AI Artist and developer.', badges: ['Community Star'], submittedPrompts: ['p2', 'p4', 'p6', 'p7'], purchasedCollections: [], savedPrompts: [], createdCollections: ['c2'] },
-  { id: 'u3', name: 'Sam Wilson', avatar: 'https://i.pravatar.cc/150?u=u3', submittedPrompts: [], purchasedCollections: [], savedPrompts: [], createdCollections: [] },
+  { 
+    id: 'u1', 
+    name: 'Alex Doe', 
+    avatar: 'https://i.pravatar.cc/150?u=u1', 
+    bio: 'Prompt engineering enthusiast.', 
+    badges: ['Prompt Master', 'Top Creator'], 
+    submittedPrompts: ['p1', 'p3', 'p5'], 
+    purchasedCollections: ['c2'], 
+    savedPrompts: ['p2'], 
+    createdCollections: ['c1', 'c3'],
+    subscriptionTier: 'pro',
+    promptGenerations: 10, // Pro users have unlimited, but we can still track for analytics
+    lastGenerationReset: `${new Date().getFullYear()}-${new Date().getMonth()}`
+  },
+  { 
+    id: 'u2', 
+    name: 'Jane Smith', 
+    avatar: 'https://i.pravatar.cc/150?u=u2', 
+    bio: 'AI Artist and developer.', 
+    badges: ['Community Star'], 
+    submittedPrompts: ['p2', 'p4', 'p6', 'p7'], 
+    purchasedCollections: [], 
+    savedPrompts: [], 
+    createdCollections: ['c2'],
+    subscriptionTier: 'free',
+    promptGenerations: 2, // Used 2 out of 5
+    lastGenerationReset: `${new Date().getFullYear()}-${new Date().getMonth()}`
+  },
+  { 
+    id: 'u3', 
+    name: 'Sam Wilson', 
+    avatar: 'https://i.pravatar.cc/150?u=u3', 
+    submittedPrompts: [], 
+    purchasedCollections: [], 
+    savedPrompts: [], 
+    createdCollections: [],
+    subscriptionTier: 'free',
+    promptGenerations: 5, // Limit reached for this month
+    lastGenerationReset: `${new Date().getFullYear()}-${new Date().getMonth()}`
+  },
 ];
 
 export const MOCK_PROMPTS: Prompt[] = [

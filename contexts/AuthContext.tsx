@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { User } from '../types';
 import { MOCK_USERS } from '../constants';
+import { FREE_TIER_LIMIT } from '../config';
 
 interface AuthContextType {
   user: User | null;
@@ -13,17 +14,37 @@ interface AuthContextType {
   removeSubmittedPrompt: (promptId: string) => void;
   toggleSavePrompt: (promptId: string) => void;
   addCreatedCollection: (collectionId: string) => void;
+  incrementGenerationCount: () => void;
+  upgradeToPro: () => void;
+  getGenerationsLeft: () => number;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const USER_STORAGE_KEY = 'prompter-user';
 
+const checkAndResetGenerationCount = (currentUser: User | null): User | null => {
+    if (!currentUser || currentUser.subscriptionTier === 'pro') return currentUser;
+    
+    const now = new Date();
+    const currentMonthYear = `${now.getFullYear()}-${now.getMonth()}`;
+
+    if (currentUser.lastGenerationReset !== currentMonthYear) {
+        return {
+            ...currentUser,
+            promptGenerations: 0,
+            lastGenerationReset: currentMonthYear,
+        };
+    }
+    return currentUser;
+};
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
     try {
       const storedUser = localStorage.getItem(USER_STORAGE_KEY);
-      return storedUser ? JSON.parse(storedUser) : null;
+      const loadedUser = storedUser ? JSON.parse(storedUser) : null;
+      return checkAndResetGenerationCount(loadedUser);
     } catch (error) {
       console.error("Failed to parse user from localStorage", error);
       return null;
@@ -46,7 +67,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setTimeout(() => { // Simulate API latency
         const foundUser = users.find(u => u.name.toLowerCase().replace(' ', '') + '@example.com' === email.toLowerCase());
         if (foundUser) {
-          setUser(foundUser);
+          setUser(checkAndResetGenerationCount(foundUser));
           resolve();
         } else {
           reject(new Error('Invalid email or password. Try alexdoe@example.com'));
@@ -73,7 +94,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 submittedPrompts: [],
                 purchasedCollections: [],
                 savedPrompts: [],
-                createdCollections: []
+                createdCollections: [],
+                subscriptionTier: 'free',
+                promptGenerations: 0,
+                lastGenerationReset: `${new Date().getFullYear()}-${new Date().getMonth()}`
             };
             setUsers(prev => [...prev, newUser]);
             setUser(newUser);
@@ -149,8 +173,48 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const getGenerationsLeft = (): number => {
+    if (!user || user.subscriptionTier === 'pro') return Infinity;
+
+    const now = new Date();
+    const currentMonthYear = `${now.getFullYear()}-${now.getMonth()}`;
+    const generations = user.lastGenerationReset === currentMonthYear ? user.promptGenerations : 0;
+    
+    return FREE_TIER_LIMIT - generations;
+  }
+
+  const incrementGenerationCount = () => {
+    if (user && user.subscriptionTier === 'free') {
+      const now = new Date();
+      const currentMonthYear = `${now.getFullYear()}-${now.getMonth()}`;
+
+      let currentGenerations = user.promptGenerations;
+      let lastReset = user.lastGenerationReset;
+
+      if (lastReset !== currentMonthYear) {
+        currentGenerations = 0;
+        lastReset = currentMonthYear;
+      }
+      
+      setUser({
+        ...user,
+        promptGenerations: currentGenerations + 1,
+        lastGenerationReset: lastReset,
+      });
+    }
+  };
+
+  const upgradeToPro = () => {
+    if (user) {
+      setUser(prevUser => prevUser ? {
+        ...prevUser,
+        subscriptionTier: 'pro'
+      } : null);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, addCreatedCollection }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro }}>
       {children}
     </AuthContext.Provider>
   );

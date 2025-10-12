@@ -5,18 +5,24 @@ import Button from './Button';
 import { useAuth } from '../contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 
-const CollectionCard: React.FC<{ collection: Collection }> = ({ collection }) => {
+const CollectionCard: React.FC<{ collection: Collection; onPreview?: (collection: Collection) => void }> = ({ collection, onPreview }) => {
   const { user, purchaseCollection } = useAuth();
   const navigate = useNavigate();
   const isOwned = user?.purchasedCollections?.includes(collection.id);
   const isCreator = user?.id === collection.creator.id;
 
-  const handlePurchase = () => {
+  const handlePurchase = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (!user) {
       navigate('/login');
       return;
     }
     purchaseCollection(collection.id);
+  }
+
+  const handlePreviewClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onPreview?.(collection);
   }
 
   return (
@@ -38,7 +44,7 @@ const CollectionCard: React.FC<{ collection: Collection }> = ({ collection }) =>
         </div>
 
         <div className="flex justify-between items-center mt-auto pt-4 border-t dark:border-gray-700">
-          <span className="text-2xl font-bold text-primary-500">${collection.price}</span>
+          <span className="text-2xl font-bold text-primary-500">${collection.price.toFixed(2)}</span>
           {(isOwned || isCreator) ? (
             <Link to={`/collection/${collection.id}`}>
                 <Button icon={<Eye size={16} />}>
@@ -46,12 +52,19 @@ const CollectionCard: React.FC<{ collection: Collection }> = ({ collection }) =>
                 </Button>
             </Link>
           ) : (
-            <Button 
-                icon={<ShoppingCart size={16} />}
-                onClick={handlePurchase}
-            >
-                Purchase
-            </Button>
+            <div className="flex items-center space-x-2">
+                {onPreview && (
+                    <Button variant="secondary" icon={<Eye size={16} />} onClick={handlePreviewClick}>
+                        Preview
+                    </Button>
+                )}
+                <Button 
+                    icon={<ShoppingCart size={16} />}
+                    onClick={handlePurchase}
+                >
+                    Purchase
+                </Button>
+            </div>
           )}
         </div>
       </div>
