@@ -10,9 +10,8 @@ import Button from '../components/Button';
 import { useNavigate } from 'react-router-dom';
 import CollectionPreviewModal from '../components/CollectionPreviewModal';
 
-// FIX: Removed non-existent properties 'upvotes' and 'downvotes' from Omit and replaced with correct properties 'averageRating', 'ratingsCount', and 'comments'.
-type NewPromptData = Omit<Prompt, 'id' | 'author' | 'averageRating' | 'ratingsCount' | 'comments' | 'createdAt' | 'isPublic'>;
-type NewCollectionData = Omit<Collection, 'id' | 'creator' | 'promptCount' | 'promptIds'>;
+type NewPromptData = Omit<Prompt, 'id' | 'author' | 'averageRating' | 'ratingsCount' | 'comments' | 'createdAt' | 'isPublic' | 'status'>;
+type NewCollectionData = Omit<Collection, 'id' | 'creator' | 'promptCount' | 'promptIds' | 'status'>;
 
 const MarketplacePage: React.FC = () => {
     const { collections, addCollection } = useCollections();
@@ -27,6 +26,7 @@ const MarketplacePage: React.FC = () => {
 
     const filteredCollections = useMemo(() => {
         return collections
+            .filter(c => c.status === 'approved') // Only show approved collections
             .filter(c => {
                 const searchLower = searchTerm.toLowerCase();
                 return (
@@ -65,12 +65,12 @@ const MarketplacePage: React.FC = () => {
                 ...promptData,
                 id: `p${Date.now()}-${index}`,
                 author: user,
-                // FIX: Replaced non-existent properties 'upvotes' and 'downvotes' with 'averageRating', 'ratingsCount', and 'comments' to match the Prompt type definition.
                 averageRating: 0,
                 ratingsCount: 0,
                 comments: [],
                 createdAt: new Date().toISOString(),
                 isPublic: false, // Mark as exclusive to the collection
+                status: 'approved', // Prompts inside a collection are implicitly approved if the collection is.
             };
             addPrompt(newPrompt);
             addSubmittedPrompt(newPrompt.id);
@@ -83,11 +83,12 @@ const MarketplacePage: React.FC = () => {
             creator: user,
             promptIds: newPromptIds,
             promptCount: newPromptIds.length,
+            status: 'pending',
         };
 
         addCollection(newCollection);
         addCreatedCollection(newCollection.id);
-        setIsSubmitModalOpen(false);
+        // The modal will show a success message
     };
 
     const handlePreviewClick = (collection: Collection) => {

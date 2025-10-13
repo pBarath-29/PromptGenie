@@ -3,11 +3,10 @@ import Modal from './Modal';
 import Button from './Button';
 import { Collection, Prompt, AIModel, Category } from '../types';
 import { AI_MODELS, CATEGORIES } from '../constants';
-import { ChevronDown, PlusCircle, Trash2, X } from 'lucide-react';
+import { ChevronDown, PlusCircle, Trash2, CheckCircle } from 'lucide-react';
 
-// FIX: Removed non-existent properties 'upvotes' and 'downvotes' from Omit and replaced with correct properties 'averageRating', 'ratingsCount', and 'comments'.
-type NewPromptData = Omit<Prompt, 'id' | 'author' | 'averageRating' | 'ratingsCount' | 'comments' | 'createdAt' | 'isPublic'>;
-type NewCollectionData = Omit<Collection, 'id' | 'creator' | 'promptCount' | 'promptIds'>;
+type NewPromptData = Omit<Prompt, 'id' | 'author' | 'averageRating' | 'ratingsCount' | 'comments' | 'createdAt' | 'isPublic' | 'status'>;
+type NewCollectionData = Omit<Collection, 'id' | 'creator' | 'promptCount' | 'promptIds' | 'status'>;
 
 interface SubmitCollectionModalProps {
   isOpen: boolean;
@@ -140,6 +139,7 @@ const SubmitCollectionModal: React.FC<SubmitCollectionModalProps> = ({ isOpen, o
   const [coverImage, setCoverImage] = useState('');
   const [newPrompts, setNewPrompts] = useState<NewPromptData[]>([]);
   const [error, setError] = useState('');
+  const [submitted, setSubmitted] = useState(false);
 
   const resetForm = () => {
     setName('');
@@ -179,62 +179,76 @@ const SubmitCollectionModal: React.FC<SubmitCollectionModalProps> = ({ isOpen, o
         },
         newPrompts
     );
-    resetForm();
+    setSubmitted(true);
   };
   
   const handleClose = () => {
     resetForm();
+    setSubmitted(false);
     onClose();
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Submit a New Collection">
-      <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
-        <div>
-          <label htmlFor="collection-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Collection Name</label>
-          <input id="collection-name" type="text" value={name} onChange={e => setName(e.target.value)} placeholder="e.g., AI Artistry Master Pack" className="w-full p-2 border rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600" />
+    <Modal isOpen={isOpen} onClose={handleClose} title={submitted ? "Submission Successful" : "Submit a New Collection"}>
+      {submitted ? (
+         <div className="text-center p-6 flex flex-col items-center space-y-4">
+            <CheckCircle size={56} className="text-green-500" />
+            <h3 className="text-2xl font-bold">Submitted for Review!</h3>
+            <p className="text-gray-600 dark:text-gray-300">
+                Your collection will be reviewed by an administrator. Once approved, it will be available on the Marketplace.
+            </p>
+            <Button onClick={handleClose} className="mt-4">
+                Close
+            </Button>
         </div>
-
-        <div>
-            <label htmlFor="collection-description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-            <textarea id="collection-description" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Briefly describe what this collection is about." className="w-full p-2 border rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600" />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
             <div>
-                <label htmlFor="collection-price" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price ($)</label>
-                <input id="collection-price" type="number" value={price} onChange={e => setPrice(e.target.value === '' ? '' : Number(e.target.value))} placeholder="e.g., 19.99" min="0" step="0.01" className="w-full p-2 border rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600" />
+            <label htmlFor="collection-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Collection Name</label>
+            <input id="collection-name" type="text" value={name} onChange={e => setName(e.target.value)} placeholder="e.g., AI Artistry Master Pack" className="w-full p-2 border rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600" />
             </div>
-             <div>
-                <label htmlFor="collection-cover" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cover Image URL</label>
-                <input id="collection-cover" type="text" value={coverImage} onChange={e => setCoverImage(e.target.value)} placeholder="Optional, we'll generate one for you" className="w-full p-2 border rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600" />
+
+            <div>
+                <label htmlFor="collection-description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                <textarea id="collection-description" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Briefly describe what this collection is about." className="w-full p-2 border rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600" />
             </div>
-        </div>
-        
-        <div className="space-y-4">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Prompts for this Collection ({newPrompts.length})</label>
-            {newPrompts.length > 0 && (
-                <div className="space-y-2">
-                    {newPrompts.map((p, index) => (
-                        <div key={index} className="flex items-center justify-between p-2 rounded-md bg-gray-100 dark:bg-gray-700">
-                           <span className="text-sm font-medium">{p.title}</span>
-                           <button type="button" onClick={() => handleRemovePrompt(index)} className="p-1 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-full">
-                               <Trash2 size={16}/>
-                           </button>
-                        </div>
-                    ))}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label htmlFor="collection-price" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price ($)</label>
+                    <input id="collection-price" type="number" value={price} onChange={e => setPrice(e.target.value === '' ? '' : Number(e.target.value))} placeholder="e.g., 19.99" min="0" step="0.01" className="w-full p-2 border rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600" />
                 </div>
-            )}
-           <NewPromptForm onAddPrompt={handleAddPrompt} />
-        </div>
-        
-        {error && <p className="text-red-500 text-sm text-center pt-2">{error}</p>}
-        
-        <div className="flex justify-end pt-4 border-t dark:border-gray-700 sticky bottom-0 bg-white dark:bg-gray-800 py-4 -mx-6 px-6">
-          <Button type="button" variant="secondary" onClick={handleClose} className="mr-2">Cancel</Button>
-          <Button type="submit">Submit Collection</Button>
-        </div>
-      </form>
+                <div>
+                    <label htmlFor="collection-cover" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cover Image URL</label>
+                    <input id="collection-cover" type="text" value={coverImage} onChange={e => setCoverImage(e.target.value)} placeholder="Optional, we'll generate one for you" className="w-full p-2 border rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600" />
+                </div>
+            </div>
+            
+            <div className="space-y-4">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Prompts for this Collection ({newPrompts.length})</label>
+                {newPrompts.length > 0 && (
+                    <div className="space-y-2">
+                        {newPrompts.map((p, index) => (
+                            <div key={index} className="flex items-center justify-between p-2 rounded-md bg-gray-100 dark:bg-gray-700">
+                            <span className="text-sm font-medium">{p.title}</span>
+                            <button type="button" onClick={() => handleRemovePrompt(index)} className="p-1 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-full">
+                                <Trash2 size={16}/>
+                            </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            <NewPromptForm onAddPrompt={handleAddPrompt} />
+            </div>
+            
+            {error && <p className="text-red-500 text-sm text-center pt-2">{error}</p>}
+            
+            <div className="flex justify-end pt-4 border-t dark:border-gray-700 sticky bottom-0 bg-white dark:bg-gray-800 py-4 -mx-6 px-6">
+            <Button type="button" variant="secondary" onClick={handleClose} className="mr-2">Cancel</Button>
+            <Button type="submit">Submit Collection</Button>
+            </div>
+        </form>
+      )}
     </Modal>
   );
 };

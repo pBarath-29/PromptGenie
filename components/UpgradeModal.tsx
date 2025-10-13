@@ -2,14 +2,21 @@ import React from 'react';
 import Modal from './Modal';
 import Button from './Button';
 import { Zap, CheckCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface UpgradeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onUpgrade: () => void;
 }
 
-const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade }) => {
+const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose }) => {
+  const navigate = useNavigate();
+
+  const handleUpgradeClick = () => {
+    onClose();
+    navigate('/upgrade');
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Upgrade to Prompter Pro">
       <div className="text-center">
@@ -25,17 +32,13 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade 
             <h4 className="font-semibold text-lg">Pro Plan Features:</h4>
             <ul className="space-y-2 text-gray-600 dark:text-gray-300">
                 <li className="flex items-center"><CheckCircle size={18} className="text-green-500 mr-2" /> Unlimited prompt generations</li>
-                <li className="flex items-center"><CheckCircle size={18} className="text-green-500 mr-2" /> Priority access to new features</li>
-                <li className="flex items-center"><CheckCircle size={18} className="text-green-500 mr-2" /> Premium support</li>
+                <li className="flex items-center"><CheckCircle size={18} className="text-green-500 mr-2" /> Ad-free experience</li>
+                <li className="flex items-center"><CheckCircle size={18} className="text-green-500 mr-2" /> Higher community submission limits</li>
             </ul>
-        </div>
-        
-        <div className="mt-6">
-            <p className="text-4xl font-extrabold">$9.90 <span className="text-lg font-normal text-gray-500 dark:text-gray-400">/ month</span></p>
         </div>
 
         <div className="mt-8 flex flex-col sm:flex-row-reverse gap-3">
-          <Button onClick={onUpgrade} className="w-full">
+          <Button onClick={handleUpgradeClick} className="w-full">
             Upgrade to Pro
           </Button>
           <Button onClick={onClose} variant="secondary" className="w-full">

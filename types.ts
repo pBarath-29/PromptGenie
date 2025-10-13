@@ -19,6 +19,7 @@ export interface Prompt {
   createdAt: string;
   model: AIModel;
   isPublic: boolean;
+  status: 'pending' | 'approved' | 'rejected';
   exampleOutput?: string;
 }
 
@@ -33,8 +34,11 @@ export interface User {
   savedPrompts?: string[];
   createdCollections?: string[];
   subscriptionTier: 'free' | 'pro';
+  role: 'user' | 'admin';
   promptGenerations: number;
   lastGenerationReset: string; // Format 'YYYY-MM'
+  promptsSubmittedToday: number;
+  lastSubmissionDate: string; // Format 'YYYY-MM-DD'
 }
 
 export interface Collection {
@@ -46,6 +50,7 @@ export interface Collection {
   promptCount: number;
   coverImage: string;
   promptIds: string[];
+  status: 'pending' | 'approved' | 'rejected';
 }
 
 export interface HistoryItem {

@@ -16,6 +16,9 @@ import CollectionPage from './pages/CollectionPage';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminPage from './pages/AdminPage';
+import AdminRoute from './components/AdminRoute';
+import UpgradePage from './pages/UpgradePage';
 
 const App: React.FC = () => {
   return (
@@ -35,6 +38,8 @@ const App: React.FC = () => {
                       <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
                       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
                       <Route path="/collection/:collectionId" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
+                      <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
+                      <Route path="/upgrade" element={<ProtectedRoute><UpgradePage /></ProtectedRoute>} />
                       <Route path="/login" element={<LoginPage />} />
                       <Route path="/signup" element={<SignUpPage />} />
                     </Routes>

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
-import { Sun, Moon, Zap, Menu, X } from 'lucide-react';
+import { Sun, Moon, Zap, Menu, X, ShieldCheck, Star } from 'lucide-react';
 import ConfirmationModal from './ConfirmationModal';
 
 const Header: React.FC = () => {
@@ -58,21 +58,36 @@ const Header: React.FC = () => {
               </button>
               <div className="hidden md:flex items-center space-x-4">
                 {user ? (
-                  <div className="relative group">
-                    <button className="flex items-center space-x-2 relative">
-                      <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full" />
-                       {user.subscriptionTier === 'pro' && (
-                        <span className="absolute -top-1 -right-1 bg-gradient-to-br from-yellow-400 to-orange-500 text-black font-bold text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full shadow-md ring-2 ring-white dark:ring-gray-800">
-                            PRO
-                        </span>
-                      )}
-                    </button>
-                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 opacity-0 group-hover:opacity-100 transition-opacity invisible group-hover:visible">
-                      <NavLink to="/profile" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Profile</NavLink>
-                      <NavLink to="/dashboard" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Dashboard</NavLink>
-                      <button onClick={() => setIsLogoutModalOpen(true)} className="w-full text-left block px-4 py-2 text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700">Logout</button>
+                  <>
+                    {user.subscriptionTier === 'free' && (
+                       <Link to="/upgrade" className="flex items-center text-sm font-semibold bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-3 py-1.5 rounded-full hover:shadow-lg transition-shadow">
+                          <Star size={16} className="mr-1.5" />
+                          Upgrade
+                       </Link>
+                    )}
+                    <div className="relative group">
+                      <button className="flex items-center space-x-2 relative">
+                        <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full" />
+                        {user.subscriptionTier === 'pro' && (
+                          <span className="absolute -top-1 -right-1 bg-gradient-to-br from-yellow-400 to-orange-500 text-black font-bold text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full shadow-md ring-2 ring-white dark:ring-gray-800">
+                              PRO
+                          </span>
+                        )}
+                      </button>
+                      <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 opacity-0 group-hover:opacity-100 transition-opacity invisible group-hover:visible">
+                        <NavLink to="/profile" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Profile</NavLink>
+                        <NavLink to="/dashboard" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Dashboard</NavLink>
+                        {user.role === 'admin' && (
+                          <NavLink to="/admin" className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <ShieldCheck size={16} className="mr-2"/>
+                            Admin Panel
+                          </NavLink>
+                        )}
+                        <div className="my-1 h-px bg-gray-100 dark:bg-gray-700" />
+                        <button onClick={() => setIsLogoutModalOpen(true)} className="w-full text-left block px-4 py-2 text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700">Logout</button>
+                      </div>
                     </div>
-                  </div>
+                  </>
                 ) : (
                   null
                 )}
@@ -116,8 +131,18 @@ const Header: React.FC = () => {
                       <p className="text-sm font-medium text-gray-500 dark:text-gray-400">View profile</p>
                     </div>
                   </div>
+                  {user.subscriptionTier === 'free' && (
+                      <NavLink to="/upgrade" className="block text-center px-3 py-2 rounded-md text-base font-semibold bg-gradient-to-r from-yellow-400 to-orange-500 text-black" onClick={closeMobileMenu}>
+                          Upgrade to Pro
+                      </NavLink>
+                    )}
                   <NavLink to="/profile" className={mobileNavLinkClass} onClick={closeMobileMenu}>Profile</NavLink>
                   <NavLink to="/dashboard" className={mobileNavLinkClass} onClick={closeMobileMenu}>Dashboard</NavLink>
+                   {user.role === 'admin' && (
+                        <NavLink to="/admin" className={mobileNavLinkClass} onClick={closeMobileMenu}>
+                          Admin Panel
+                        </NavLink>
+                      )}
                   <button 
                     onClick={handleLogoutClick} 
                     className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-red-500 hover:bg-gray-200 dark:hover:bg-gray-700"

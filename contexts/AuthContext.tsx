@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { User } from '../types';
 import { MOCK_USERS } from '../constants';
-import { FREE_TIER_LIMIT } from '../config';
+import { FREE_TIER_LIMIT, FREE_TIER_POST_LIMIT, PRO_TIER_POST_LIMIT } from '../config';
 
 interface AuthContextType {
   user: User | null;
@@ -17,6 +17,8 @@ interface AuthContextType {
   incrementGenerationCount: () => void;
   upgradeToPro: () => void;
   getGenerationsLeft: () => number;
+  getSubmissionsLeft: () => number;
+  incrementSubmissionCount: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -39,12 +41,29 @@ const checkAndResetGenerationCount = (currentUser: User | null): User | null => 
     return currentUser;
 };
 
+const checkAndResetSubmissionCount = (currentUser: User | null): User | null => {
+    if (!currentUser) return currentUser;
+
+    const today = new Date().toISOString().split('T')[0];
+
+    if (currentUser.lastSubmissionDate !== today) {
+        return {
+            ...currentUser,
+            promptsSubmittedToday: 0,
+            lastSubmissionDate: today,
+        };
+    }
+    return currentUser;
+};
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
     try {
       const storedUser = localStorage.getItem(USER_STORAGE_KEY);
-      const loadedUser = storedUser ? JSON.parse(storedUser) : null;
-      return checkAndResetGenerationCount(loadedUser);
+      let loadedUser = storedUser ? JSON.parse(storedUser) : null;
+      loadedUser = checkAndResetGenerationCount(loadedUser);
+      loadedUser = checkAndResetSubmissionCount(loadedUser);
+      return loadedUser;
     } catch (error) {
       console.error("Failed to parse user from localStorage", error);
       return null;
@@ -65,12 +84,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = (email: string, password?: string): Promise<void> => {
     return new Promise((resolve, reject) => {
       setTimeout(() => { // Simulate API latency
-        const foundUser = users.find(u => u.name.toLowerCase().replace(' ', '') + '@example.com' === email.toLowerCase());
+        let foundUser: User | undefined;
+        if (email.toLowerCase() === 'admin@example.com') {
+            foundUser = users.find(u => u.role === 'admin');
+        } else {
+            foundUser = users.find(u => u.name.toLowerCase().replace(' ', '') + '@example.com' === email.toLowerCase());
+        }
+
         if (foundUser) {
-          setUser(checkAndResetGenerationCount(foundUser));
+          let updatedUser = checkAndResetGenerationCount(foundUser);
+          updatedUser = checkAndResetSubmissionCount(updatedUser);
+          setUser(updatedUser);
           resolve();
         } else {
-          reject(new Error('Invalid email or password. Try alexdoe@example.com'));
+          reject(new Error('Invalid email or password. Try alexdoe@example.com or admin@example.com'));
         }
       }, 500);
     });
@@ -96,8 +123,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 savedPrompts: [],
                 createdCollections: [],
                 subscriptionTier: 'free',
+                role: 'user',
                 promptGenerations: 0,
-                lastGenerationReset: `${new Date().getFullYear()}-${new Date().getMonth()}`
+                lastGenerationReset: `${new Date().getFullYear()}-${new Date().getMonth()}`,
+                promptsSubmittedToday: 0,
+                lastSubmissionDate: new Date().toISOString().split('T')[0],
             };
             setUsers(prev => [...prev, newUser]);
             setUser(newUser);
@@ -213,8 +243,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const getSubmissionsLeft = (): number => {
+    if (!user) return 0;
+    const limit = user.subscriptionTier === 'pro' ? PRO_TIER_POST_LIMIT : FREE_TIER_POST_LIMIT;
+    
+    // The submission count should have been reset on login/load, so we can use it directly
+    const submissions = user.promptsSubmittedToday;
+    
+    return limit - submissions;
+  }
+
+  const incrementSubmissionCount = () => {
+    if (user) {
+      const today = new Date().toISOString().split('T')[0];
+      const currentSubmissions = user.lastSubmissionDate === today ? user.promptsSubmittedToday : 0;
+
+      setUser({
+        ...user,
+        promptsSubmittedToday: currentSubmissions + 1,
+        lastSubmissionDate: today,
+      });
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro, getSubmissionsLeft, incrementSubmissionCount }}>
       {children}
     </AuthContext.Provider>
   );

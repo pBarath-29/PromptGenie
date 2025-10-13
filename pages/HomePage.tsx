@@ -20,7 +20,7 @@ const HomePage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { addToHistory } = useHistory();
-    const { user, getGenerationsLeft, incrementGenerationCount, upgradeToPro } = useAuth();
+    const { user, getGenerationsLeft, incrementGenerationCount } = useAuth();
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
     const [isAdModalOpen, setIsAdModalOpen] = useState(false);
 
@@ -77,11 +77,6 @@ const HomePage: React.FC = () => {
             navigator.clipboard.writeText(generatedPrompt.prompt);
         }
     };
-    
-    const handleUpgrade = () => {
-        upgradeToPro();
-        setIsUpgradeModalOpen(false);
-    }
 
     const handleAdClose = () => {
         setIsAdModalOpen(false);
@@ -204,7 +199,6 @@ const HomePage: React.FC = () => {
             <UpgradeModal 
                 isOpen={isUpgradeModalOpen}
                 onClose={() => setIsUpgradeModalOpen(false)}
-                onUpgrade={handleUpgrade}
             />
             <AdModal
                 isOpen={isAdModalOpen}

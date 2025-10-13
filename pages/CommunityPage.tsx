@@ -9,15 +9,17 @@ import { useAuth } from '../contexts/AuthContext';
 import Button from '../components/Button';
 import SubmitPromptModal from '../components/SubmitPromptModal';
 import { useNavigate } from 'react-router-dom';
+import LimitReachedModal from '../components/LimitReachedModal';
 
 
 const CommunityPage: React.FC = () => {
     const { prompts, addPrompt } = usePrompts();
-    const { user, addSubmittedPrompt } = useAuth();
+    const { user, addSubmittedPrompt, getSubmissionsLeft, incrementSubmissionCount } = useAuth();
     const navigate = useNavigate();
     
     const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
+    const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
     
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all');
@@ -26,7 +28,7 @@ const CommunityPage: React.FC = () => {
 
     const filteredPrompts = useMemo(() => {
         return prompts
-            .filter(p => p.isPublic) // Only show public prompts
+            .filter(p => p.isPublic && p.status === 'approved') // Only show approved public prompts
             .filter(p => {
                 const searchLower = searchTerm.toLowerCase();
                 const searchMatch = 
@@ -53,12 +55,17 @@ const CommunityPage: React.FC = () => {
     const handleOpenSubmitModal = () => {
         if (!user) {
             navigate('/login');
-        } else {
+            return;
+        }
+
+        if (getSubmissionsLeft() > 0) {
             setIsSubmitModalOpen(true);
+        } else {
+            setIsLimitModalOpen(true);
         }
     };
 
-    const handlePromptSubmit = (newPromptData: Omit<Prompt, 'id' | 'author' | 'averageRating' | 'ratingsCount' | 'comments' | 'createdAt'>) => {
+    const handlePromptSubmit = (newPromptData: Omit<Prompt, 'id' | 'author' | 'averageRating' | 'ratingsCount' | 'comments' | 'createdAt' | 'status'>) => {
         if (!user) return;
         const newPrompt: Prompt = {
             id: `p${Date.now()}`,
@@ -68,10 +75,12 @@ const CommunityPage: React.FC = () => {
             ratingsCount: 0,
             comments: [],
             createdAt: new Date().toISOString(),
+            status: 'pending',
         };
         addPrompt(newPrompt);
         addSubmittedPrompt(newPrompt.id);
-        setIsSubmitModalOpen(false);
+        incrementSubmissionCount();
+        // The modal will show a success message and the user will close it.
     };
 
     return (
@@ -166,6 +175,12 @@ const CommunityPage: React.FC = () => {
                 isOpen={isSubmitModalOpen}
                 onClose={() => setIsSubmitModalOpen(false)}
                 onSubmit={handlePromptSubmit}
+            />
+
+            <LimitReachedModal
+                isOpen={isLimitModalOpen}
+                onClose={() => setIsLimitModalOpen(false)}
+                isPro={user?.subscriptionTier === 'pro'}
             />
         </div>
     );

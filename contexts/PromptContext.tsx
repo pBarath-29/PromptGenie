@@ -9,6 +9,7 @@ interface PromptContextType {
   deletePrompt: (promptId: string) => void;
   addRating: (promptId: string, rating: number) => void;
   addComment: (promptId: string, comment: { author: User; text: string }) => void;
+  updatePromptStatus: (promptId: string, status: 'approved' | 'rejected') => void;
 }
 
 const PromptContext = createContext<PromptContextType | undefined>(undefined);
@@ -63,8 +64,14 @@ export const PromptProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     );
   };
 
+  const updatePromptStatus = (promptId: string, status: 'approved' | 'rejected') => {
+    setPrompts(prevPrompts =>
+      prevPrompts.map(p => (p.id === promptId ? { ...p, status } : p))
+    );
+  };
+
   return (
-    <PromptContext.Provider value={{ prompts, addPrompt, updatePrompt, deletePrompt, addRating, addComment }}>
+    <PromptContext.Provider value={{ prompts, addPrompt, updatePrompt, deletePrompt, addRating, addComment, updatePromptStatus }}>
       {children}
     </PromptContext.Provider>
   );

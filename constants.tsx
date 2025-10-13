@@ -16,8 +16,11 @@ export const MOCK_USERS: User[] = [
     savedPrompts: ['p2'], 
     createdCollections: ['c1', 'c3'],
     subscriptionTier: 'pro',
-    promptGenerations: 10, // Pro users have unlimited, but we can still track for analytics
-    lastGenerationReset: `${new Date().getFullYear()}-${new Date().getMonth()}`
+    role: 'user',
+    promptGenerations: 10,
+    lastGenerationReset: `${new Date().getFullYear()}-${new Date().getMonth()}`,
+    promptsSubmittedToday: 1,
+    lastSubmissionDate: new Date().toISOString().split('T')[0],
   },
   { 
     id: 'u2', 
@@ -30,8 +33,11 @@ export const MOCK_USERS: User[] = [
     savedPrompts: [], 
     createdCollections: ['c2'],
     subscriptionTier: 'free',
-    promptGenerations: 2, // Used 2 out of 5
-    lastGenerationReset: `${new Date().getFullYear()}-${new Date().getMonth()}`
+    role: 'user',
+    promptGenerations: 2,
+    lastGenerationReset: `${new Date().getFullYear()}-${new Date().getMonth()}`,
+    promptsSubmittedToday: 0,
+    lastSubmissionDate: new Date().toISOString().split('T')[0],
   },
   { 
     id: 'u3', 
@@ -42,8 +48,28 @@ export const MOCK_USERS: User[] = [
     savedPrompts: [], 
     createdCollections: [],
     subscriptionTier: 'free',
-    promptGenerations: 5, // Limit reached for this month
-    lastGenerationReset: `${new Date().getFullYear()}-${new Date().getMonth()}`
+    role: 'user',
+    promptGenerations: 5,
+    lastGenerationReset: `${new Date().getFullYear()}-${new Date().getMonth()}`,
+    promptsSubmittedToday: 1,
+    lastSubmissionDate: new Date().toISOString().split('T')[0],
+  },
+  { 
+    id: 'u4', 
+    name: 'Admin', 
+    avatar: 'https://i.pravatar.cc/150?u=u4', 
+    bio: 'Site Administrator.', 
+    badges: ['Admin'], 
+    submittedPrompts: [], 
+    purchasedCollections: [], 
+    savedPrompts: [], 
+    createdCollections: [],
+    subscriptionTier: 'pro',
+    role: 'admin',
+    promptGenerations: 999,
+    lastGenerationReset: `${new Date().getFullYear()}-${new Date().getMonth()}`,
+    promptsSubmittedToday: 0,
+    lastSubmissionDate: new Date().toISOString().split('T')[0],
   },
 ];
 
@@ -65,6 +91,7 @@ export const MOCK_PROMPTS: Prompt[] = [
     createdAt: '2023-10-26T10:00:00Z',
     model: 'ChatGPT',
     isPublic: true,
+    status: 'approved',
     exampleOutput: '### Topic: The Role of Artificial Intelligence in the Future Workforce\n\n**Introduction:**\nThe rapid advancement of artificial intelligence has sparked a crucial debate about its role in the future of the workforce. While some herald AI as a catalyst for unprecedented productivity and innovation, others voice concerns about mass job displacement and economic inequality. This essay argues that while AI will undoubtedly reshape the labor market, its primary effect will be job transformation rather than outright elimination, necessitating a proactive approach to education and reskilling to mitigate potential disruptions.\n\n**Body Paragraph 1:**\nContrary to dystopian fears, historical precedent with technological revolutions suggests that AI is more likely to augment human capabilities than render them obsolete. The introduction of computers, for instance, did not lead to the collapse of the office workforce but rather created new roles centered around information management and digital literacy (Author, Year). Similarly, AI is poised to take over repetitive, data-intensive tasks, freeing human workers to focus on complex problem-solving, creativity, and strategic thinking—skills where human intelligence currently maintains a significant advantage. For example, in the medical field, AI can analyze thousands of scans to detect anomalies far faster than a human radiologist, but the final diagnosis, patient communication, and treatment plan remain firmly in the hands of the human expert (Author, Year). This collaborative model demonstrates a future of human-AI partnership, not replacement.\n\n**Conclusion:**\nIn conclusion, the integration of artificial intelligence into the workforce represents not an end to human labor, but a fundamental evolution of it. By summarizing the key arguments—that AI will transform jobs by augmenting human skills, that it will create new economic sectors, and that the primary challenge lies in societal adaptation—it becomes clear that the narrative of mass unemployment is an oversimplification. The true path forward involves a robust commitment to lifelong learning, developing adaptable education systems, and creating social safety nets to support workers through this transition. Ultimately, the future of work will not be defined by humanity versus machine, but by how effectively humanity works with its new, powerful tools.'
   },
   {
@@ -81,6 +108,7 @@ export const MOCK_PROMPTS: Prompt[] = [
     createdAt: '2023-10-25T14:30:00Z',
     model: 'MidJourney',
     isPublic: true,
+    status: 'approved',
     exampleOutput: 'https://picsum.photos/seed/p2-cyberpunk/800/450'
   },
   {
@@ -99,6 +127,7 @@ export const MOCK_PROMPTS: Prompt[] = [
     createdAt: '2023-10-24T09:00:00Z',
     model: 'Gemini',
     isPublic: true,
+    status: 'approved',
     exampleOutput: '### Refactored Code:\n```python\n# (Refactored, well-commented Python code appears here...)\n\n# Example: Function to process data\ndef process_data(data_list: list[int]) -> list[int]:\n    """Processes a list of integers, filtering and transforming them."""\n    # Use a list comprehension for conciseness and efficiency.\n    return [x * 2 for x in data_list if x > 10]\n```\n\n### Summary of Changes:\n*   **Replaced for-loop with a list comprehension:** This improves both readability and performance for simple filtering and mapping operations.\n*   **Added Type Hints:** Introduced type hints (`list[int]`) to improve code clarity and allow for static analysis.\n*   **Improved Function Naming:** Renamed `proc_dat` to `process_data` for better readability, following PEP 8 conventions.'
   },
    {
@@ -115,6 +144,7 @@ export const MOCK_PROMPTS: Prompt[] = [
     createdAt: '2023-10-27T11:00:00Z',
     model: 'Claude',
     isPublic: true,
+    status: 'approved',
     exampleOutput: '| Week | Day       | Platform         | Content Pillar           | Post Idea/Concept                                     | Caption (including call-to-action)                                                                        | Hashtags                                                              |\n|------|-----------|------------------|--------------------------|-------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|\n| 1    | Monday    | Instagram Feed   | Behind the Scenes        | Carousel: The journey of our organic cotton from farm to fabric. | "Every thread tells a story. ✨ Swipe to see the incredible journey of our GOTS-certified organic cotton..." | #AuraThreads #SustainableFashion #OrganicCotton #BehindTheSeams #EthicalStyle |\n| 1    | Tuesday   | Instagram Story  | Community Spotlight      | Q&A with our lead designer about the new collection.  | "Ask me anything! Our designer is live to answer your questions about sustainable design."               | #AskAura #DesignerQA #SlowFashion                                     |\n| 1    | Wednesday | Instagram Reel   | Style Inspiration        | 3 ways to style our classic Tencel slip dress.        | "One dress, three timeless looks. Which one is your favorite? Let us know below! #AuraStyle"            | #StyleInspiration #CapsuleWardrobe #Tencel #VersatileFashion          |\n| 1    | Friday    | Pinterest        | Sustainability Education | Infographic: "5 Shocking Facts About Fast Fashion".   | "Knowledge is power. Pin this to spread awareness and choose conscious consumption. #FashionRevolution"   | #FastFashionFacts #SustainableLiving #EcoFriendly #ConsciousConsumer    |'
   },
   {
@@ -131,6 +161,7 @@ export const MOCK_PROMPTS: Prompt[] = [
     createdAt: '2023-10-28T09:30:00Z',
     model: 'Gemini',
     isPublic: true,
+    status: 'approved',
     exampleOutput: '**1. Learning Objectives:**\nBy the end of this lesson, students will be able to:\n- Identify at least three major goods, ideas, or technologies exchanged along the Silk Road.\n- Explain how geography and trade routes influenced cultural diffusion between Asia and Europe.\n- Analyze the impact of trade on the development of major cities along the Silk Road.\n\n**3. Lesson Procedure (Excerpt):**\n- **Warm-up (5 min):** Project an image of the Bamiyan Buddhas in Afghanistan. Ask students to discuss with a partner: "What might this statue tell us about the people who lived here? How do you think it got there?"\n- **Main Activity (40 min):** "Digital Caravan" Simulation.\n    1. Divide students into groups of 3-4, assigning each a role: Merchant, Scholar, or Monk.\n    2. Provide each group with a starting city (e.g., Chang\'an for Merchants) and a digital map link (Google My Maps).\n    3. Each group receives "trade cards" (e.g., Merchants start with Silk, Scholars with Papermaking techniques, Monks with Buddhist scriptures).\n    4. Groups navigate the map, stopping at major cities like Samarkand or Baghdad. At each stop, they read a short scenario and must make a decision: trade goods, face a challenge (bandits, weather), or establish a connection. This will involve trading cards with other groups to achieve their final goal (e.g., Merchants reaching Rome with valuable goods).\n'
   },
   {
@@ -147,6 +178,7 @@ export const MOCK_PROMPTS: Prompt[] = [
     createdAt: '2023-10-29T16:00:00Z',
     model: 'DALL-E',
     isPublic: true,
+    status: 'approved',
     exampleOutput: 'https://picsum.photos/seed/p6-logo/800/800'
   },
   {
@@ -163,8 +195,57 @@ export const MOCK_PROMPTS: Prompt[] = [
     createdAt: '2023-10-30T12:00:00Z',
     model: 'MidJourney',
     isPublic: true,
+    status: 'approved',
     exampleOutput: 'https://picsum.photos/seed/p7-fantasy/800/450'
   },
+  {
+    id: 'p-pending-1',
+    title: 'Creative Writing Idea Generator',
+    prompt: 'Generate 3 unique story ideas for a fantasy novel. Each idea should include a protagonist, a conflict, and a magical element.',
+    description: 'A great prompt for authors experiencing writer\'s block. Submitted by Jane.',
+    author: MOCK_USERS[1],
+    category: 'Fun',
+    tags: ['writing', 'creative', 'fantasy'],
+    averageRating: 0,
+    ratingsCount: 0,
+    comments: [],
+    createdAt: new Date().toISOString(),
+    model: 'Gemini',
+    isPublic: true,
+    status: 'pending',
+  },
+  {
+    id: 'p-pending-2',
+    title: 'Business Plan Outline',
+    prompt: 'Create a comprehensive business plan outline for a startup in the sustainable energy sector.',
+    description: 'A prompt for entrepreneurs.',
+    author: MOCK_USERS[0],
+    category: 'Business',
+    tags: ['startup', 'business', 'planning'],
+    averageRating: 0,
+    ratingsCount: 0,
+    comments: [],
+    createdAt: new Date().toISOString(),
+    model: 'Claude',
+    isPublic: false,
+    status: 'pending',
+  },
+  {
+    id: 'p-pending-3',
+    title: 'Marketing Copy for E-commerce',
+    prompt: 'Write 3 versions of compelling marketing copy for a new line of wireless headphones. Focus on battery life and sound quality.',
+    description: 'For e-commerce store owners.',
+    author: MOCK_USERS[0],
+    category: 'Marketing',
+    tags: ['copywriting', 'ecommerce'],
+    averageRating: 0,
+    ratingsCount: 0,
+    comments: [],
+    createdAt: new Date().toISOString(),
+    model: 'ChatGPT',
+    isPublic: false,
+    status: 'pending',
+  }
 ];
 
 export const MOCK_COLLECTIONS: Collection[] = [
@@ -176,7 +257,8 @@ export const MOCK_COLLECTIONS: Collection[] = [
         price: 9.99,
         promptCount: 2,
         coverImage: 'https://picsum.photos/seed/c1/600/400',
-        promptIds: ['p1', 'p5']
+        promptIds: ['p1', 'p5'],
+        status: 'approved',
     },
     {
         id: 'c2',
@@ -186,7 +268,8 @@ export const MOCK_COLLECTIONS: Collection[] = [
         price: 19.99,
         promptCount: 3,
         coverImage: 'https://picsum.photos/seed/c2/600/400',
-        promptIds: ['p2', 'p6', 'p7']
+        promptIds: ['p2', 'p6', 'p7'],
+        status: 'approved',
     },
     {
         id: 'c3',
@@ -196,6 +279,18 @@ export const MOCK_COLLECTIONS: Collection[] = [
         price: 14.99,
         promptCount: 2,
         coverImage: 'https://picsum.photos/seed/c3/600/400',
-        promptIds: ['p3', 'p4']
+        promptIds: ['p3', 'p4'],
+        status: 'approved',
+    },
+    {
+        id: 'c-pending-1',
+        name: 'Side Hustle Starter Pack',
+        description: 'A collection of prompts designed to help you brainstorm and launch a new side hustle. From business ideas to marketing copy.',
+        creator: MOCK_USERS[0],
+        price: 24.99,
+        promptCount: 2,
+        coverImage: 'https://picsum.photos/seed/c4/600/400',
+        promptIds: ['p-pending-2', 'p-pending-3'],
+        status: 'pending',
     }
 ];

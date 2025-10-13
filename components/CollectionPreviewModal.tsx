@@ -11,9 +11,10 @@ interface CollectionPreviewModalProps {
   collection: Collection | null;
   isOpen: boolean;
   onClose: () => void;
+  isAdminPreview?: boolean;
 }
 
-const PromptPreviewCard: React.FC<{ prompt: Prompt }> = ({ prompt }) => (
+const PromptPreviewCard: React.FC<{ prompt: Prompt, isAdminPreview?: boolean }> = ({ prompt, isAdminPreview }) => (
     <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border dark:border-gray-700 shadow-sm transition-transform duration-300 hover:scale-[1.02]">
         <h4 className="font-bold text-gray-900 dark:text-white">{prompt.title}</h4>
         <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400 my-2">
@@ -21,16 +22,18 @@ const PromptPreviewCard: React.FC<{ prompt: Prompt }> = ({ prompt }) => (
             <span className="flex items-center"><Book size={14} className="mr-1.5" /> {prompt.category}</span>
         </div>
         
-        <div className="relative mt-2 max-h-32 overflow-hidden">
+        <div className={`relative mt-2 ${!isAdminPreview ? 'max-h-32' : ''} overflow-hidden`}>
             <p className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-gray-700 dark:text-gray-300">
                 {prompt.prompt}
             </p>
-            <div className="absolute inset-0 flex flex-col items-center justify-end pt-12 bg-gradient-to-t from-white via-white dark:from-gray-800 dark:via-gray-800 to-transparent">
-                 <div className="flex flex-col items-center justify-center text-center p-4 bg-gray-200/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-md">
-                    <Lock size={20} className="text-gray-600 dark:text-gray-400 mb-1" />
-                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Purchase to Reveal Full Prompt</span>
+            {!isAdminPreview && (
+                <div className="absolute inset-0 flex flex-col items-center justify-end pt-12 bg-gradient-to-t from-white via-white dark:from-gray-800 dark:via-gray-800 to-transparent">
+                     <div className="flex flex-col items-center justify-center text-center p-4 bg-gray-200/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-md">
+                        <Lock size={20} className="text-gray-600 dark:text-gray-400 mb-1" />
+                        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Purchase to Reveal Full Prompt</span>
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
 
         <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t dark:border-gray-700">
@@ -45,15 +48,15 @@ const PromptPreviewCard: React.FC<{ prompt: Prompt }> = ({ prompt }) => (
 );
 
 
-const CollectionPreviewModal: React.FC<CollectionPreviewModalProps> = ({ collection, isOpen, onClose }) => {
+const CollectionPreviewModal: React.FC<CollectionPreviewModalProps> = ({ collection, isOpen, onClose, isAdminPreview = false }) => {
     const { prompts } = usePrompts();
     const { user, purchaseCollection } = useAuth();
     const navigate = useNavigate();
 
     if (!collection) return null;
     
-    const previewPromptIds = collection.promptIds.slice(0, 2);
-    const previewPrompts = prompts.filter(p => previewPromptIds.includes(p.id));
+    const promptIdsToShow = isAdminPreview ? collection.promptIds : collection.promptIds.slice(0, 2);
+    const promptsToShow = prompts.filter(p => promptIdsToShow.includes(p.id));
 
     const allModels = [...new Set(prompts.filter(p => collection.promptIds.includes(p.id)).map(p => p.model))];
     const allCategories = [...new Set(prompts.filter(p => collection.promptIds.includes(p.id)).map(p => p.category))];
@@ -69,7 +72,7 @@ const CollectionPreviewModal: React.FC<CollectionPreviewModalProps> = ({ collect
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={`Preview: ${collection.name}`}>
+        <Modal isOpen={isOpen} onClose={onClose} title={isAdminPreview ? `Admin Preview: ${collection.name}` : `Preview: ${collection.name}`}>
             <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-4 -mr-4">
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pb-6 border-b dark:border-gray-700">
@@ -106,10 +109,14 @@ const CollectionPreviewModal: React.FC<CollectionPreviewModalProps> = ({ collect
                 </div>
 
                 <div className="space-y-4">
-                    <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200">What's Inside? ({previewPrompts.length} of {collection.promptCount} shown)</h3>
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200">
+                        What's Inside? 
+                        {!isAdminPreview && ` (${promptsToShow.length} of ${collection.promptCount} shown)`}
+                        {isAdminPreview && ` (All ${collection.promptCount} prompts shown)`}
+                    </h3>
                     <div className="space-y-4">
-                        {previewPrompts.map(prompt => (
-                            <PromptPreviewCard key={prompt.id} prompt={prompt} />
+                        {promptsToShow.map(prompt => (
+                            <PromptPreviewCard key={prompt.id} prompt={prompt} isAdminPreview={isAdminPreview} />
                         ))}
                     </div>
                 </div>
@@ -117,13 +124,21 @@ const CollectionPreviewModal: React.FC<CollectionPreviewModalProps> = ({ collect
             </div>
             
             <div className="flex justify-between items-center pt-4 mt-4 border-t dark:border-gray-700">
-                <span className="text-3xl font-bold text-primary-500">${collection.price.toFixed(2)}</span>
-                <div className="flex items-center space-x-2">
-                    <Button variant="secondary" onClick={onClose}>Close</Button>
-                    <Button icon={<ShoppingCart size={16} />} onClick={handlePurchase}>
-                        Get Full Access
-                    </Button>
-                </div>
+                {!isAdminPreview ? (
+                    <>
+                        <span className="text-3xl font-bold text-primary-500">${collection.price.toFixed(2)}</span>
+                        <div className="flex items-center space-x-2">
+                            <Button variant="secondary" onClick={onClose}>Close</Button>
+                            <Button icon={<ShoppingCart size={16} />} onClick={handlePurchase}>
+                                Get Full Access
+                            </Button>
+                        </div>
+                    </>
+                ) : (
+                    <div className="w-full flex justify-end">
+                         <Button variant="secondary" onClick={onClose}>Close</Button>
+                    </div>
+                )}
             </div>
         </Modal>
     );
