@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { User } from '../types';
-import { MOCK_USERS } from '../constants';
+import { User } from '../constants';
+import { MOCK_USERS } from '../types';
 import { FREE_TIER_LIMIT, FREE_TIER_POST_LIMIT, PRO_TIER_POST_LIMIT } from '../config';
 
 interface AuthContextType {
@@ -19,6 +19,7 @@ interface AuthContextType {
   getGenerationsLeft: () => number;
   getSubmissionsLeft: () => number;
   incrementSubmissionCount: () => void;
+  completeTutorial: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -128,6 +129,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 lastGenerationReset: `${new Date().getFullYear()}-${new Date().getMonth()}`,
                 promptsSubmittedToday: 0,
                 lastSubmissionDate: new Date().toISOString().split('T')[0],
+                hasCompletedTutorial: false,
             };
             setUsers(prev => [...prev, newUser]);
             setUser(newUser);
@@ -266,8 +268,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const completeTutorial = () => {
+      if (user) {
+          setUser(prevUser => prevUser ? {
+              ...prevUser,
+              hasCompletedTutorial: true,
+          } : null);
+      }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro, getSubmissionsLeft, incrementSubmissionCount }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro, getSubmissionsLeft, incrementSubmissionCount, completeTutorial }}>
       {children}
     </AuthContext.Provider>
   );

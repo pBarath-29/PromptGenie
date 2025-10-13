@@ -43,9 +43,9 @@ const Header: React.FC = () => {
                 <span>Prompter</span>
               </NavLink>
               <nav className="hidden md:flex space-x-4">
-                <NavLink to="/" className={navLinkClass}>Generator</NavLink>
-                <NavLink to="/community" className={navLinkClass}>Community</NavLink>
-                <NavLink to="/marketplace" className={navLinkClass}>Marketplace</NavLink>
+                <NavLink id="nav-generator" to="/" className={navLinkClass}>Generator</NavLink>
+                <NavLink id="nav-community" to="/community" className={navLinkClass}>Community</NavLink>
+                <NavLink id="nav-marketplace" to="/marketplace" className={navLinkClass}>Marketplace</NavLink>
               </nav>
             </div>
             <div className="flex items-center space-x-2">
@@ -66,7 +66,7 @@ const Header: React.FC = () => {
                        </Link>
                     )}
                     <div className="relative group">
-                      <button className="flex items-center space-x-2 relative">
+                      <button id="user-menu-button" className="flex items-center space-x-2 relative">
                         <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full" />
                         {user.subscriptionTier === 'pro' && (
                           <span className="absolute -top-1 -right-1 bg-gradient-to-br from-yellow-400 to-orange-500 text-black font-bold text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full shadow-md ring-2 ring-white dark:ring-gray-800">

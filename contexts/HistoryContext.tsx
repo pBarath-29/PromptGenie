@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { HistoryItem } from '../types';
+import { HistoryItem } from '../constants';
 
 interface HistoryContextType {
   history: HistoryItem[];

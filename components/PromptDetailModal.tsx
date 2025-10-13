@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Prompt } from '../types';
+import { Prompt } from '../constants';
 import Modal from './Modal';
 import Button from './Button';
 import { Copy, Loader, Sparkles, Check, Book, Cpu, Tag as TagIcon, MessageSquare } from 'lucide-react';

@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import Modal from '../components/Modal';
 import Button from '../components/Button';
 import PromptCard from '../components/PromptCard';
-import { Prompt, HistoryItem } from '../types';
+import { Prompt, HistoryItem } from '../constants';
 import PromptDetailModal from '../components/PromptDetailModal';
 import CollectionCard from '../components/CollectionCard';
 import EditPromptModal from '../components/EditPromptModal';

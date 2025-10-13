@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 import Button from './Button';
-import { AI_MODELS, CATEGORIES } from '../constants';
-import { AIModel, Category, Prompt } from '../types';
+import { AI_MODELS, CATEGORIES } from '../types';
+import { AIModel, Category, Prompt } from '../constants';
 import { ChevronDown } from 'lucide-react';
 
 interface EditPromptModalProps {

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Zap, Mic, Copy, Loader, ChevronDown } from 'lucide-react';
-import { TONES, CATEGORIES } from '../constants';
-import { Tone, Category } from '../types';
+import { TONES, CATEGORIES } from '../types';
+import { Tone, Category } from '../constants';
 import Button from '../components/Button';
 import useSpeechRecognition from '../hooks/useSpeechRecognition';
 import { generateOptimizedPrompt } from '../services/geminiService';
@@ -11,6 +11,39 @@ import { Link } from 'react-router-dom';
 import UpgradeModal from '../components/UpgradeModal';
 import { FREE_TIER_LIMIT } from '../config';
 import AdModal from '../components/AdModal';
+import TutorialGuide from '../components/TutorialGuide';
+
+const tutorialSteps = [
+    {
+        title: "Welcome to Prompter!",
+        content: "Let's take a quick tour of the main features to get you started.",
+    },
+    {
+        selector: "#prompt-generator-card",
+        title: "The Prompt Generator",
+        content: "This is where the magic happens! Describe your goal, select a tone and category, and our AI will craft a high-quality, optimized prompt for you."
+    },
+    {
+        selector: "#nav-community",
+        title: "Community Prompts",
+        content: "Explore a vast library of prompts created and shared by our community. You can also share your own creations here!"
+    },
+    {
+        selector: "#nav-marketplace",
+        title: "The Marketplace",
+        content: "Discover and purchase curated collections of premium prompts from expert creators for your specific needs."
+    },
+    {
+        selector: "#user-menu-button",
+        title: "Your Account",
+        content: "Access your profile, dashboard, saved prompts, and manage your account settings right here."
+    },
+    {
+        title: "You're All Set!",
+        content: "That's the basics. Feel free to explore and start creating. Happy prompting!",
+    }
+];
+
 
 const HomePage: React.FC = () => {
     const [request, setRequest] = useState('');
@@ -20,9 +53,18 @@ const HomePage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { addToHistory } = useHistory();
-    const { user, getGenerationsLeft, incrementGenerationCount } = useAuth();
+    const { user, getGenerationsLeft, incrementGenerationCount, completeTutorial } = useAuth();
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
     const [isAdModalOpen, setIsAdModalOpen] = useState(false);
+    const [isTutorialActive, setIsTutorialActive] = useState(false);
+
+    useEffect(() => {
+        // Launch tutorial for new users
+        if (user && !user.hasCompletedTutorial) {
+            // A small delay to ensure the page has rendered
+            setTimeout(() => setIsTutorialActive(true), 500);
+        }
+    }, [user]);
 
     const generationsLeft = user ? getGenerationsLeft() : 0;
     const canGenerate = generationsLeft > 0;
@@ -83,8 +125,19 @@ const HomePage: React.FC = () => {
         proceedWithGeneration();
     };
 
+    const handleTutorialComplete = () => {
+        setIsTutorialActive(false);
+        completeTutorial();
+    };
+
     return (
         <div className="space-y-12">
+             {isTutorialActive && (
+                <TutorialGuide
+                    steps={tutorialSteps}
+                    onComplete={handleTutorialComplete}
+                />
+            )}
             <section className="text-center">
                 <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white">
                     Generate Smarter Prompts <span className="text-primary-500">Instantly</span>
@@ -94,7 +147,7 @@ const HomePage: React.FC = () => {
                 </p>
             </section>
 
-            <div className="max-w-4xl mx-auto p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl space-y-6">
+            <div id="prompt-generator-card" className="max-w-4xl mx-auto p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl space-y-6">
                 <div className={`${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     <label htmlFor="request" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Describe your goal</label>
                     <div className="relative">

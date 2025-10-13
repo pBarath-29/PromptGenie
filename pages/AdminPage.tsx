@@ -3,7 +3,7 @@ import { usePrompts } from '../contexts/PromptContext';
 import { useCollections } from '../contexts/CollectionContext';
 import Button from '../components/Button';
 import { CheckCircle, XCircle, Eye, Inbox, Package, Clock } from 'lucide-react';
-import { Prompt, Collection } from '../types';
+import { Prompt, Collection } from '../constants';
 import PromptDetailModal from '../components/PromptDetailModal';
 import CollectionPreviewModal from '../components/CollectionPreviewModal';
 

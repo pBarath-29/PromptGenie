@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { HistoryItem } from '../types';
+import { HistoryItem } from '../constants';
 import Modal from './Modal';
 import Button from './Button';
 import { Copy, Check, Tag as TagIcon } from 'lucide-react';

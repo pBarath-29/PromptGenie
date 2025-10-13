@@ -4,7 +4,7 @@ import { useCollections } from '../contexts/CollectionContext';
 import { usePrompts } from '../contexts/PromptContext';
 import PromptCard from '../components/PromptCard';
 import PromptDetailModal from '../components/PromptDetailModal';
-import { Prompt } from '../types';
+import { Prompt } from '../constants';
 import { ArrowLeft, Package } from 'lucide-react';
 
 const CollectionPage: React.FC = () => {

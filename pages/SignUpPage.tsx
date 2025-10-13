@@ -23,7 +23,7 @@ const SignUpPage: React.FC = () => {
     setIsLoading(true);
     try {
       await signup(name, email, password);
-      navigate('/profile'); // Redirect to profile after sign up
+      navigate('/'); // Redirect to home page after sign up
     } catch (err: any) {
       setError(err.message);
     } finally {
