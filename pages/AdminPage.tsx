@@ -113,7 +113,7 @@ const AdminPage: React.FC = () => {
             )}
         </div>
 
-        <PromptDetailModal isOpen={!!promptToPreview} onClose={() => setPromptToPreview(null)} prompt={promptToPreview} />
+        <PromptDetailModal isOpen={!!promptToPreview} onClose={() => setPromptToPreview(null)} prompt={promptToPreview} isAdminPreview={true} />
         <CollectionPreviewModal 
             isOpen={!!collectionToPreview} 
             onClose={() => setCollectionToPreview(null)} 

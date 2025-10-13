@@ -13,6 +13,7 @@ interface PromptDetailModalProps {
   prompt: Prompt | null;
   isOpen: boolean;
   onClose: () => void;
+  isAdminPreview?: boolean;
 }
 
 type ExampleOutput = {
@@ -20,7 +21,7 @@ type ExampleOutput = {
     content: string;
 }
 
-const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, onClose }) => {
+const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, onClose, isAdminPreview = false }) => {
   const [example, setExample] = useState<ExampleOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -182,69 +183,72 @@ const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, o
           </div>
         </div>
 
-        <div className="space-y-4 pt-4 border-t dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Rating & Feedback</h3>
-          <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg space-y-4">
-            <div className="flex items-center space-x-2">
-              <StarRating rating={prompt.averageRating} size={20} />
-              <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                {prompt.averageRating.toFixed(1)}
-              </span>
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                ({prompt.ratingsCount} ratings)
-              </span>
-            </div>
-            <div>
-              <p className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">Rate this prompt</p>
-              <StarRating rating={0} onRate={handleRate} size={28} isInteractive={true} />
-            </div>
-          </div>
-        </div>
-        
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 flex items-center">
-            <MessageSquare size={20} className="mr-2 text-primary-500"/>
-            Comments ({prompt.comments.length})
-          </h3>
-          <div className="space-y-4">
-            {prompt.comments.map(comment => (
-              <div key={comment.id} className="flex items-start space-x-3">
-                <img src={comment.author.avatar} alt={comment.author.name} className="w-10 h-10 rounded-full object-cover"/>
-                <div className="flex-1 bg-gray-100 dark:bg-gray-700 p-3 rounded-lg">
-                  <p className="font-semibold text-sm text-gray-800 dark:text-gray-200">{comment.author.name} <span className="text-xs font-normal text-gray-500 dark:text-gray-400">{new Date(comment.createdAt).toLocaleDateString()}</span></p>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">{comment.text}</p>
+        {!isAdminPreview && (
+          <>
+            <div className="space-y-4 pt-4 border-t dark:border-gray-700">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Rating & Feedback</h3>
+              <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg space-y-4">
+                <div className="flex items-center space-x-2">
+                  <StarRating rating={prompt.averageRating} size={20} />
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                    {prompt.averageRating.toFixed(1)}
+                  </span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    ({prompt.ratingsCount} ratings)
+                  </span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">Rate this prompt</p>
+                  <StarRating rating={0} onRate={handleRate} size={28} isInteractive={true} />
                 </div>
               </div>
-            ))}
-            {prompt.comments.length === 0 && (
-              <p className="text-sm text-center py-4 text-gray-500 dark:text-gray-400">No comments yet. Be the first to leave feedback!</p>
-            )}
-          </div>
-          
-          {user ? (
-            <form onSubmit={handleCommentSubmit} className="mt-6 flex items-start space-x-3">
-              <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full object-cover"/>
-              <div className="flex-1">
-                <textarea
-                  value={newComment}
-                  onChange={e => setNewComment(e.target.value)}
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700"
-                  placeholder="Add your comment..."
-                  rows={2}
-                />
-                <div className="flex justify-end mt-2">
-                  <Button type="submit" disabled={!newComment.trim()}>Post Comment</Button>
-                </div>
-              </div>
-            </form>
-          ) : (
-            <div className="mt-6 text-center p-4 border-2 border-dashed rounded-lg">
-              <p className="text-gray-500 dark:text-gray-400">You must be logged in to comment.</p>
-              <Button onClick={handleLoginClick} className="mt-2">Login</Button>
             </div>
-          )}
-        </div>
-
+            
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 flex items-center">
+                <MessageSquare size={20} className="mr-2 text-primary-500"/>
+                Comments ({prompt.comments.length})
+              </h3>
+              <div className="space-y-4">
+                {prompt.comments.map(comment => (
+                  <div key={comment.id} className="flex items-start space-x-3">
+                    <img src={comment.author.avatar} alt={comment.author.name} className="w-10 h-10 rounded-full object-cover"/>
+                    <div className="flex-1 bg-gray-100 dark:bg-gray-700 p-3 rounded-lg">
+                      <p className="font-semibold text-sm text-gray-800 dark:text-gray-200">{comment.author.name} <span className="text-xs font-normal text-gray-500 dark:text-gray-400">{new Date(comment.createdAt).toLocaleDateString()}</span></p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">{comment.text}</p>
+                    </div>
+                  </div>
+                ))}
+                {prompt.comments.length === 0 && (
+                  <p className="text-sm text-center py-4 text-gray-500 dark:text-gray-400">No comments yet. Be the first to leave feedback!</p>
+                )}
+              </div>
+              
+              {user ? (
+                <form onSubmit={handleCommentSubmit} className="mt-6 flex items-start space-x-3">
+                  <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full object-cover"/>
+                  <div className="flex-1">
+                    <textarea
+                      value={newComment}
+                      onChange={e => setNewComment(e.target.value)}
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700"
+                      placeholder="Add your comment..."
+                      rows={2}
+                    />
+                    <div className="flex justify-end mt-2">
+                      <Button type="submit" disabled={!newComment.trim()}>Post Comment</Button>
+                    </div>
+                  </div>
+                </form>
+              ) : (
+                <div className="mt-6 text-center p-4 border-2 border-dashed rounded-lg">
+                  <p className="text-gray-500 dark:text-gray-400">You must be logged in to comment.</p>
+                  <Button onClick={handleLoginClick} className="mt-2">Login</Button>
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       <div className="flex justify-end pt-4 mt-2 border-t dark:border-gray-700">

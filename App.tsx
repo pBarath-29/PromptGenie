@@ -1,7 +1,7 @@
 import React from 'react';
-import { HashRouter, Route, Routes } from 'react-router-dom';
+import { HashRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { PromptProvider } from './contexts/PromptContext';
 import { CollectionProvider } from './contexts/CollectionContext';
 import { HistoryProvider } from './contexts/HistoryContext';
@@ -20,6 +20,45 @@ import AdminPage from './pages/AdminPage';
 import AdminRoute from './components/AdminRoute';
 import UpgradePage from './pages/UpgradePage';
 
+const AppContent: React.FC = () => {
+  const { user } = useAuth();
+
+  const mainLayout = (children: React.ReactNode) => (
+    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+      <Header />
+      <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {children}
+      </main>
+      <Footer />
+    </div>
+  );
+
+  if (user && user.role === 'admin') {
+    return mainLayout(
+      <Routes>
+        <Route path="/admin" element={<AdminPage />} />
+        {/* Redirect all other attempted paths to the admin panel */}
+        <Route path="*" element={<Navigate to="/admin" replace />} />
+      </Routes>
+    );
+  }
+
+  return mainLayout(
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/community" element={<ProtectedRoute><CommunityPage /></ProtectedRoute>} />
+      <Route path="/marketplace" element={<ProtectedRoute><MarketplacePage /></ProtectedRoute>} />
+      <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+      <Route path="/collection/:collectionId" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
+      <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
+      <Route path="/upgrade" element={<ProtectedRoute><UpgradePage /></ProtectedRoute>} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignUpPage />} />
+    </Routes>
+  );
+};
+
 const App: React.FC = () => {
   return (
     <ThemeProvider>
@@ -28,24 +67,7 @@ const App: React.FC = () => {
           <CollectionProvider>
             <HistoryProvider>
               <HashRouter>
-                <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-                  <Header />
-                  <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    <Routes>
-                      <Route path="/" element={<HomePage />} />
-                      <Route path="/community" element={<ProtectedRoute><CommunityPage /></ProtectedRoute>} />
-                      <Route path="/marketplace" element={<ProtectedRoute><MarketplacePage /></ProtectedRoute>} />
-                      <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-                      <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-                      <Route path="/collection/:collectionId" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
-                      <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
-                      <Route path="/upgrade" element={<ProtectedRoute><UpgradePage /></ProtectedRoute>} />
-                      <Route path="/login" element={<LoginPage />} />
-                      <Route path="/signup" element={<SignUpPage />} />
-                    </Routes>
-                  </main>
-                  <Footer />
-                </div>
+                <AppContent />
               </HashRouter>
             </HistoryProvider>
           </CollectionProvider>
