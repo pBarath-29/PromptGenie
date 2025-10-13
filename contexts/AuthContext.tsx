@@ -57,14 +57,33 @@ const checkAndResetSubmissionCount = (currentUser: User | null): User | null => 
     return currentUser;
 };
 
+// Helper to ensure user object is consistent, especially for users from older localStorage versions.
+const normalizeUser = (userToNormalize: User | any): User | null => {
+    if (!userToNormalize) return null;
+
+    let normalizedUser = { ...userToNormalize };
+    
+    // Default hasCompletedTutorial to true for existing users.
+    // This prevents the tutorial from showing to users who signed up before the feature existed.
+    if (typeof normalizedUser.hasCompletedTutorial === 'undefined') {
+        normalizedUser.hasCompletedTutorial = true;
+    }
+
+    // Pass through existing normalization/reset functions
+    const userWithGenReset = checkAndResetGenerationCount(normalizedUser);
+    const userWithSubReset = checkAndResetSubmissionCount(userWithGenReset);
+    
+    return userWithSubReset;
+};
+
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
     try {
       const storedUser = localStorage.getItem(USER_STORAGE_KEY);
-      let loadedUser = storedUser ? JSON.parse(storedUser) : null;
-      loadedUser = checkAndResetGenerationCount(loadedUser);
-      loadedUser = checkAndResetSubmissionCount(loadedUser);
-      return loadedUser;
+      const loadedUser = storedUser ? JSON.parse(storedUser) : null;
+      // Normalize user on initial load to handle schema changes.
+      return normalizeUser(loadedUser);
     } catch (error) {
       console.error("Failed to parse user from localStorage", error);
       return null;
@@ -93,9 +112,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
 
         if (foundUser) {
-          let updatedUser = checkAndResetGenerationCount(foundUser);
-          updatedUser = checkAndResetSubmissionCount(updatedUser);
-          setUser(updatedUser);
+          // Normalize user on login to ensure all flags and counters are correctly set.
+          setUser(normalizeUser(foundUser));
           resolve();
         } else {
           reject(new Error('Invalid email or password. Try alexdoe@example.com or admin@example.com'));
@@ -129,7 +147,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 lastGenerationReset: `${new Date().getFullYear()}-${new Date().getMonth()}`,
                 promptsSubmittedToday: 0,
                 lastSubmissionDate: new Date().toISOString().split('T')[0],
-                hasCompletedTutorial: false,
+                hasCompletedTutorial: false, // New users start with the tutorial incomplete.
             };
             setUsers(prev => [...prev, newUser]);
             setUser(newUser);

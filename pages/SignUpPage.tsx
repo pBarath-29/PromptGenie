@@ -23,6 +23,7 @@ const SignUpPage: React.FC = () => {
     setIsLoading(true);
     try {
       await signup(name, email, password);
+      sessionStorage.setItem('newUserGreeting', 'true'); // Flag for welcome message
       navigate('/'); // Redirect to home page after sign up
     } catch (err: any) {
       setError(err.message);

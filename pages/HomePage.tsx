@@ -12,6 +12,7 @@ import UpgradeModal from '../components/UpgradeModal';
 import { FREE_TIER_LIMIT } from '../config';
 import AdModal from '../components/AdModal';
 import TutorialGuide from '../components/TutorialGuide';
+import WelcomeBanner from '../components/WelcomeBanner';
 
 const tutorialSteps = [
     {
@@ -57,8 +58,16 @@ const HomePage: React.FC = () => {
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
     const [isAdModalOpen, setIsAdModalOpen] = useState(false);
     const [isTutorialActive, setIsTutorialActive] = useState(false);
+    const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
 
     useEffect(() => {
+        // Handle new user greeting banner
+        const isNewUser = sessionStorage.getItem('newUserGreeting');
+        if (isNewUser === 'true') {
+            setShowWelcomeBanner(true);
+            sessionStorage.removeItem('newUserGreeting');
+        }
+
         // Launch tutorial for new users
         if (user && !user.hasCompletedTutorial) {
             // A small delay to ensure the page has rendered
@@ -132,6 +141,9 @@ const HomePage: React.FC = () => {
 
     return (
         <div className="space-y-12">
+            {showWelcomeBanner && user && (
+                <WelcomeBanner name={user.name} onDismiss={() => setShowWelcomeBanner(false)} />
+            )}
              {isTutorialActive && (
                 <TutorialGuide
                     steps={tutorialSteps}
