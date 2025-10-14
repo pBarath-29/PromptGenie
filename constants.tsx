@@ -16,6 +16,7 @@ export interface User {
   promptsSubmittedToday: number;
   lastSubmissionDate: string; // Format 'YYYY-MM-DD'
   hasCompletedTutorial: boolean;
+  votes?: { [promptId: string]: 'up' | 'down' };
 }
 
 // FIX: Export Comment type for use in other files
@@ -35,8 +36,8 @@ export interface Prompt {
   author: User;
   category: Category;
   tags: string[];
-  averageRating: number;
-  ratingsCount: number;
+  upvotes: number;
+  downvotes: number;
   comments: Comment[];
   createdAt: string;
   model: AIModel;

@@ -43,7 +43,9 @@ const CommunityPage: React.FC = () => {
             })
             .sort((a, b) => {
                 if (sortBy === 'popular') {
-                    return b.averageRating - a.averageRating;
+                    const scoreA = a.upvotes - a.downvotes;
+                    const scoreB = b.upvotes - b.downvotes;
+                    return scoreB - scoreA;
                 }
                 return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
             });
@@ -65,14 +67,14 @@ const CommunityPage: React.FC = () => {
         }
     };
 
-    const handlePromptSubmit = (newPromptData: Omit<Prompt, 'id' | 'author' | 'averageRating' | 'ratingsCount' | 'comments' | 'createdAt' | 'status'>) => {
+    const handlePromptSubmit = (newPromptData: Omit<Prompt, 'id' | 'author' | 'upvotes' | 'downvotes' | 'comments' | 'createdAt' | 'status'>) => {
         if (!user) return;
         const newPrompt: Prompt = {
             id: `p${Date.now()}`,
             ...newPromptData,
             author: user,
-            averageRating: 0,
-            ratingsCount: 0,
+            upvotes: 0,
+            downvotes: 0,
             comments: [],
             createdAt: new Date().toISOString(),
             status: 'pending',

@@ -5,7 +5,8 @@ import { Collection, Prompt, AIModel, Category } from '../constants';
 import { AI_MODELS, CATEGORIES } from '../types';
 import { ChevronDown, PlusCircle, Trash2, CheckCircle } from 'lucide-react';
 
-type NewPromptData = Omit<Prompt, 'id' | 'author' | 'averageRating' | 'ratingsCount' | 'comments' | 'createdAt' | 'isPublic' | 'status'>;
+// FIX: Update Omit to use correct properties from the Prompt type ('upvotes', 'downvotes') instead of the non-existent 'averageRating' and 'ratingsCount'.
+type NewPromptData = Omit<Prompt, 'id' | 'author' | 'upvotes' | 'downvotes' | 'comments' | 'createdAt' | 'isPublic' | 'status'>;
 type NewCollectionData = Omit<Collection, 'id' | 'creator' | 'promptCount' | 'promptIds' | 'status'>;
 
 interface SubmitCollectionModalProps {

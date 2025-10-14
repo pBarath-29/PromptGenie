@@ -7,7 +7,7 @@ interface PromptContextType {
   addPrompt: (prompt: Prompt) => void;
   updatePrompt: (updatedPrompt: Prompt) => void;
   deletePrompt: (promptId: string) => void;
-  addRating: (promptId: string, rating: number) => void;
+  handlePromptVote: (promptId: string, voteType: 'up' | 'down', previousVote?: 'up' | 'down' | null) => void;
   addComment: (promptId: string, comment: { author: User; text: string }) => void;
   updatePromptStatus: (promptId: string, status: 'approved' | 'rejected') => void;
 }
@@ -31,17 +31,27 @@ export const PromptProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setPrompts(prevPrompts => prevPrompts.filter(p => p.id !== promptId));
   };
 
-  const addRating = (promptId: string, rating: number) => {
+  const handlePromptVote = (promptId: string, voteType: 'up' | 'down', previousVote?: 'up' | 'down' | null) => {
     setPrompts(prevPrompts =>
       prevPrompts.map(p => {
         if (p.id === promptId) {
-          const totalRating = p.averageRating * p.ratingsCount;
-          const newRatingsCount = p.ratingsCount + 1;
-          const newAverageRating = (totalRating + rating) / newRatingsCount;
+          let newUpvotes = p.upvotes;
+          let newDownvotes = p.downvotes;
+
+          // Revert previous vote if it exists
+          if (previousVote === 'up') newUpvotes--;
+          if (previousVote === 'down') newDownvotes--;
+          
+          // Apply new vote, or toggle off
+          if (previousVote !== voteType) {
+            if (voteType === 'up') newUpvotes++;
+            if (voteType === 'down') newDownvotes++;
+          }
+          
           return {
             ...p,
-            ratingsCount: newRatingsCount,
-            averageRating: newAverageRating,
+            upvotes: Math.max(0, newUpvotes),
+            downvotes: Math.max(0, newDownvotes),
           };
         }
         return p;
@@ -71,7 +81,7 @@ export const PromptProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   return (
-    <PromptContext.Provider value={{ prompts, addPrompt, updatePrompt, deletePrompt, addRating, addComment, updatePromptStatus }}>
+    <PromptContext.Provider value={{ prompts, addPrompt, updatePrompt, deletePrompt, handlePromptVote, addComment, updatePromptStatus }}>
       {children}
     </PromptContext.Provider>
   );

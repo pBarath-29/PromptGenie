@@ -8,7 +8,7 @@ import { ChevronDown } from 'lucide-react';
 interface EditPromptModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: Omit<Prompt, 'author' | 'averageRating' | 'ratingsCount' | 'comments' | 'createdAt'>) => void;
+  onSubmit: (data: Omit<Prompt, 'author' | 'upvotes' | 'downvotes' | 'comments' | 'createdAt'>) => void;
   prompt: Prompt | null;
 }
 

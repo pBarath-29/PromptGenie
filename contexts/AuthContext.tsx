@@ -13,6 +13,7 @@ interface AuthContextType {
   addSubmittedPrompt: (promptId: string) => void;
   removeSubmittedPrompt: (promptId: string) => void;
   toggleSavePrompt: (promptId: string) => void;
+  handleVote: (promptId: string, voteType: 'up' | 'down') => void;
   addCreatedCollection: (collectionId: string) => void;
   incrementGenerationCount: () => void;
   upgradeToPro: () => void;
@@ -67,6 +68,10 @@ const normalizeUser = (userToNormalize: User | any): User | null => {
     // This prevents the tutorial from showing to users who signed up before the feature existed.
     if (typeof normalizedUser.hasCompletedTutorial === 'undefined') {
         normalizedUser.hasCompletedTutorial = true;
+    }
+
+    if (typeof normalizedUser.votes === 'undefined') {
+      normalizedUser.votes = {};
     }
 
     // Pass through existing normalization/reset functions
@@ -148,6 +153,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 promptsSubmittedToday: 0,
                 lastSubmissionDate: new Date().toISOString().split('T')[0],
                 hasCompletedTutorial: false, // New users start with the tutorial incomplete.
+                votes: {},
             };
             setUsers(prev => [...prev, newUser]);
             setUser(newUser);
@@ -211,6 +217,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
       
       return { ...prevUser, savedPrompts: newSavedPrompts };
+    });
+  };
+
+  const handleVote = (promptId: string, voteType: 'up' | 'down') => {
+    if (!user) return;
+
+    setUser(prevUser => {
+      if (!prevUser) return null;
+
+      const currentVotes = { ...(prevUser.votes || {}) };
+      const currentVote = currentVotes[promptId];
+      
+      if (currentVote === voteType) {
+        // User is clicking the same vote button again, so remove the vote
+        delete currentVotes[promptId];
+      } else {
+        // New vote or changing vote
+        currentVotes[promptId] = voteType;
+      }
+      
+      return { ...prevUser, votes: currentVotes };
     });
   };
 
@@ -296,7 +323,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro, getSubmissionsLeft, incrementSubmissionCount, completeTutorial }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, handleVote, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro, getSubmissionsLeft, incrementSubmissionCount, completeTutorial }}>
       {children}
     </AuthContext.Provider>
   );

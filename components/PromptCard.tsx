@@ -1,9 +1,10 @@
 import React from 'react';
 import { Prompt } from '../constants';
-import { Copy, Bookmark, Edit, Trash2, Star, MessageSquare } from 'lucide-react';
+import { Copy, Bookmark, Edit, Trash2, MessageSquare } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import StarRating from './StarRating';
+import RatingControl from './StarRating';
 import { useNavigate } from 'react-router-dom';
+import { usePrompts } from '../contexts/PromptContext';
 
 interface PromptCardProps {
   prompt: Prompt;
@@ -13,7 +14,8 @@ interface PromptCardProps {
 }
 
 const PromptCard: React.FC<PromptCardProps> = ({ prompt, onClick, onEdit, onDelete }) => {
-  const { user, toggleSavePrompt } = useAuth();
+  const { user, toggleSavePrompt, handleVote: handleUserVote } = useAuth();
+  const { handlePromptVote } = usePrompts();
   const navigate = useNavigate();
   const isSaved = user?.savedPrompts?.includes(prompt.id);
   const isAuthor = user?.id === prompt.author.id;
@@ -30,6 +32,16 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, onClick, onEdit, onDele
     } else {
       toggleSavePrompt(prompt.id);
     }
+  };
+
+  const handleVote = (voteType: 'up' | 'down') => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    const previousVote = user.votes?.[prompt.id];
+    handleUserVote(prompt.id, voteType);
+    handlePromptVote(prompt.id, voteType, previousVote);
   };
 
   const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -62,7 +74,7 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, onClick, onEdit, onDele
               <span className="font-semibold px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full">{prompt.model}</span>
               {!prompt.isPublic && (
                 <span className="flex items-center font-semibold px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 rounded-full text-xs">
-                  <Star size={12} className="mr-1" />
+                  <Bookmark size={12} className="mr-1" />
                   Premium
                 </span>
               )}
@@ -83,8 +95,12 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, onClick, onEdit, onDele
       </div>
       <div className="bg-gray-50 dark:bg-gray-700/50 px-6 py-3 flex justify-between items-center">
         <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-          <StarRating rating={prompt.averageRating} />
-          <span className="text-xs">({prompt.ratingsCount})</span>
+          <RatingControl
+            upvotes={prompt.upvotes}
+            downvotes={prompt.downvotes}
+            userVote={user?.votes?.[prompt.id]}
+            onVote={handleVote}
+          />
           <div className="flex items-center space-x-1">
               <MessageSquare size={16} />
               <span>{prompt.comments.length}</span>

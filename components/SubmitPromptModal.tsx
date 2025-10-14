@@ -8,7 +8,7 @@ import { ChevronDown, CheckCircle } from 'lucide-react';
 interface SubmitPromptModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: Omit<Prompt, 'id' | 'author' | 'averageRating' | 'ratingsCount' | 'comments' | 'createdAt' | 'status'>) => void;
+  onSubmit: (data: Omit<Prompt, 'id' | 'author' | 'upvotes' | 'downvotes' | 'comments' | 'createdAt' | 'status'>) => void;
 }
 
 const SubmitPromptModal: React.FC<SubmitPromptModalProps> = ({ isOpen, onClose, onSubmit }) => {

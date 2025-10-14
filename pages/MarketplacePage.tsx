@@ -10,7 +10,8 @@ import Button from '../components/Button';
 import { useNavigate } from 'react-router-dom';
 import CollectionPreviewModal from '../components/CollectionPreviewModal';
 
-type NewPromptData = Omit<Prompt, 'id' | 'author' | 'averageRating' | 'ratingsCount' | 'comments' | 'createdAt' | 'isPublic' | 'status'>;
+// FIX: Update Omit to use correct properties from the Prompt type ('upvotes', 'downvotes') instead of the non-existent 'averageRating' and 'ratingsCount'.
+type NewPromptData = Omit<Prompt, 'id' | 'author' | 'upvotes' | 'downvotes' | 'comments' | 'createdAt' | 'isPublic' | 'status'>;
 type NewCollectionData = Omit<Collection, 'id' | 'creator' | 'promptCount' | 'promptIds' | 'status'>;
 
 const MarketplacePage: React.FC = () => {
@@ -65,8 +66,9 @@ const MarketplacePage: React.FC = () => {
                 ...promptData,
                 id: `p${Date.now()}-${index}`,
                 author: user,
-                averageRating: 0,
-                ratingsCount: 0,
+                // FIX: Replace non-existent 'averageRating' and 'ratingsCount' with 'upvotes' and 'downvotes' to match the Prompt interface.
+                upvotes: 0,
+                downvotes: 0,
                 comments: [],
                 createdAt: new Date().toISOString(),
                 isPublic: false, // Mark as exclusive to the collection

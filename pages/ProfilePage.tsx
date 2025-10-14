@@ -52,9 +52,14 @@ const ProfilePage: React.FC = () => {
   const handleEditClick = (prompt: Prompt) => setPromptToEdit(prompt);
   const handleDeleteClick = (promptId: string) => setPromptToDelete(promptId);
 
-  const handlePromptUpdate = (updatedData: Omit<Prompt, 'author' | 'averageRating' | 'ratingsCount' | 'comments' | 'createdAt'>) => {
+  const handlePromptUpdate = (updatedData: Omit<Prompt, 'author' | 'upvotes' | 'downvotes' | 'comments' | 'createdAt'>) => {
     if (!promptToEdit) return;
-    const updatedPrompt = { ...promptToEdit, ...updatedData };
+    const updatedPrompt = { 
+      ...promptToEdit, 
+      ...updatedData,
+      upvotes: 0,
+      downvotes: 0,
+    };
     updatePrompt(updatedPrompt);
     setPromptToEdit(null);
   };
@@ -249,7 +254,7 @@ const ProfilePage: React.FC = () => {
       />
 
       <ConfirmationModal
-          isOpen={!!promptToDelete}
+          isOpen={!!promptToEdit}
           onClose={() => setPromptToDelete(null)}
           onConfirm={handleConfirmDelete}
           title="Delete Prompt"

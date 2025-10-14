@@ -1,61 +1,41 @@
-import React, { useState } from 'react';
-import { Star } from 'lucide-react';
+import React from 'react';
+import { ArrowUp, ArrowDown } from 'lucide-react';
 
-interface StarRatingProps {
-  rating: number;
-  onRate?: (rating: number) => void;
+interface RatingControlProps {
+  upvotes: number;
+  downvotes: number;
+  userVote?: 'up' | 'down' | null;
+  onVote: (voteType: 'up' | 'down') => void;
   size?: number;
-  className?: string;
-  isInteractive?: boolean;
 }
 
-const StarRating: React.FC<StarRatingProps> = ({
-  rating,
-  onRate,
-  size = 16,
-  className = '',
-  isInteractive = false,
-}) => {
-  const [hoverRating, setHoverRating] = useState(0);
+const RatingControl: React.FC<RatingControlProps> = ({ upvotes, downvotes, userVote, onVote, size = 18 }) => {
+  const score = upvotes - downvotes;
 
-  const handleClick = (rate: number) => {
-    if (isInteractive && onRate) {
-      onRate(rate);
-    }
+  const handleUpvote = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onVote('up');
   };
 
-  const handleMouseEnter = (rate: number) => {
-    if (isInteractive) {
-      setHoverRating(rate);
-    }
+  const handleDownvote = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onVote('down');
   };
 
-  const handleMouseLeave = () => {
-    if (isInteractive) {
-      setHoverRating(0);
-    }
-  };
-  
-  const displayRating = hoverRating || Math.round(rating);
+  const upvoteClass = userVote === 'up' ? 'text-primary-500' : 'text-gray-500 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400';
+  const downvoteClass = userVote === 'down' ? 'text-red-500' : 'text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400';
 
   return (
-    <div className={`flex items-center ${className} ${isInteractive ? 'cursor-pointer' : ''}`}>
-      {Array.from({ length: 5 }, (_, i) => i + 1).map((star) => (
-        <Star
-          key={star}
-          size={size}
-          className={`transition-colors duration-150 ${
-            star <= displayRating
-              ? 'text-yellow-400 fill-yellow-400'
-              : 'text-gray-300 dark:text-gray-600'
-          } ${isInteractive ? 'hover:text-yellow-300 hover:fill-yellow-300' : ''}`}
-          onClick={() => handleClick(star)}
-          onMouseEnter={() => handleMouseEnter(star)}
-          onMouseLeave={handleMouseLeave}
-        />
-      ))}
+    <div className="flex items-center space-x-1">
+      <button onClick={handleUpvote} className="p-1 rounded-full transition-colors" title="Upvote">
+        <ArrowUp size={size} className={upvoteClass} />
+      </button>
+      <span className="font-bold text-sm min-w-[24px] text-center" style={{fontSize: `${size > 20 ? '1rem' : '0.875rem'}`}}>{score}</span>
+      <button onClick={handleDownvote} className="p-1 rounded-full transition-colors" title="Downvote">
+        <ArrowDown size={size} className={downvoteClass} />
+      </button>
     </div>
   );
 };
 
-export default StarRating;
+export default RatingControl;

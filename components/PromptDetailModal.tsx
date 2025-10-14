@@ -6,7 +6,7 @@ import { Copy, Loader, Sparkles, Check, Book, Cpu, Tag as TagIcon, MessageSquare
 import { generateExampleOutput, generateExampleImage } from '../services/geminiService';
 import { usePrompts } from '../contexts/PromptContext';
 import { useAuth } from '../contexts/AuthContext';
-import StarRating from './StarRating';
+import RatingControl from './StarRating';
 import { useNavigate } from 'react-router-dom';
 
 interface PromptDetailModalProps {
@@ -28,8 +28,8 @@ const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, o
   const [copied, setCopied] = useState(false);
   const [newComment, setNewComment] = useState('');
   
-  const { addRating, addComment } = usePrompts();
-  const { user } = useAuth();
+  const { handlePromptVote, addComment } = usePrompts();
+  const { user, handleVote: handleUserVote } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -81,13 +81,15 @@ const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, o
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleRate = (rating: number) => {
+  const handleVote = (voteType: 'up' | 'down') => {
     if (!user) {
       navigate('/login');
       onClose();
       return;
     }
-    addRating(prompt.id, rating);
+    const previousVote = user.votes?.[prompt.id];
+    handleUserVote(prompt.id, voteType);
+    handlePromptVote(prompt.id, voteType, previousVote);
   };
 
   const handleCommentSubmit = (e: React.FormEvent) => {
@@ -186,20 +188,20 @@ const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, o
         {!isAdminPreview && (
           <>
             <div className="space-y-4 pt-4 border-t dark:border-gray-700">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Rating & Feedback</h3>
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Feedback</h3>
               <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg space-y-4">
-                <div className="flex items-center space-x-2">
-                  <StarRating rating={prompt.averageRating} size={20} />
-                  <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                    {prompt.averageRating.toFixed(1)}
-                  </span>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
-                    ({prompt.ratingsCount} ratings)
-                  </span>
-                </div>
                 <div>
-                  <p className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">Rate this prompt</p>
-                  <StarRating rating={0} onRate={handleRate} size={28} isInteractive={true} />
+                  <p className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">Vote on this prompt</p>
+                  <RatingControl
+                    upvotes={prompt.upvotes}
+                    downvotes={prompt.downvotes}
+                    userVote={user?.votes?.[prompt.id]}
+                    onVote={handleVote}
+                    size={28}
+                  />
+                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                    {prompt.upvotes} upvotes, {prompt.downvotes} downvotes
+                  </p>
                 </div>
               </div>
             </div>
