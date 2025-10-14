@@ -7,7 +7,7 @@ import { generateExampleOutput, generateExampleImage } from '../services/geminiS
 import { usePrompts } from '../contexts/PromptContext';
 import { useAuth } from '../contexts/AuthContext';
 import RatingControl from './StarRating';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 interface PromptDetailModalProps {
   prompt: Prompt | null;
@@ -41,7 +41,7 @@ const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, o
     if (isOpen && prompt) {
       // If the prompt has a user-submitted example, use it.
       if (prompt.exampleOutput) {
-        const isUrl = prompt.exampleOutput.startsWith('http');
+        const isUrl = prompt.exampleOutput.startsWith('http') || prompt.exampleOutput.startsWith('data:image');
         if (isUrl) {
             setExample({ type: 'image', content: prompt.exampleOutput });
         } else {
@@ -110,7 +110,13 @@ const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, o
         
         <div className="pb-4 border-b dark:border-gray-700">
             <div className="flex items-center space-x-3 mb-4">
-                <img src={prompt.author.avatar} alt={prompt.author.name} className="w-12 h-12 rounded-full object-cover" />
+                {user?.id !== prompt.author.id ? (
+                    <Link to={`/profile/${prompt.author.id}`} onClick={onClose} className="group">
+                        <img src={prompt.author.avatar} alt={prompt.author.name} className="w-12 h-12 rounded-full object-cover group-hover:ring-2 group-hover:ring-primary-400 transition-all" />
+                    </Link>
+                ) : (
+                    <img src={prompt.author.avatar} alt={prompt.author.name} className="w-12 h-12 rounded-full object-cover" />
+                )}
                 <div>
                     <p className="font-semibold text-gray-800 dark:text-gray-200">{prompt.author.name}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">Author</p>
@@ -214,9 +220,19 @@ const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, o
               <div className="space-y-4">
                 {prompt.comments.map(comment => (
                   <div key={comment.id} className="flex items-start space-x-3">
-                    <img src={comment.author.avatar} alt={comment.author.name} className="w-10 h-10 rounded-full object-cover"/>
+                    {user?.id !== comment.author.id ? (
+                      <Link to={`/profile/${comment.author.id}`} onClick={onClose} className="group flex-shrink-0">
+                        <img src={comment.author.avatar} alt={comment.author.name} className="w-10 h-10 rounded-full object-cover group-hover:ring-2 group-hover:ring-primary-400 transition-all"/>
+                      </Link>
+                    ) : (
+                      <img src={comment.author.avatar} alt={comment.author.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0"/>
+                    )}
                     <div className="flex-1 bg-gray-100 dark:bg-gray-700 p-3 rounded-lg">
-                      <p className="font-semibold text-sm text-gray-800 dark:text-gray-200">{comment.author.name} <span className="text-xs font-normal text-gray-500 dark:text-gray-400">{new Date(comment.createdAt).toLocaleDateString()}</span></p>
+                       <p className="font-semibold text-sm text-gray-800 dark:text-gray-200">
+                        {comment.author.name}
+                        {' '}
+                        <span className="text-xs font-normal text-gray-500 dark:text-gray-400">{new Date(comment.createdAt).toLocaleDateString()}</span>
+                      </p>
                       <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">{comment.text}</p>
                     </div>
                   </div>

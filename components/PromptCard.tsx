@@ -3,7 +3,7 @@ import { Prompt } from '../constants';
 import { Copy, Bookmark, Edit, Trash2, MessageSquare } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import RatingControl from './StarRating';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { usePrompts } from '../contexts/PromptContext';
 
 interface PromptCardProps {
@@ -45,7 +45,7 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, onClick, onEdit, onDele
   };
 
   const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if ((e.target as HTMLElement).closest('button')) {
+    if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) {
       return;
     }
     onClick(prompt);
@@ -82,9 +82,15 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, onClick, onEdit, onDele
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{prompt.title}</h3>
             <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{prompt.description}</p>
           </div>
-          <div className="flex items-center space-x-2 ml-4">
-            <img src={prompt.author.avatar} alt={prompt.author.name} className="w-10 h-10 rounded-full" />
-            <span className="text-sm font-medium">{prompt.author.name}</span>
+          <div className="flex items-center space-x-2 ml-4 flex-shrink-0">
+            {user?.id !== prompt.author.id ? (
+              <Link to={`/profile/${prompt.author.id}`} onClick={(e) => e.stopPropagation()} className="group">
+                <img src={prompt.author.avatar} alt={prompt.author.name} className="w-10 h-10 rounded-full group-hover:ring-2 group-hover:ring-primary-400 transition-all" />
+              </Link>
+            ) : (
+              <img src={prompt.author.avatar} alt={prompt.author.name} className="w-10 h-10 rounded-full" />
+            )}
+            <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{prompt.author.name}</span>
           </div>
         </div>
         <div className="flex flex-wrap gap-2 mt-4">

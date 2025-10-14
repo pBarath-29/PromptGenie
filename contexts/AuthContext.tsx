@@ -21,6 +21,7 @@ interface AuthContextType {
   getSubmissionsLeft: () => number;
   incrementSubmissionCount: () => void;
   completeTutorial: () => void;
+  getUserById: (userId: string) => User | undefined;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -139,8 +140,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const newUser: User = {
                 id: `u${Date.now()}`,
                 name,
-                avatar: `https://i.pravatar.cc/150?u=${`u${Date.now()}`}`,
-                bio: '',
+                avatar: `https://www.gravatar.com/avatar/?d=mp`,
+                bio: "Hey there! I'm using Prompter.",
                 badges: ['New Member'],
                 submittedPrompts: [],
                 purchasedCollections: [],
@@ -321,9 +322,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           } : null);
       }
   };
+  
+  const getUserById = (userId: string): User | undefined => {
+      // In a real app, this might be an API call. Here we search all known users.
+      return users.find(u => u.id === userId);
+  };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, handleVote, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro, getSubmissionsLeft, incrementSubmissionCount, completeTutorial }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, handleVote, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro, getSubmissionsLeft, incrementSubmissionCount, completeTutorial, getUserById }}>
       {children}
     </AuthContext.Provider>
   );
