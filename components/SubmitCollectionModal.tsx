@@ -6,7 +6,6 @@ import { AI_MODELS, CATEGORIES } from '../types';
 import { ChevronDown, PlusCircle, Trash2, CheckCircle } from 'lucide-react';
 import ImageUpload from './ImageUpload';
 
-// FIX: Update Omit to use correct properties from the Prompt type ('upvotes', 'downvotes') instead of the non-existent 'averageRating' and 'ratingsCount'.
 type NewPromptData = Omit<Prompt, 'id' | 'author' | 'upvotes' | 'downvotes' | 'comments' | 'createdAt' | 'isPublic' | 'status'>;
 type NewCollectionData = Omit<Collection, 'id' | 'creator' | 'promptCount' | 'promptIds' | 'status'>;
 

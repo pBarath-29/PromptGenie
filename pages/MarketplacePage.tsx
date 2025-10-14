@@ -11,7 +11,6 @@ import { useNavigate } from 'react-router-dom';
 import CollectionPreviewModal from '../components/CollectionPreviewModal';
 import Pagination from '../components/Pagination';
 
-// FIX: Update Omit to use correct properties from the Prompt type ('upvotes', 'downvotes') instead of the non-existent 'averageRating' and 'ratingsCount'.
 type NewPromptData = Omit<Prompt, 'id' | 'author' | 'upvotes' | 'downvotes' | 'comments' | 'createdAt' | 'isPublic' | 'status'>;
 type NewCollectionData = Omit<Collection, 'id' | 'creator' | 'promptCount' | 'promptIds' | 'status'>;
 
@@ -80,7 +79,6 @@ const MarketplacePage: React.FC = () => {
                 ...promptData,
                 id: `p${Date.now()}-${index}`,
                 author: user,
-                // FIX: Replace non-existent 'averageRating' and 'ratingsCount' with 'upvotes' and 'downvotes' to match the Prompt interface.
                 upvotes: 0,
                 downvotes: 0,
                 comments: [],

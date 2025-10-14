@@ -59,7 +59,6 @@ const EditPromptModal: React.FC<EditPromptModalProps> = ({ isOpen, onClose, onSu
       model,
       tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
       isPublic,
-      // FIX: Add status property to conform to the required type. Editing a prompt should reset its status to 'pending' for re-approval.
       status: 'pending',
       exampleOutput: exampleOutput.trim() || undefined,
     });

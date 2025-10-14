@@ -107,10 +107,24 @@ const GalleryView: React.FC<{ onSelect: (base64: string) => void }> = ({ onSelec
 
 const FileUploadView: React.FC<{ onUpload: (base64: string) => void }> = ({ onUpload }) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    setError(null);
     const file = event.target.files?.[0];
     if (file) {
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
+        setError('Invalid file type. Please select a JPG, PNG, or GIF image.');
+        return;
+      }
+
+      const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSizeInBytes) {
+        setError('File is too large. Please select an image smaller than 5MB.');
+        return;
+      }
+
       const base64 = await blobToBase64(file);
       onUpload(base64);
     }
@@ -121,10 +135,11 @@ const FileUploadView: React.FC<{ onUpload: (base64: string) => void }> = ({ onUp
       className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50"
       onClick={() => inputRef.current?.click()}
     >
-      <input type="file" ref={inputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
+      <input type="file" ref={inputRef} onChange={handleFileChange} accept="image/jpeg,image/png,image/gif" className="hidden" />
       <Upload size={48} className="text-gray-400 mb-2" />
       <p className="font-semibold">Click to upload a file</p>
-      <p className="text-sm text-gray-500">PNG, JPG, GIF up to 10MB</p>
+      <p className="text-sm text-gray-500">PNG, JPG, GIF up to 5MB</p>
+      {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
     </div>
   );
 };

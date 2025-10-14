@@ -10,7 +10,6 @@ import { ArrowLeft, Package } from 'lucide-react';
 const CollectionPage: React.FC = () => {
     const { collectionId } = useParams<{ collectionId: string }>();
     const { collections } = useCollections();
-    // FIX: Removed `voteOnPrompt` as it does not exist on the PromptContextType.
     const { prompts } = usePrompts();
     const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
 
@@ -68,7 +67,6 @@ const CollectionPage: React.FC = () => {
             <h2 className="text-2xl font-bold">Prompts in this collection ({collectionPrompts.length})</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {collectionPrompts.map(prompt => (
-                    // FIX: Removed the `onVote` prop as it is not a valid prop for PromptCard.
                     <PromptCard key={prompt.id} prompt={prompt} onClick={handlePromptClick} />
                 ))}
             </div>
