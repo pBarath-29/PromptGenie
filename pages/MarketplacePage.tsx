@@ -15,7 +15,7 @@ import Pagination from '../components/Pagination';
 type NewPromptData = Omit<Prompt, 'id' | 'author' | 'upvotes' | 'downvotes' | 'comments' | 'createdAt' | 'isPublic' | 'status'>;
 type NewCollectionData = Omit<Collection, 'id' | 'creator' | 'promptCount' | 'promptIds' | 'status'>;
 
-const COLLECTIONS_PER_PAGE = 8;
+const COLLECTIONS_PER_PAGE = 9;
 
 const MarketplacePage: React.FC = () => {
     const { collections, addCollection } = useCollections();
@@ -160,7 +160,7 @@ const MarketplacePage: React.FC = () => {
 
             {paginatedCollections.length > 0 ? (
                 <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {paginatedCollections.map(collection => (
                             <CollectionCard 
                             key={collection.id} 
