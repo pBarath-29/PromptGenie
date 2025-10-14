@@ -5,12 +5,12 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { PromptProvider } from './contexts/PromptContext';
 import { CollectionProvider } from './contexts/CollectionContext';
 import { HistoryProvider } from './contexts/HistoryContext';
+import { FeedbackProvider } from './contexts/FeedbackContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import CommunityPage from './pages/CommunityPage';
 import MarketplacePage from './pages/MarketplacePage';
-import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
 import UserProfilePage from './pages/UserProfilePage';
 import CollectionPage from './pages/CollectionPage';
@@ -20,6 +20,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminPage from './pages/AdminPage';
 import AdminRoute from './components/AdminRoute';
 import UpgradePage from './pages/UpgradePage';
+import FeedbackPage from './pages/FeedbackPage';
 
 const AppContent: React.FC = () => {
   const { user } = useAuth();
@@ -49,12 +50,12 @@ const AppContent: React.FC = () => {
       <Route path="/" element={<HomePage />} />
       <Route path="/community" element={<ProtectedRoute><CommunityPage /></ProtectedRoute>} />
       <Route path="/marketplace" element={<ProtectedRoute><MarketplacePage /></ProtectedRoute>} />
-      <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
       <Route path="/profile/:userId" element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
       <Route path="/collection/:collectionId" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
       <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
       <Route path="/upgrade" element={<ProtectedRoute><UpgradePage /></ProtectedRoute>} />
+      <Route path="/feedback" element={<ProtectedRoute><FeedbackPage /></ProtectedRoute>} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignUpPage />} />
     </Routes>
@@ -68,9 +69,11 @@ const App: React.FC = () => {
         <PromptProvider>
           <CollectionProvider>
             <HistoryProvider>
-              <HashRouter>
-                <AppContent />
-              </HashRouter>
+              <FeedbackProvider>
+                <HashRouter>
+                  <AppContent />
+                </HashRouter>
+              </FeedbackProvider>
             </HistoryProvider>
           </CollectionProvider>
         </PromptProvider>

@@ -74,3 +74,14 @@ export type AIModel = 'ChatGPT' | 'Claude' | 'Gemini' | 'MidJourney' | 'DALL-E';
 export type Category = 'Education' | 'Coding' | 'Business' | 'Art' | 'Marketing' | 'Fun';
 // FIX: Export Tone type for use in other files
 export type Tone = 'Professional' | 'Casual' | 'Creative' | 'Academic' | 'Humorous';
+
+export type FeedbackType = 'Bug Report' | 'Feature Request' | 'General Feedback';
+
+export interface FeedbackItem {
+  id: string;
+  user: User;
+  type: FeedbackType;
+  message: string;
+  createdAt: string;
+  status: 'pending' | 'reviewed';
+}

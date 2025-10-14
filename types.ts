@@ -1,8 +1,29 @@
-import { AIModel, Category, Collection, Prompt, User, Tone } from './constants';
+import { AIModel, Category, Collection, Prompt, User, Tone, FeedbackType, FeedbackItem } from './constants';
 
 export const AI_MODELS: AIModel[] = ['ChatGPT', 'Claude', 'Gemini', 'MidJourney', 'DALL-E'];
 export const CATEGORIES: Category[] = ['Education', 'Coding', 'Business', 'Art', 'Marketing', 'Fun'];
 export const TONES: Tone[] = ['Professional', 'Casual', 'Creative', 'Academic', 'Humorous'];
+export const FEEDBACK_TYPES: FeedbackType[] = ['Bug Report', 'Feature Request', 'General Feedback'];
+
+// Helper functions to create date strings relative to the current time
+const daysAgo = (days: number): string => {
+  const date = new Date();
+  date.setDate(date.getDate() - days);
+  return date.toISOString();
+};
+
+const hoursAgo = (hours: number): string => {
+  const date = new Date();
+  date.setHours(date.getHours() - hours);
+  return date.toISOString();
+};
+
+const minutesAgo = (minutes: number): string => {
+  const date = new Date();
+  date.setMinutes(date.getMinutes() - minutes);
+  return date.toISOString();
+};
+
 
 export const MOCK_USERS: User[] = [
   { 
@@ -93,10 +114,10 @@ export const MOCK_PROMPTS: Prompt[] = [
     upvotes: 125,
     downvotes: 5,
     comments: [
-      { id: 'c1', author: MOCK_USERS[1], text: 'This prompt is a lifesaver for my college papers!', createdAt: '2023-10-26T12:00:00Z' },
-      { id: 'c2', author: MOCK_USERS[2], text: 'Great structure, very easy to use.', createdAt: '2023-10-26T15:00:00Z' }
+      { id: 'c1', author: MOCK_USERS[1], text: 'This prompt is a lifesaver for my college papers!', createdAt: daysAgo(1) },
+      { id: 'c2', author: MOCK_USERS[2], text: 'Great structure, very easy to use.', createdAt: hoursAgo(5) }
     ],
-    createdAt: '2023-10-26T10:00:00Z',
+    createdAt: daysAgo(4),
     model: 'ChatGPT',
     isPublic: true,
     status: 'approved',
@@ -113,7 +134,7 @@ export const MOCK_PROMPTS: Prompt[] = [
     upvotes: 230,
     downvotes: 3,
     comments: [],
-    createdAt: '2023-10-25T14:30:00Z',
+    createdAt: daysAgo(5),
     model: 'MidJourney',
     isPublic: true,
     status: 'approved',
@@ -130,9 +151,9 @@ export const MOCK_PROMPTS: Prompt[] = [
     upvotes: 95,
     downvotes: 5,
     comments: [
-      { id: 'c3', author: MOCK_USERS[2], text: 'Fantastic prompt for improving code quality.', createdAt: '2023-10-24T11:00:00Z' },
+      { id: 'c3', author: MOCK_USERS[2], text: 'Fantastic prompt for improving code quality.', createdAt: daysAgo(2) },
     ],
-    createdAt: '2023-10-24T09:00:00Z',
+    createdAt: daysAgo(6),
     model: 'Gemini',
     isPublic: true,
     status: 'approved',
@@ -149,7 +170,7 @@ export const MOCK_PROMPTS: Prompt[] = [
     upvotes: 140,
     downvotes: 17,
     comments: [],
-    createdAt: '2023-10-27T11:00:00Z',
+    createdAt: daysAgo(3),
     model: 'Claude',
     isPublic: true,
     status: 'approved',
@@ -166,7 +187,7 @@ export const MOCK_PROMPTS: Prompt[] = [
     upvotes: 88,
     downvotes: 1,
     comments: [],
-    createdAt: '2023-10-28T09:30:00Z',
+    createdAt: daysAgo(2),
     model: 'Gemini',
     isPublic: true,
     status: 'approved',
@@ -183,7 +204,7 @@ export const MOCK_PROMPTS: Prompt[] = [
     upvotes: 170,
     downvotes: 26,
     comments: [],
-    createdAt: '2023-10-29T16:00:00Z',
+    createdAt: hoursAgo(10),
     model: 'DALL-E',
     isPublic: true,
     status: 'approved',
@@ -200,7 +221,7 @@ export const MOCK_PROMPTS: Prompt[] = [
     upvotes: 210,
     downvotes: 4,
     comments: [],
-    createdAt: '2023-10-30T12:00:00Z',
+    createdAt: minutesAgo(30),
     model: 'MidJourney',
     isPublic: true,
     status: 'approved',
@@ -299,6 +320,33 @@ export const MOCK_COLLECTIONS: Collection[] = [
         promptCount: 2,
         coverImage: 'https://picsum.photos/seed/c4/600/400',
         promptIds: ['p-pending-2', 'p-pending-3'],
+        status: 'pending',
+    }
+];
+
+export const MOCK_FEEDBACK: FeedbackItem[] = [
+    {
+        id: 'f1',
+        user: MOCK_USERS[0],
+        type: 'Feature Request',
+        message: 'It would be great to have a dark mode for the website! My eyes hurt at night.',
+        createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+        status: 'reviewed',
+    },
+    {
+        id: 'f2',
+        user: MOCK_USERS[1],
+        type: 'Bug Report',
+        message: 'When I try to upload an avatar image, it sometimes fails with a generic error message. Using Chrome on Windows.',
+        createdAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+        status: 'pending',
+    },
+    {
+        id: 'f3',
+        user: MOCK_USERS[2],
+        type: 'General Feedback',
+        message: 'Just wanted to say I love the platform! The prompt generator is amazing and has saved me so much time. Keep up the great work!',
+        createdAt: new Date().toISOString(),
         status: 'pending',
     }
 ];

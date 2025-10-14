@@ -1,10 +1,43 @@
 import React from 'react';
 import { Prompt } from '../constants';
-import { Copy, Bookmark, Edit, Trash2, MessageSquare } from 'lucide-react';
+import { Copy, Bookmark, Edit, Trash2, MessageSquare, Clock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import RatingControl from './StarRating';
 import { useNavigate, Link } from 'react-router-dom';
 import { usePrompts } from '../contexts/PromptContext';
+
+// Utility function to calculate time ago
+function timeAgo(dateString: string): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (seconds < 2) {
+        return 'just now';
+    }
+    if (seconds < 60) {
+        return `${seconds} seconds ago`;
+    }
+
+    const intervals = [
+        { label: 'year', seconds: 31536000 },
+        { label: 'month', seconds: 2592000 },
+        { label: 'day', seconds: 86400 },
+        { label: 'hour', seconds: 3600 },
+        { label: 'minute', seconds: 60 }
+    ];
+
+    for (const interval of intervals) {
+        const count = Math.floor(seconds / interval.seconds);
+        if (count >= 1) {
+            return `${count} ${interval.label}${count > 1 ? 's' : ''} ago`;
+        }
+    }
+    
+    return 'just now';
+}
+
 
 interface PromptCardProps {
   prompt: Prompt;
@@ -110,6 +143,10 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, onClick, onEdit, onDele
           <div className="flex items-center space-x-1">
               <MessageSquare size={16} />
               <span>{prompt.comments.length}</span>
+          </div>
+          <div className="hidden sm:flex items-center space-x-1.5">
+              <Clock size={16} />
+              <span>{timeAgo(prompt.createdAt)}</span>
           </div>
         </div>
         <div className="flex items-center space-x-2">
