@@ -1,10 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { usePrompts } from '../contexts/PromptContext';
 import PromptCard from '../components/PromptCard';
 import PromptDetailModal from '../components/PromptDetailModal';
 import { Prompt, AIModel, Category } from '../constants';
 import { AI_MODELS, CATEGORIES } from '../types';
-import { ChevronDown, Search, PlusCircle } from 'lucide-react';
+import { ChevronDown, Search, PlusCircle, ArrowLeft, ArrowRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import Button from '../components/Button';
 import SubmitPromptModal from '../components/SubmitPromptModal';
@@ -25,6 +25,8 @@ const CommunityPage: React.FC = () => {
     const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all');
     const [selectedModel, setSelectedModel] = useState<AIModel | 'all'>('all');
     const [sortBy, setSortBy] = useState<'popular' | 'newest'>('popular');
+    const [currentPage, setCurrentPage] = useState(1);
+    const promptsPerPage = 9;
 
     const filteredPrompts = useMemo(() => {
         return prompts
@@ -50,6 +52,25 @@ const CommunityPage: React.FC = () => {
                 return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
             });
     }, [prompts, searchTerm, selectedCategory, selectedModel, sortBy]);
+    
+    // Reset to first page when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, selectedCategory, selectedModel, sortBy]);
+    
+    // Pagination logic
+    const totalPages = Math.ceil(filteredPrompts.length / promptsPerPage);
+    const indexOfLastPrompt = currentPage * promptsPerPage;
+    const indexOfFirstPrompt = indexOfLastPrompt - promptsPerPage;
+    const currentPrompts = filteredPrompts.slice(indexOfFirstPrompt, indexOfLastPrompt);
+
+    const handleNextPage = () => {
+        setCurrentPage(prev => Math.min(prev + 1, totalPages));
+    };
+
+    const handlePrevPage = () => {
+        setCurrentPage(prev => Math.max(prev - 1, 1));
+    };
 
     const handlePromptClick = (prompt: Prompt) => setSelectedPrompt(prompt);
     const handleCloseDetailModal = () => setSelectedPrompt(null);
@@ -150,16 +171,42 @@ const CommunityPage: React.FC = () => {
                 </div>
             </div>
 
-            {filteredPrompts.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredPrompts.map(prompt => (
-                        <PromptCard 
-                            key={prompt.id} 
-                            prompt={prompt} 
-                            onClick={handlePromptClick}
-                        />
-                    ))}
-                </div>
+            {currentPrompts.length > 0 ? (
+                <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {currentPrompts.map(prompt => (
+                            <PromptCard 
+                                key={prompt.id} 
+                                prompt={prompt} 
+                                onClick={handlePromptClick}
+                            />
+                        ))}
+                    </div>
+                    {totalPages > 1 && (
+                        <div className="flex justify-center items-center space-x-4 pt-4">
+                            <Button 
+                                variant="secondary" 
+                                onClick={handlePrevPage} 
+                                disabled={currentPage === 1} 
+                                icon={<ArrowLeft size={16}/>}
+                            >
+                                Previous
+                            </Button>
+                            <span className="font-medium text-gray-700 dark:text-gray-300">
+                                Page {currentPage} of {totalPages}
+                            </span>
+                             <Button 
+                                variant="secondary" 
+                                onClick={handleNextPage} 
+                                disabled={currentPage === totalPages}
+                                className="!flex-row-reverse"
+                                icon={<ArrowRight size={16}/>}
+                            >
+                                Next
+                            </Button>
+                        </div>
+                    )}
+                </>
             ) : (
                  <div className="text-center py-10">
                     <p className="text-gray-500 dark:text-gray-400">No prompts found. Try adjusting your filters.</p>

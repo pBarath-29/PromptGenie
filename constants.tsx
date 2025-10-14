@@ -4,7 +4,6 @@ export interface User {
   name: string;
   avatar: string;
   bio?: string;
-  badges?: string[];
   submittedPrompts?: string[];
   purchasedCollections?: string[];
   savedPrompts?: string[];

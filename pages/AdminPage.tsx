@@ -7,6 +7,9 @@ import { CheckCircle, XCircle, Eye, Inbox, Package, Clock, MessageSquare } from 
 import { Prompt, Collection } from '../constants';
 import PromptDetailModal from '../components/PromptDetailModal';
 import CollectionPreviewModal from '../components/CollectionPreviewModal';
+import Pagination from '../components/Pagination';
+
+const ITEMS_PER_PAGE = 5;
 
 const AdminPage: React.FC = () => {
     const { prompts, updatePromptStatus } = usePrompts();
@@ -17,9 +20,26 @@ const AdminPage: React.FC = () => {
     const [promptToPreview, setPromptToPreview] = useState<Prompt | null>(null);
     const [collectionToPreview, setCollectionToPreview] = useState<Collection | null>(null);
 
+    // Pagination states
+    const [promptsPage, setPromptsPage] = useState(1);
+    const [collectionsPage, setCollectionsPage] = useState(1);
+    const [feedbackPage, setFeedbackPage] = useState(1);
+
     const pendingPrompts = prompts.filter(p => p.status === 'pending');
     const pendingCollections = collections.filter(c => c.status === 'pending');
     const pendingFeedback = feedback.filter(f => f.status === 'pending');
+    
+    // Pagination logic
+    const paginate = (items: any[], page: number) => {
+        const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE);
+        const paginatedItems = items.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+        return { totalPages, paginatedItems };
+    };
+    
+    const { totalPages: promptsTotalPages, paginatedItems: paginatedPrompts } = paginate(pendingPrompts, promptsPage);
+    const { totalPages: collectionsTotalPages, paginatedItems: paginatedCollections } = paginate(pendingCollections, collectionsPage);
+    const { totalPages: feedbackTotalPages, paginatedItems: paginatedFeedback } = paginate(pendingFeedback, feedbackPage);
+
 
     const TabButton: React.FC<{
         label: string;
@@ -80,7 +100,7 @@ const AdminPage: React.FC = () => {
         <div className="transition-opacity duration-300">
             {activeTab === 'prompts' && (
             <div className="space-y-4">
-                {pendingPrompts.map(prompt => (
+                {paginatedPrompts.map(prompt => (
                 <div key={prompt.id} className="flex flex-col md:flex-row justify-between md:items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700">
                     <div className="mb-4 md:mb-0">
                         <p className="font-bold text-lg">{prompt.title}</p>
@@ -96,13 +116,17 @@ const AdminPage: React.FC = () => {
                     </div>
                 </div>
                 ))}
-                {pendingPrompts.length === 0 && <p className="text-center py-8 text-gray-500 dark:text-gray-400">No pending prompts to review.</p>}
+                {pendingPrompts.length === 0 ? (
+                    <p className="text-center py-8 text-gray-500 dark:text-gray-400">No pending prompts to review.</p>
+                ) : (
+                    <Pagination currentPage={promptsPage} totalPages={promptsTotalPages} onPageChange={setPromptsPage} />
+                )}
             </div>
             )}
             
             {activeTab === 'collections' && (
             <div className="space-y-4">
-                {pendingCollections.map(collection => (
+                {paginatedCollections.map(collection => (
                 <div key={collection.id} className="flex flex-col md:flex-row justify-between md:items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700">
                      <div className="mb-4 md:mb-0">
                         <p className="font-bold text-lg">{collection.name}</p>
@@ -118,13 +142,17 @@ const AdminPage: React.FC = () => {
                     </div>
                 </div>
                 ))}
-                {pendingCollections.length === 0 && <p className="text-center py-8 text-gray-500 dark:text-gray-400">No pending collections to review.</p>}
+                {pendingCollections.length === 0 ? (
+                    <p className="text-center py-8 text-gray-500 dark:text-gray-400">No pending collections to review.</p>
+                ) : (
+                    <Pagination currentPage={collectionsPage} totalPages={collectionsTotalPages} onPageChange={setCollectionsPage} />
+                )}
             </div>
             )}
 
             {activeTab === 'feedback' && (
             <div className="space-y-4">
-                {pendingFeedback.map(item => (
+                {paginatedFeedback.map(item => (
                 <div key={item.id} className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700">
                     <div className="flex flex-col md:flex-row justify-between">
                         <div className="mb-4 md:mb-0 md:mr-4">
@@ -146,7 +174,11 @@ const AdminPage: React.FC = () => {
                     </div>
                 </div>
                 ))}
-                {pendingFeedback.length === 0 && <p className="text-center py-8 text-gray-500 dark:text-gray-400">No pending feedback to review.</p>}
+                {pendingFeedback.length === 0 ? (
+                    <p className="text-center py-8 text-gray-500 dark:text-gray-400">No pending feedback to review.</p>
+                ) : (
+                    <Pagination currentPage={feedbackPage} totalPages={feedbackTotalPages} onPageChange={setFeedbackPage} />
+                )}
             </div>
             )}
         </div>

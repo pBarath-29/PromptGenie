@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import CollectionCard from '../components/CollectionCard';
 import { ChevronDown, Search, PackagePlus } from 'lucide-react';
 import { useCollections } from '../contexts/CollectionContext';
@@ -9,10 +9,13 @@ import { Collection, Prompt } from '../constants';
 import Button from '../components/Button';
 import { useNavigate } from 'react-router-dom';
 import CollectionPreviewModal from '../components/CollectionPreviewModal';
+import Pagination from '../components/Pagination';
 
 // FIX: Update Omit to use correct properties from the Prompt type ('upvotes', 'downvotes') instead of the non-existent 'averageRating' and 'ratingsCount'.
 type NewPromptData = Omit<Prompt, 'id' | 'author' | 'upvotes' | 'downvotes' | 'comments' | 'createdAt' | 'isPublic' | 'status'>;
 type NewCollectionData = Omit<Collection, 'id' | 'creator' | 'promptCount' | 'promptIds' | 'status'>;
+
+const COLLECTIONS_PER_PAGE = 8;
 
 const MarketplacePage: React.FC = () => {
     const { collections, addCollection } = useCollections();
@@ -24,6 +27,7 @@ const MarketplacePage: React.FC = () => {
     const [sortBy, setSortBy] = useState<'prompts-desc' | 'price-asc' | 'price-desc'>('prompts-desc');
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
     const [collectionToPreview, setCollectionToPreview] = useState<Collection | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
 
     const filteredCollections = useMemo(() => {
         return collections
@@ -48,6 +52,16 @@ const MarketplacePage: React.FC = () => {
                 }
             });
     }, [collections, searchTerm, sortBy]);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, sortBy]);
+
+    const totalPages = Math.ceil(filteredCollections.length / COLLECTIONS_PER_PAGE);
+    const paginatedCollections = filteredCollections.slice(
+        (currentPage - 1) * COLLECTIONS_PER_PAGE,
+        currentPage * COLLECTIONS_PER_PAGE
+    );
 
     const handleOpenSubmitModal = () => {
         if (!user) {
@@ -144,16 +158,23 @@ const MarketplacePage: React.FC = () => {
                 </div>
             </div>
 
-            {filteredCollections.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {filteredCollections.map(collection => (
-                        <CollectionCard 
-                          key={collection.id} 
-                          collection={collection} 
-                          onPreview={handlePreviewClick}
-                        />
-                    ))}
-                </div>
+            {paginatedCollections.length > 0 ? (
+                <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {paginatedCollections.map(collection => (
+                            <CollectionCard 
+                            key={collection.id} 
+                            collection={collection} 
+                            onPreview={handlePreviewClick}
+                            />
+                        ))}
+                    </div>
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                    />
+                </>
             ) : (
                 <div className="text-center py-10">
                     <p className="text-gray-500 dark:text-gray-400">No collections found. Try adjusting your search.</p>

@@ -142,7 +142,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 name,
                 avatar: `https://www.gravatar.com/avatar/?d=mp`,
                 bio: "Hey there! I'm using Prompter.",
-                badges: ['New Member'],
                 submittedPrompts: [],
                 purchasedCollections: [],
                 savedPrompts: [],

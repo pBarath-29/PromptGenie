@@ -31,7 +31,6 @@ export const MOCK_USERS: User[] = [
     name: 'Alex Doe', 
     avatar: 'https://i.pravatar.cc/150?u=u1', 
     bio: 'Prompt engineering enthusiast.', 
-    badges: ['Prompt Master', 'Top Creator'], 
     submittedPrompts: ['p1', 'p3', 'p5'], 
     purchasedCollections: ['c2'], 
     savedPrompts: ['p2'], 
@@ -50,7 +49,6 @@ export const MOCK_USERS: User[] = [
     name: 'Jane Smith', 
     avatar: 'https://i.pravatar.cc/150?u=u2', 
     bio: 'AI Artist and developer.', 
-    badges: ['Community Star'], 
     submittedPrompts: ['p2', 'p4', 'p6', 'p7'], 
     purchasedCollections: [], 
     savedPrompts: [], 
@@ -86,7 +84,6 @@ export const MOCK_USERS: User[] = [
     name: 'Admin', 
     avatar: 'https://i.pravatar.cc/150?u=u4', 
     bio: 'Site Administrator.', 
-    badges: ['Admin'], 
     submittedPrompts: [], 
     purchasedCollections: [], 
     savedPrompts: [], 
@@ -100,7 +97,49 @@ export const MOCK_USERS: User[] = [
     hasCompletedTutorial: true,
     votes: {},
   },
+  { 
+    id: 'u5', 
+    name: 'Patricia Master', 
+    avatar: 'https://i.pravatar.cc/150?u=u5', 
+    bio: 'I love submitting high-quality prompts!',
+    submittedPrompts: Array.from({ length: 20 }, (_, i) => `pm${i + 1}`), 
+    purchasedCollections: [], 
+    savedPrompts: [], 
+    createdCollections: [],
+    subscriptionTier: 'pro',
+    role: 'user',
+    promptGenerations: 50,
+    lastGenerationReset: `${new Date().getFullYear()}-${new Date().getMonth()}`,
+    promptsSubmittedToday: 2,
+    lastSubmissionDate: new Date().toISOString().split('T')[0],
+    hasCompletedTutorial: true,
+    votes: {},
+  },
 ];
+
+// Define user variables for easier reference in other mock data
+const alex = MOCK_USERS.find(u => u.id === 'u1')!;
+const jane = MOCK_USERS.find(u => u.id === 'u2')!;
+const sam = MOCK_USERS.find(u => u.id === 'u3')!;
+const patricia = MOCK_USERS.find(u => u.id === 'u5')!;
+
+const patriciaPrompts: Prompt[] = Array.from({ length: 20 }, (_, i) => ({
+    id: `pm${i + 1}`,
+    title: `Patricia's Submission #${i + 1}`,
+    prompt: `This is a sample prompt text for Patricia's submission #${i + 1}.`,
+    description: `A sample description for prompt pm${i + 1}.`,
+    author: patricia,
+    category: 'Fun',
+    tags: ['sample', 'bulk'],
+    upvotes: (i + 1) * 2, // Average upvotes will be low (~21), so no "Top Creator" badge
+    downvotes: 0,
+    comments: [],
+    createdAt: daysAgo(10 + i),
+    model: 'Gemini',
+    isPublic: true,
+    status: 'approved',
+}));
+
 
 export const MOCK_PROMPTS: Prompt[] = [
   {
@@ -108,14 +147,14 @@ export const MOCK_PROMPTS: Prompt[] = [
     title: 'Ultimate Essay Writing Assistant',
     prompt: 'Persona: Act as an expert academic writer with a PhD in literature.\n\nTask: Structure a compelling 5-paragraph argumentative essay based on a topic and 3 key points I will provide.\n\nFormat Requirements:\n1.  **Introduction:** Begin with a compelling hook, provide necessary background information, and end with a clear, debatable thesis statement.\n2.  **Body Paragraphs (3):** Each paragraph must start with a topic sentence that directly supports the thesis. Follow with evidence/explanation and end with a concluding sentence that transitions to the next paragraph.\n3.  **Conclusion:** Restate the thesis in a new way, summarize the main points from the body paragraphs, and offer a final, thought-provoking statement on the topic\'s broader implications.\n\nConstraints: Maintain a formal academic tone throughout. Use sophisticated vocabulary and complex sentence structures appropriately. Ensure seamless transitions between all paragraphs. Use placeholder citations like `(Author, Year)` where evidence would be needed.',
     description: 'A highly structured prompt for generating sophisticated, five-paragraph argumentative essays with a formal academic tone and proper formatting.',
-    author: MOCK_USERS[0],
+    author: alex,
     category: 'Education',
     tags: ['Essay Writing', 'Academic', 'Students', 'Structured'],
     upvotes: 125,
     downvotes: 5,
     comments: [
-      { id: 'c1', author: MOCK_USERS[1], text: 'This prompt is a lifesaver for my college papers!', createdAt: daysAgo(1) },
-      { id: 'c2', author: MOCK_USERS[2], text: 'Great structure, very easy to use.', createdAt: hoursAgo(5) }
+      { id: 'c1', author: jane, text: 'This prompt is a lifesaver for my college papers!', createdAt: daysAgo(1) },
+      { id: 'c2', author: sam, text: 'Great structure, very easy to use.', createdAt: hoursAgo(5) }
     ],
     createdAt: daysAgo(4),
     model: 'ChatGPT',
@@ -128,7 +167,7 @@ export const MOCK_PROMPTS: Prompt[] = [
     title: 'Photorealistic Sci-Fi Cityscape',
     prompt: 'Subject: A sprawling cyberpunk megastructure city at twilight, during a gentle rain.\n\nDetails: Intricate layers of architecture, colossal holographic advertisements featuring geishas and dragons, streams of flying vehicles leaving light trails. A lone figure in a trench coat stands on a high-tech balcony overlooking the city.\n\nStyle: Photorealistic, hyper-detailed, cinematic lighting, dramatic atmosphere, inspired by Blade Runner 2049 and Ghost in the Shell.\n\nTechnical Details: octane render, volumetric lighting, god rays, sharp focus, trending on ArtStation, 8k resolution.\n\nParameters: --ar 16:9 --v 5.2 --style raw',
     description: 'Craft breathtaking, hyper-detailed cyberpunk cityscapes inspired by Blade Runner. This prompt is optimized for cinematic lighting and a dramatic, rainy atmosphere.',
-    author: MOCK_USERS[1],
+    author: jane,
     category: 'Art',
     tags: ['MidJourney', 'Sci-Fi', 'Cyberpunk', 'Cinematic'],
     upvotes: 230,
@@ -145,13 +184,13 @@ export const MOCK_PROMPTS: Prompt[] = [
     title: 'Python Code Refactoring Expert',
     prompt: 'Persona: Act as a principal software engineer with 15+ years of experience, specializing in Python and promoting best practices like SOLID, DRY, and KISS. You are a stickler for PEP 8 compliance.\n\nTask: I will provide you with a Python script. Your task is to perform a thorough code review and provide a refactored version.\n\nProcess:\n1.  Analyze the provided script for issues related to readability, efficiency, maintainability, and security vulnerabilities.\n2.  Provide a fully refactored version of the code that addresses these issues. Add comments to the new code to explain key changes and complex logic.\n3.  Provide a summary of your changes as a markdown list, explaining *why* each change was made (e.g., "Replaced for-loop with a list comprehension for improved readability and performance.").\n4.  Offer suggestions for further improvements, such as adding unit tests or type hints if they are missing.',
     description: 'Leverage an expert AI persona to perform a deep code review and refactor your Python scripts, focusing on best practices like SOLID, DRY, and PEP 8.',
-    author: MOCK_USERS[0],
+    author: alex,
     category: 'Coding',
     tags: ['Python', 'Developer', 'Refactoring', 'Clean Code'],
     upvotes: 95,
     downvotes: 5,
     comments: [
-      { id: 'c3', author: MOCK_USERS[2], text: 'Fantastic prompt for improving code quality.', createdAt: daysAgo(2) },
+      { id: 'c3', author: sam, text: 'Fantastic prompt for improving code quality.', createdAt: daysAgo(2) },
     ],
     createdAt: daysAgo(6),
     model: 'Gemini',
@@ -164,7 +203,7 @@ export const MOCK_PROMPTS: Prompt[] = [
     title: 'Social Media Content Calendar',
     prompt: 'Persona: You are a senior social media strategist for a high-end sustainable fashion brand.\n\nTask: Create a detailed 1-month content calendar for the brand "Aura Threads".\n\nContext:\n- Brand: Aura Threads (sustainable, minimalist, high-quality materials).\n- Target Audience: Environmentally conscious millennials and Gen Z (ages 25-40) with high disposable income.\n- Tone of Voice: Sophisticated, educational, inspiring, and calm.\n\nRequirements:\n- Platforms: Instagram (Feed, Stories, Reels), Pinterest.\n- Content Pillars: 1. Behind the Scenes (craftsmanship), 2. Style Inspiration, 3. Sustainability Education, 4. Community Spotlight.\n- Output Format: A markdown table with columns: `Week`, `Day`, `Platform`, `Content Pillar`, `Post Idea/Concept`, `Caption (including call-to-action)`, and `Hashtags (mix of niche and broad)`.\n- Include at least 4-5 posts per week.',
     description: 'Generate a professional, one-month social media content calendar for a fashion brand, complete with content pillars, post ideas, captions, and hashtags.',
-    author: MOCK_USERS[1],
+    author: jane,
     category: 'Marketing',
     tags: ['Social Media', 'Marketing', 'Content Strategy', 'Fashion'],
     upvotes: 140,
@@ -181,7 +220,7 @@ export const MOCK_PROMPTS: Prompt[] = [
     title: 'Interactive History Lesson Plan',
     prompt: 'Persona: An award-winning curriculum designer specializing in immersive and technology-integrated history education for high school students.\n\nTask: Design a highly interactive 60-minute lesson plan for a 10th-grade World History class on the topic of the cultural and economic impact of the Silk Road.\n\nFormat:\n1.  **Learning Objectives (3):** Clearly state what students should know or be able to do by the end of the lesson.\n2.  **Materials List:** All digital and physical resources needed (e.g., projector, student devices, links to a specific Google My Map).\n3.  **Lesson Procedure (step-by-step):**\n    - **Warm-up (5 min):** A "think-pair-share" activity with a provocative image from the Silk Road.\n    - **Main Activity (40 min):** A "Digital Caravan" simulation. Students are divided into groups (merchants, scholars, monks) and must navigate a virtual map, making decisions at various cities and trading \'goods\' and \'ideas\'. Describe the rules and decision points.\n    - **Assessment/Wrap-up (15 min):** An "exit ticket" where students write a short journal entry from the perspective of their role in the simulation.\n4.  **Differentiation:** Include one suggestion for supporting English language learners and one for challenging advanced students.',
     description: 'Create a complete, engaging, and immersive 60-minute history lesson plan for a 10th-grade class, featuring a \'Digital Caravan\' simulation activity.',
-    author: MOCK_USERS[0],
+    author: alex,
     category: 'Education',
     tags: ['Lesson Plan', 'History', 'Education', 'Interactive'],
     upvotes: 88,
@@ -198,7 +237,7 @@ export const MOCK_PROMPTS: Prompt[] = [
     title: 'Minimalist Logo Design Concepts',
     prompt: 'Task: Generate 5 distinct, minimalist logo concepts for a new tech startup.\n\n- Company Name: "Synapse"\n- Company Mission: We use AI to connect and analyze disparate data sources, revealing hidden patterns for businesses.\n- Keywords: Connection, intelligence, clarity, speed, neural networks.\n\nRequirements:\n- Style: Extremely clean, modern, minimalist, clever. Can be an abstract logomark or a logomark + logotype combination.\n- Color Palette: A strict two-color palette. Suggest one primary (e.g., deep blue #0A2E5B) and one accent (e.g., electric green #00F9B8).\n- Output: For each of the 5 concepts, provide a short description of the visual idea and the rationale behind it (how it connects to the company\'s mission).\n\nNegative Constraint: No brains or literal lightbulb icons.',
     description: 'Brainstorm 5 unique and clever minimalist logo concepts for a tech startup, with specific constraints on style, color, and a focus on conceptual meaning.',
-    author: MOCK_USERS[1],
+    author: jane,
     category: 'Art',
     tags: ['Logo Design', 'Branding', 'Minimalist', 'Startup'],
     upvotes: 170,
@@ -215,7 +254,7 @@ export const MOCK_PROMPTS: Prompt[] = [
     title: 'Watercolor Fantasy Landscape',
     prompt: 'Subject: A serene and magical hidden grove deep within an ancient forest, viewed from a low angle. In the center is a crystal-clear pond reflecting a bioluminescent sky filled with two moons.\n\nDetails: Giant, glowing mushrooms cast a soft, ethereal light. Fireflies and sparkling motes of light drift through the air. Ancient, moss-covered trees with twisted roots frame the scene. Tiny, glowing flowers grow along the water\'s edge.\n\nAtmosphere: Dreamy, whimsical, peaceful, enchanting.\n\nStyle: In the style of a Studio Ghibli background painting, with beautiful watercolor textures and vibrant yet soft colors. Detailed, high resolution, award-winning fantasy illustration.',
     description: 'Produce an enchanting and serene fantasy landscape in the beautiful watercolor style of Studio Ghibli, perfect for creating magical worlds.',
-    author: MOCK_USERS[1],
+    author: jane,
     category: 'Art',
     tags: ['Watercolor', 'Fantasy', 'Landscape', 'Studio Ghibli'],
     upvotes: 210,
@@ -232,7 +271,7 @@ export const MOCK_PROMPTS: Prompt[] = [
     title: 'Creative Writing Idea Generator',
     prompt: 'Generate 3 unique story ideas for a fantasy novel. Each idea should include a protagonist, a conflict, and a magical element.',
     description: 'A great prompt for authors experiencing writer\'s block. Submitted by Jane.',
-    author: MOCK_USERS[1],
+    author: jane,
     category: 'Fun',
     tags: ['writing', 'creative', 'fantasy'],
     upvotes: 0,
@@ -248,7 +287,7 @@ export const MOCK_PROMPTS: Prompt[] = [
     title: 'Business Plan Outline',
     prompt: 'Create a comprehensive business plan outline for a startup in the sustainable energy sector.',
     description: 'A prompt for entrepreneurs.',
-    author: MOCK_USERS[0],
+    author: alex,
     category: 'Business',
     tags: ['startup', 'business', 'planning'],
     upvotes: 0,
@@ -264,7 +303,7 @@ export const MOCK_PROMPTS: Prompt[] = [
     title: 'Marketing Copy for E-commerce',
     prompt: 'Write 3 versions of compelling marketing copy for a new line of wireless headphones. Focus on battery life and sound quality.',
     description: 'For e-commerce store owners.',
-    author: MOCK_USERS[0],
+    author: alex,
     category: 'Marketing',
     tags: ['copywriting', 'ecommerce'],
     upvotes: 0,
@@ -274,7 +313,8 @@ export const MOCK_PROMPTS: Prompt[] = [
     model: 'ChatGPT',
     isPublic: false,
     status: 'pending',
-  }
+  },
+  ...patriciaPrompts
 ];
 
 export const MOCK_COLLECTIONS: Collection[] = [
@@ -282,7 +322,7 @@ export const MOCK_COLLECTIONS: Collection[] = [
         id: 'c1',
         name: 'Student Success Pack',
         description: 'A curated collection of essential prompts for academic success, from essay writing to creating engaging lesson plans.',
-        creator: MOCK_USERS[0],
+        creator: alex,
         price: 9.99,
         promptCount: 2,
         coverImage: 'https://picsum.photos/seed/c1/600/400',
@@ -293,7 +333,7 @@ export const MOCK_COLLECTIONS: Collection[] = [
         id: 'c2',
         name: 'AI Artistry Master Pack',
         description: 'Unlock stunning AI art with this pack of 3 advanced prompts for MidJourney & DALL-E, covering various styles from sci-fi to branding and fantasy.',
-        creator: MOCK_USERS[1],
+        creator: jane,
         price: 19.99,
         promptCount: 3,
         coverImage: 'https://picsum.photos/seed/c2/600/400',
@@ -304,7 +344,7 @@ export const MOCK_COLLECTIONS: Collection[] = [
         id: 'c3',
         name: 'Developer & Marketing Starter Kit',
         description: 'Supercharge your projects with this diverse kit. Includes prompts for code refactoring and creating a full social media content calendar.',
-        creator: MOCK_USERS[0],
+        creator: alex,
         price: 14.99,
         promptCount: 2,
         coverImage: 'https://picsum.photos/seed/c3/600/400',
@@ -315,7 +355,7 @@ export const MOCK_COLLECTIONS: Collection[] = [
         id: 'c-pending-1',
         name: 'Side Hustle Starter Pack',
         description: 'A collection of prompts designed to help you brainstorm and launch a new side hustle. From business ideas to marketing copy.',
-        creator: MOCK_USERS[0],
+        creator: alex,
         price: 24.99,
         promptCount: 2,
         coverImage: 'https://picsum.photos/seed/c4/600/400',
@@ -327,7 +367,7 @@ export const MOCK_COLLECTIONS: Collection[] = [
 export const MOCK_FEEDBACK: FeedbackItem[] = [
     {
         id: 'f1',
-        user: MOCK_USERS[0],
+        user: alex,
         type: 'Feature Request',
         message: 'It would be great to have a dark mode for the website! My eyes hurt at night.',
         createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
@@ -335,7 +375,7 @@ export const MOCK_FEEDBACK: FeedbackItem[] = [
     },
     {
         id: 'f2',
-        user: MOCK_USERS[1],
+        user: jane,
         type: 'Bug Report',
         message: 'When I try to upload an avatar image, it sometimes fails with a generic error message. Using Chrome on Windows.',
         createdAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
@@ -343,7 +383,7 @@ export const MOCK_FEEDBACK: FeedbackItem[] = [
     },
     {
         id: 'f3',
-        user: MOCK_USERS[2],
+        user: sam,
         type: 'General Feedback',
         message: 'Just wanted to say I love the platform! The prompt generator is amazing and has saved me so much time. Keep up the great work!',
         createdAt: new Date().toISOString(),
