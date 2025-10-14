@@ -4,6 +4,7 @@ import Button from './Button';
 import { Collection, Prompt, AIModel, Category } from '../constants';
 import { AI_MODELS, CATEGORIES } from '../types';
 import { ChevronDown, PlusCircle, Trash2, CheckCircle } from 'lucide-react';
+import ImageUpload from './ImageUpload';
 
 // FIX: Update Omit to use correct properties from the Prompt type ('upvotes', 'downvotes') instead of the non-existent 'averageRating' and 'ratingsCount'.
 type NewPromptData = Omit<Prompt, 'id' | 'author' | 'upvotes' | 'downvotes' | 'comments' | 'createdAt' | 'isPublic' | 'status'>;
@@ -64,7 +65,7 @@ const NewPromptForm: React.FC<{onAddPrompt: (prompt: NewPromptData) => void}> = 
                     <label className="flex items-center cursor-pointer">
                         <input
                             type="radio"
-                            name="outputType"
+                            name={`outputType-${title}`}
                             value="text"
                             checked={outputType === 'text'}
                             onChange={() => setOutputType('text')}
@@ -75,46 +76,39 @@ const NewPromptForm: React.FC<{onAddPrompt: (prompt: NewPromptData) => void}> = 
                     <label className="flex items-center cursor-pointer">
                         <input
                             type="radio"
-                            name="outputType"
+                            name={`outputType-${title}`}
                             value="image"
                             checked={outputType === 'image'}
                             onChange={() => setOutputType('image')}
                             className="focus:ring-primary-500 h-4 w-4 text-primary-600 border-gray-300"
                         />
-                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Image URL</span>
+                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Image</span>
                     </label>
                 </div>
             </div>
 
             <div>
-                <label htmlFor="exampleOutput" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    {outputType === 'image' ? 'Example Output Image URL' : 'Example Output Text'}
-                </label>
                 {outputType === 'image' ? (
-                    <input
-                        id="exampleOutput"
-                        type="text"
-                        value={exampleOutput}
-                        onChange={(e) => setExampleOutput(e.target.value)}
-                        placeholder="e.g., https://example.com/image.png"
-                        className="w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600"
+                    <ImageUpload
+                        label="Example Output Image"
+                        onImageSelect={setExampleOutput}
                     />
                 ) : (
-                    <textarea
-                        id="exampleOutput"
-                        rows={4}
-                        value={exampleOutput}
-                        onChange={(e) => setExampleOutput(e.target.value)}
-                        placeholder="Provide an example of what this prompt might generate."
-                        className="w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600"
-                    />
+                    <>
+                        <label htmlFor={`exampleOutput-${title}`} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Example Output Text</label>
+                        <textarea
+                            id={`exampleOutput-${title}`}
+                            rows={4}
+                            value={exampleOutput}
+                            onChange={(e) => setExampleOutput(e.target.value)}
+                            placeholder="Provide an example of what this prompt might generate."
+                            className="w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600"
+                        />
+                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            This helps others understand what to expect from your prompt.
+                        </p>
+                    </>
                 )}
-                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    {outputType === 'image'
-                        ? 'Provide a direct URL to an image that demonstrates the output.'
-                        : 'This helps others understand what to expect from your prompt.'
-                    }
-                </p>
             </div>
 
              <div className="grid grid-cols-2 gap-2">
@@ -219,9 +213,11 @@ const SubmitCollectionModal: React.FC<SubmitCollectionModalProps> = ({ isOpen, o
                     <label htmlFor="collection-price" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price ($)</label>
                     <input id="collection-price" type="number" value={price} onChange={e => setPrice(e.target.value === '' ? '' : Number(e.target.value))} placeholder="e.g., 19.99" min="0" step="0.01" className="w-full p-2 border rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600" />
                 </div>
-                <div>
-                    <label htmlFor="collection-cover" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cover Image URL</label>
-                    <input id="collection-cover" type="text" value={coverImage} onChange={e => setCoverImage(e.target.value)} placeholder="Optional, we'll generate one for you" className="w-full p-2 border rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600" />
+                <div className="flex flex-col justify-end">
+                    <ImageUpload 
+                        label="Cover Image (Optional)"
+                        onImageSelect={setCoverImage}
+                    />
                 </div>
             </div>
             

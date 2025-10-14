@@ -4,6 +4,7 @@ import Button from './Button';
 import { AI_MODELS, CATEGORIES } from '../types';
 import { AIModel, Category, Prompt } from '../constants';
 import { ChevronDown, CheckCircle } from 'lucide-react';
+import ImageUpload from './ImageUpload';
 
 interface SubmitPromptModalProps {
   isOpen: boolean;
@@ -144,40 +145,35 @@ const SubmitPromptModal: React.FC<SubmitPromptModalProps> = ({ isOpen, onClose, 
                             onChange={() => setOutputType('image')}
                             className="focus:ring-primary-500 h-4 w-4 text-primary-600 border-gray-300"
                         />
-                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Image URL</span>
+                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Image</span>
                     </label>
                 </div>
             </div>
 
             <div>
-                <label htmlFor="exampleOutput" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    {outputType === 'image' ? 'Example Output Image URL' : 'Example Output Text'}
-                </label>
                 {outputType === 'image' ? (
-                    <input
-                        id="exampleOutput"
-                        type="text"
-                        value={exampleOutput}
-                        onChange={(e) => setExampleOutput(e.target.value)}
-                        placeholder="e.g., https://example.com/image.png"
-                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700"
+                    <ImageUpload 
+                        label="Example Output Image" 
+                        onImageSelect={setExampleOutput}
                     />
                 ) : (
-                    <textarea
-                        id="exampleOutput"
-                        rows={4}
-                        value={exampleOutput}
-                        onChange={(e) => setExampleOutput(e.target.value)}
-                        placeholder="Provide an example of what this prompt might generate."
-                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700"
-                    />
+                    <>
+                        <label htmlFor="exampleOutput" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Example Output Text
+                        </label>
+                        <textarea
+                            id="exampleOutput"
+                            rows={4}
+                            value={exampleOutput}
+                            onChange={(e) => setExampleOutput(e.target.value)}
+                            placeholder="Provide an example of what this prompt might generate."
+                            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700"
+                        />
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            This helps others understand what to expect from your prompt.
+                        </p>
+                    </>
                 )}
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    {outputType === 'image'
-                        ? 'Provide a direct URL to an image that demonstrates the output.'
-                        : 'This helps others understand what to expect from your prompt.'
-                    }
-                </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

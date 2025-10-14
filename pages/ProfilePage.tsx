@@ -14,6 +14,7 @@ import CollectionCard from '../components/CollectionCard';
 import EditPromptModal from '../components/EditPromptModal';
 import ConfirmationModal from '../components/ConfirmationModal';
 import HistoryDetailModal from '../components/HistoryDetailModal';
+import ImageUpload from '../components/ImageUpload';
 
 const ProfilePage: React.FC = () => {
   const { user, updateUserProfile, removeSubmittedPrompt } = useAuth();
@@ -23,7 +24,7 @@ const ProfilePage: React.FC = () => {
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [bio, setBio] = useState('');
-  const [avatar, setAvatar] = useState('');
+  const [avatar, setAvatar] = useState(user?.avatar || '');
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
   const [promptToEdit, setPromptToEdit] = useState<Prompt | null>(null);
   const [promptToDelete, setPromptToDelete] = useState<string | null>(null);
@@ -33,16 +34,15 @@ const ProfilePage: React.FC = () => {
   useEffect(() => {
     if (user) {
       setBio(user.bio || '');
-      setAvatar(user.avatar || '');
+      setAvatar(user.avatar);
     }
-  }, [user]);
+  }, [user, isEditModalOpen]);
 
   if (!user) {
     return <div className="text-center text-lg">Please log in to view your profile.</div>;
   }
 
-  const handleProfileUpdate = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleProfileUpdate = () => {
     updateUserProfile({ bio, avatar });
     setIsEditModalOpen(false);
   };
@@ -212,17 +212,12 @@ const ProfilePage: React.FC = () => {
       </section>
 
       <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} title="Edit Your Profile">
-        <form onSubmit={handleProfileUpdate} className="space-y-4">
-          <div>
-            <label htmlFor="avatar" className="block text-sm font-medium mb-1">Avatar URL</label>
-            <input 
-              id="avatar" 
-              type="text" 
-              value={avatar} 
-              onChange={e => setAvatar(e.target.value)} 
-              className="w-full p-2 border rounded-md bg-gray-100 dark:bg-gray-700 dark:border-gray-600"
-            />
-          </div>
+        <div className="space-y-4">
+          <ImageUpload
+              label="Avatar Image"
+              initialImageUrl={avatar}
+              onImageSelect={setAvatar}
+          />
            <div>
             <label htmlFor="bio" className="block text-sm font-medium mb-1">Bio</label>
             <textarea 
@@ -235,9 +230,9 @@ const ProfilePage: React.FC = () => {
           </div>
           <div className="flex justify-end pt-2">
             <Button type="button" variant="secondary" onClick={() => setIsEditModalOpen(false)} className="mr-2">Cancel</Button>
-            <Button type="submit">Save Changes</Button>
+            <Button onClick={handleProfileUpdate}>Save Changes</Button>
           </div>
-        </form>
+        </div>
       </Modal>
       
       <PromptDetailModal
@@ -254,7 +249,7 @@ const ProfilePage: React.FC = () => {
       />
 
       <ConfirmationModal
-          isOpen={!!promptToEdit}
+          isOpen={!!promptToDelete}
           onClose={() => setPromptToDelete(null)}
           onConfirm={handleConfirmDelete}
           title="Delete Prompt"
