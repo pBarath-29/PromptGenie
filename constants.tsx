@@ -73,9 +73,10 @@ export type AIModel = 'ChatGPT' | 'Claude' | 'Gemini' | 'MidJourney' | 'DALL-E';
 export type Category = 'Education' | 'Coding' | 'Business' | 'Art' | 'Marketing' | 'Fun';
 // FIX: Export Tone type for use in other files
 export type Tone = 'Professional' | 'Casual' | 'Creative' | 'Academic' | 'Humorous';
+// FIX: Export FeedbackType to resolve import error in pages/FeedbackPage.tsx
+export type FeedbackType = 'General Feedback' | 'Bug Report' | 'Feature Request' | 'Praise';
 
-export type FeedbackType = 'Bug Report' | 'Feature Request' | 'General Feedback';
-
+// FIX: Export FeedbackItem interface to resolve import error in contexts/FeedbackContext.tsx
 export interface FeedbackItem {
   id: string;
   user: User;

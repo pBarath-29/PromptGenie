@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
-import { Sun, Moon, Zap, Menu, X, ShieldCheck, Star, MessageSquare } from 'lucide-react';
+import { Sun, Moon, Zap, Menu, X, ShieldCheck, Star } from 'lucide-react';
 import ConfirmationModal from './ConfirmationModal';
 
 const Header: React.FC = () => {
@@ -103,13 +103,7 @@ const Header: React.FC = () => {
                                 Admin Panel
                             </NavLink>
                         ) : (
-                            <>
-                                <NavLink to="/profile" onClick={() => setIsUserMenuOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Profile</NavLink>
-                                <NavLink to="/feedback" onClick={() => setIsUserMenuOpen(false)} className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                    <MessageSquare size={16} className="mr-2"/>
-                                    Feedback
-                                </NavLink>
-                            </>
+                            <NavLink to="/profile" onClick={() => setIsUserMenuOpen(false)} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Profile</NavLink>
                         )}
                         <div className="my-1 h-px bg-gray-100 dark:bg-gray-700" />
                         <button onClick={() => { setIsUserMenuOpen(false); setIsLogoutModalOpen(true); }} className="w-full text-left block px-4 py-2 text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700">Logout</button>
@@ -171,10 +165,7 @@ const Header: React.FC = () => {
                         Admin Panel
                     </NavLink>
                   ) : (
-                    <>
-                        <NavLink to="/profile" className={mobileNavLinkClass} onClick={closeMobileMenu}>Profile</NavLink>
-                        <NavLink to="/feedback" className={mobileNavLinkClass} onClick={closeMobileMenu}>Feedback</NavLink>
-                    </>
+                    <NavLink to="/profile" className={mobileNavLinkClass} onClick={closeMobileMenu}>Profile</NavLink>
                   )}
                   <button 
                     onClick={handleLogoutClick} 

@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { usePrompts } from '../contexts/PromptContext';
 import { useCollections } from '../contexts/CollectionContext';
-import { useFeedback } from '../contexts/FeedbackContext';
 import Button from '../components/Button';
-import { CheckCircle, XCircle, Eye, Inbox, Package, Clock, MessageSquare } from 'lucide-react';
+import { CheckCircle, XCircle, Eye, Inbox, Package, Clock } from 'lucide-react';
 import { Prompt, Collection } from '../constants';
 import PromptDetailModal from '../components/PromptDetailModal';
 import CollectionPreviewModal from '../components/CollectionPreviewModal';
@@ -14,20 +13,17 @@ const ITEMS_PER_PAGE = 5;
 const AdminPage: React.FC = () => {
     const { prompts, updatePromptStatus } = usePrompts();
     const { collections, updateCollectionStatus } = useCollections();
-    const { feedback, updateFeedbackStatus } = useFeedback();
     
-    const [activeTab, setActiveTab] = useState<'prompts' | 'collections' | 'feedback'>('prompts');
+    const [activeTab, setActiveTab] = useState<'prompts' | 'collections'>('prompts');
     const [promptToPreview, setPromptToPreview] = useState<Prompt | null>(null);
     const [collectionToPreview, setCollectionToPreview] = useState<Collection | null>(null);
 
     // Pagination states
     const [promptsPage, setPromptsPage] = useState(1);
     const [collectionsPage, setCollectionsPage] = useState(1);
-    const [feedbackPage, setFeedbackPage] = useState(1);
 
     const pendingPrompts = prompts.filter(p => p.status === 'pending');
     const pendingCollections = collections.filter(c => c.status === 'pending');
-    const pendingFeedback = feedback.filter(f => f.status === 'pending');
     
     // Pagination logic
     const paginate = (items: any[], page: number) => {
@@ -38,7 +34,6 @@ const AdminPage: React.FC = () => {
     
     const { totalPages: promptsTotalPages, paginatedItems: paginatedPrompts } = paginate(pendingPrompts, promptsPage);
     const { totalPages: collectionsTotalPages, paginatedItems: paginatedCollections } = paginate(pendingCollections, collectionsPage);
-    const { totalPages: feedbackTotalPages, paginatedItems: paginatedFeedback } = paginate(pendingFeedback, feedbackPage);
 
 
     const TabButton: React.FC<{
@@ -87,13 +82,6 @@ const AdminPage: React.FC = () => {
             isActive={activeTab === 'collections'}
             onClick={() => setActiveTab('collections')}
             icon={<Package size={18} />}
-          />
-          <TabButton 
-            label="Pending Feedback" 
-            count={pendingFeedback.length} 
-            isActive={activeTab === 'feedback'}
-            onClick={() => setActiveTab('feedback')}
-            icon={<MessageSquare size={18} />}
           />
         </div>
         
@@ -146,38 +134,6 @@ const AdminPage: React.FC = () => {
                     <p className="text-center py-8 text-gray-500 dark:text-gray-400">No pending collections to review.</p>
                 ) : (
                     <Pagination currentPage={collectionsPage} totalPages={collectionsTotalPages} onPageChange={setCollectionsPage} />
-                )}
-            </div>
-            )}
-
-            {activeTab === 'feedback' && (
-            <div className="space-y-4">
-                {paginatedFeedback.map(item => (
-                <div key={item.id} className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700">
-                    <div className="flex flex-col md:flex-row justify-between">
-                        <div className="mb-4 md:mb-0 md:mr-4">
-                            <div className="flex items-center space-x-3 mb-2">
-                                 <img src={item.user.avatar} alt={item.user.name} className="w-8 h-8 rounded-full" />
-                                 <div>
-                                     <p className="font-semibold">{item.user.name}</p>
-                                     <p className="text-xs text-gray-500 dark:text-gray-400">Submitted on {new Date(item.createdAt).toLocaleString()}</p>
-                                 </div>
-                            </div>
-                            <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 text-xs font-semibold rounded-full">
-                                {item.type}
-                            </span>
-                            <p className="mt-3 text-gray-700 dark:text-gray-300">{item.message}</p>
-                        </div>
-                        <div className="flex space-x-2 flex-shrink-0 self-start md:self-center">
-                            <Button onClick={() => updateFeedbackStatus(item.id, 'reviewed')} icon={<CheckCircle size={16}/>}>Mark as Reviewed</Button>
-                        </div>
-                    </div>
-                </div>
-                ))}
-                {pendingFeedback.length === 0 ? (
-                    <p className="text-center py-8 text-gray-500 dark:text-gray-400">No pending feedback to review.</p>
-                ) : (
-                    <Pagination currentPage={feedbackPage} totalPages={feedbackTotalPages} onPageChange={setFeedbackPage} />
                 )}
             </div>
             )}

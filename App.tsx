@@ -5,7 +5,6 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { PromptProvider } from './contexts/PromptContext';
 import { CollectionProvider } from './contexts/CollectionContext';
 import { HistoryProvider } from './contexts/HistoryContext';
-import { FeedbackProvider } from './contexts/FeedbackContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
@@ -20,7 +19,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminPage from './pages/AdminPage';
 import AdminRoute from './components/AdminRoute';
 import UpgradePage from './pages/UpgradePage';
-import FeedbackPage from './pages/FeedbackPage';
+import ContactPage from './pages/ContactPage';
 
 const AppContent: React.FC = () => {
   const { user } = useAuth();
@@ -55,7 +54,7 @@ const AppContent: React.FC = () => {
       <Route path="/collection/:collectionId" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
       <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
       <Route path="/upgrade" element={<ProtectedRoute><UpgradePage /></ProtectedRoute>} />
-      <Route path="/feedback" element={<ProtectedRoute><FeedbackPage /></ProtectedRoute>} />
+      <Route path="/contact" element={<ContactPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignUpPage />} />
     </Routes>
@@ -69,11 +68,9 @@ const App: React.FC = () => {
         <PromptProvider>
           <CollectionProvider>
             <HistoryProvider>
-              <FeedbackProvider>
                 <HashRouter>
                   <AppContent />
                 </HashRouter>
-              </FeedbackProvider>
             </HistoryProvider>
           </CollectionProvider>
         </PromptProvider>

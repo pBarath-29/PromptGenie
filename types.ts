@@ -3,7 +3,9 @@ import { AIModel, Category, Collection, Prompt, User, Tone, FeedbackType, Feedba
 export const AI_MODELS: AIModel[] = ['ChatGPT', 'Claude', 'Gemini', 'MidJourney', 'DALL-E'];
 export const CATEGORIES: Category[] = ['Education', 'Coding', 'Business', 'Art', 'Marketing', 'Fun'];
 export const TONES: Tone[] = ['Professional', 'Casual', 'Creative', 'Academic', 'Humorous'];
-export const FEEDBACK_TYPES: FeedbackType[] = ['Bug Report', 'Feature Request', 'General Feedback'];
+// FIX: Export FEEDBACK_TYPES to resolve import error in pages/FeedbackPage.tsx
+export const FEEDBACK_TYPES: FeedbackType[] = ['General Feedback', 'Bug Report', 'Feature Request', 'Praise'];
+
 
 // Helper functions to create date strings relative to the current time
 const daysAgo = (days: number): string => {
@@ -364,29 +366,22 @@ export const MOCK_COLLECTIONS: Collection[] = [
     }
 ];
 
+// FIX: Export MOCK_FEEDBACK to resolve import error in contexts/FeedbackContext.tsx
 export const MOCK_FEEDBACK: FeedbackItem[] = [
     {
         id: 'f1',
         user: alex,
         type: 'Feature Request',
-        message: 'It would be great to have a dark mode for the website! My eyes hurt at night.',
-        createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-        status: 'reviewed',
+        message: 'It would be great if there was an option for custom themes.',
+        createdAt: daysAgo(2),
+        status: 'pending',
     },
     {
         id: 'f2',
         user: jane,
         type: 'Bug Report',
-        message: 'When I try to upload an avatar image, it sometimes fails with a generic error message. Using Chrome on Windows.',
-        createdAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
-        status: 'pending',
-    },
-    {
-        id: 'f3',
-        user: sam,
-        type: 'General Feedback',
-        message: 'Just wanted to say I love the platform! The prompt generator is amazing and has saved me so much time. Keep up the great work!',
-        createdAt: new Date().toISOString(),
-        status: 'pending',
+        message: 'The "load more" button on the community page sometimes disappears.',
+        createdAt: daysAgo(1),
+        status: 'reviewed',
     }
 ];

@@ -7,12 +7,7 @@ const Footer: React.FC = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
           <p>&copy; {new Date().getFullYear()} Prompter. All rights reserved.</p>
-          <div className="flex space-x-4">
-            <a href="#" className="hover:text-primary-500">Twitter</a>
-            <a href="#" className="hover:text-primary-500">GitHub</a>
-            <Link to="/feedback" className="hover:text-primary-500">Feedback</Link>
-            <a href="#" className="hover:text-primary-500">Contact</a>
-          </div>
+          <Link to="/contact" className="hover:text-primary-500">Contact</Link>
         </div>
       </div>
     </footer>
