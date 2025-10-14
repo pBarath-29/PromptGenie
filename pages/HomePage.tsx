@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Zap, Mic, Copy, Loader, ChevronDown } from 'lucide-react';
 import { TONES, CATEGORIES } from '../types';
 import { Tone, Category } from '../constants';
@@ -59,6 +59,12 @@ const HomePage: React.FC = () => {
     const [isAdModalOpen, setIsAdModalOpen] = useState(false);
     const [isTutorialActive, setIsTutorialActive] = useState(false);
     const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
+    
+    // Ref to track the current user state to prevent race conditions on logout
+    const userRef = useRef(user);
+    useEffect(() => {
+        userRef.current = user;
+    }, [user]);
 
     useEffect(() => {
         // Handle new user greeting banner
@@ -91,12 +97,22 @@ const HomePage: React.FC = () => {
         setGeneratedPrompt(null);
         try {
             const result = await generateOptimizedPrompt(request, tone, category);
-            setGeneratedPrompt(result);
-            addToHistory(result);
-            incrementGenerationCount();
+            // CRITICAL CHECK: After the API call returns, check if the user is still logged in.
+            if (userRef.current) {
+                setGeneratedPrompt(result);
+                addToHistory(result);
+                incrementGenerationCount();
+            } else {
+                console.log("User logged out during generation. Aborting state update.");
+            }
         } catch (err) {
-            setError((err as Error).message);
-            console.error(err);
+            // Also check before showing an error
+            if (userRef.current) {
+                setError((err as Error).message);
+                console.error(err);
+            } else {
+                console.log("User logged out during generation. Suppressing error for logged-out state.");
+            }
         } finally {
             setIsLoading(false);
         }
