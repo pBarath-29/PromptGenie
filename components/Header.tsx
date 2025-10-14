@@ -76,7 +76,7 @@ const Header: React.FC = () => {
                 {user ? (
                   <>
                     {user.role !== 'admin' && user.subscriptionTier === 'free' && (
-                       <Link to="/upgrade" className="flex items-center text-sm font-semibold bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-3 py-1.5 rounded-full hover:shadow-lg transition-shadow">
+                       <Link to="/upgrade" className="flex items-center text-sm font-semibold bg-gradient-to-r from-primary-400 to-primary-600 text-white px-3 py-1.5 rounded-full hover:shadow-lg transition-shadow">
                           <Star size={16} className="mr-1.5" />
                           Upgrade
                        </Link>
@@ -91,7 +91,7 @@ const Header: React.FC = () => {
                       >
                         <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full" />
                         {user.subscriptionTier === 'pro' && (
-                          <span className={`absolute -top-1 -right-1 bg-gradient-to-br from-yellow-400 to-orange-500 text-black font-bold text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full shadow-md ring-2 ring-white dark:ring-gray-800 ${user.role === 'admin' ? '!bg-indigo-500' : ''}`}>
+                          <span className={`absolute -top-1 -right-1 bg-gradient-to-br from-primary-400 to-primary-600 text-white font-bold text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full shadow-md ring-2 ring-white dark:ring-gray-800 ${user.role === 'admin' ? '!bg-indigo-500 !text-white' : ''}`}>
                               {user.role === 'admin' ? 'ADMIN' : 'PRO'}
                           </span>
                         )}
@@ -151,7 +151,7 @@ const Header: React.FC = () => {
                     <div className="relative flex-shrink-0">
                       <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full" />
                       {user.subscriptionTier === 'pro' && (
-                          <span className={`absolute -top-1 -right-1 bg-gradient-to-br from-yellow-400 to-orange-500 text-black font-bold text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full shadow-md ring-2 ring-white dark:ring-gray-800 ${user.role === 'admin' ? '!bg-indigo-500' : ''}`}>
+                          <span className={`absolute -top-1 -right-1 bg-gradient-to-br from-primary-400 to-primary-600 text-white font-bold text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full shadow-md ring-2 ring-white dark:ring-gray-800 ${user.role === 'admin' ? '!bg-indigo-500 !text-white' : ''}`}>
                              {user.role === 'admin' ? 'ADMIN' : 'PRO'}
                           </span>
                       )}
@@ -162,7 +162,7 @@ const Header: React.FC = () => {
                     </div>
                   </div>
                   {user.role !== 'admin' && user.subscriptionTier === 'free' && (
-                      <NavLink to="/upgrade" className="block text-center px-3 py-2 rounded-md text-base font-semibold bg-gradient-to-r from-yellow-400 to-orange-500 text-black" onClick={closeMobileMenu}>
+                      <NavLink to="/upgrade" className="block text-center px-3 py-2 rounded-md text-base font-semibold bg-gradient-to-r from-primary-400 to-primary-600 text-white" onClick={closeMobileMenu}>
                           Upgrade to Pro
                       </NavLink>
                     )}
