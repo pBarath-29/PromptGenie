@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { usePrompts } from '../contexts/PromptContext';
 import { useCollections } from '../contexts/CollectionContext';
 import { useHistory } from '../contexts/HistoryContext';
-import { Award, Edit, BookOpen, ShoppingBag, Bookmark, Package, History, KeyRound } from 'lucide-react';
+import { Award, Edit, BookOpen, ShoppingBag, Bookmark, Package, History, KeyRound, CreditCard, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Modal from '../components/Modal';
 import Button from '../components/Button';
@@ -23,13 +23,14 @@ const PROMPTS_PER_PAGE = 6;
 const COLLECTIONS_PER_PAGE = 4;
 
 const ProfilePage: React.FC = () => {
-  const { user, updateUserProfile, removeSubmittedPrompt } = useAuth();
+  const { user, updateUserProfile, removeSubmittedPrompt, cancelSubscription } = useAuth();
   const { prompts, updatePrompt, deletePrompt } = usePrompts();
   const { collections } = useCollections();
   const { history } = useHistory();
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
+  const [isCancelSubModalOpen, setIsCancelSubModalOpen] = useState(false);
   const [bio, setBio] = useState('');
   const [avatar, setAvatar] = useState(user?.avatar || '');
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
@@ -113,6 +114,11 @@ const ProfilePage: React.FC = () => {
       removeSubmittedPrompt(promptToDelete);
       setPromptToDelete(null);
   };
+
+  const handleCancelSubscription = () => {
+    cancelSubscription();
+    setIsCancelSubModalOpen(false);
+  };
   
   // Data for sections
   const userPrompts = prompts.filter(p => user.submittedPrompts?.includes(p.id));
@@ -165,6 +171,45 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <section>
+        <h2 className="text-2xl font-bold mb-4 flex items-center"><CreditCard className="mr-3 text-primary-500"/> My Subscription</h2>
+        <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          {user.subscriptionTier === 'pro' ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Current Plan</p>
+                <p className="text-xl font-bold text-primary-500 flex items-center">
+                  <Award size={20} className="mr-2"/> Pro Plan
+                </p>
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-300 space-y-2">
+                <p><span className="font-semibold">Renewal Date:</span> July 28, 2024</p>
+                <p><span className="font-semibold">Billing Cycle:</span> Monthly</p>
+                <p><span className="font-semibold">Amount:</span> $9.90 / month</p>
+              </div>
+              <div className="md:text-right">
+                <Button variant="danger" onClick={() => setIsCancelSubModalOpen(true)}>
+                  Cancel Subscription
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Current Plan</p>
+                <p className="text-xl font-bold">Free Plan</p>
+                <p className="text-gray-600 dark:text-gray-400 mt-1">Unlock unlimited generations and an ad-free experience.</p>
+              </div>
+              <Link to="/upgrade">
+                <Button icon={<ArrowRight size={16}/>} className="!flex-row-reverse">
+                  Upgrade to Pro
+                </Button>
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
 
       <section>
         <h2 className="text-2xl font-bold mb-4 flex items-center"><History className="mr-3 text-primary-500"/> My Generation History</h2>
@@ -343,6 +388,16 @@ const ProfilePage: React.FC = () => {
           message="Are you sure you want to delete this prompt? This action cannot be undone."
           confirmButtonText="Delete"
           confirmButtonVariant="danger"
+      />
+
+      <ConfirmationModal
+        isOpen={isCancelSubModalOpen}
+        onClose={() => setIsCancelSubModalOpen(false)}
+        onConfirm={handleCancelSubscription}
+        title="Cancel Subscription"
+        message="Are you sure you want to cancel your Pro subscription? You will lose access to Pro benefits at the end of your current billing cycle."
+        confirmButtonText="Confirm Cancellation"
+        confirmButtonVariant="danger"
       />
 
       <HistoryDetailModal

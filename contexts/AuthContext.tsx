@@ -21,6 +21,7 @@ interface AuthContextType {
   getSubmissionsLeft: () => number;
   incrementSubmissionCount: () => void;
   completeTutorial: () => void;
+  cancelSubscription: () => void;
   getUserById: (userId: string) => User | undefined;
 }
 
@@ -290,6 +291,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const cancelSubscription = () => {
+    if (user && user.subscriptionTier === 'pro') {
+        setUser(prevUser => prevUser ? {
+            ...prevUser,
+            subscriptionTier: 'free'
+        } : null);
+    }
+  };
+
   const getSubmissionsLeft = (): number => {
     if (!user) return 0;
     const limit = user.subscriptionTier === 'pro' ? PRO_TIER_POST_LIMIT : FREE_TIER_POST_LIMIT;
@@ -328,7 +338,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, handleVote, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro, getSubmissionsLeft, incrementSubmissionCount, completeTutorial, getUserById }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, handleVote, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro, getSubmissionsLeft, incrementSubmissionCount, completeTutorial, cancelSubscription, getUserById }}>
       {children}
     </AuthContext.Provider>
   );
