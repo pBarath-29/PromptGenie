@@ -3,8 +3,6 @@ import { Upload, Camera, Image as ImageIcon, X, Loader } from 'lucide-react';
 import Modal from './Modal';
 import Button from './Button';
 
-const MOCK_GALLERY_IMAGES = Array.from({ length: 9 }, (_, i) => `https://picsum.photos/seed/gallery${i + 1}/400/300`);
-
 const blobToBase64 = (blob: Blob): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -70,41 +68,6 @@ const CameraView: React.FC<{ onCapture: (base64: string) => void, onCancel: () =
   );
 };
 
-const GalleryView: React.FC<{ onSelect: (base64: string) => void }> = ({ onSelect }) => {
-  const [isLoading, setIsLoading] = useState<string | null>(null);
-
-  const handleSelect = async (url: string) => {
-    setIsLoading(url);
-    try {
-      const response = await fetch(url);
-      const blob = await response.blob();
-      const base64 = await blobToBase64(blob);
-      onSelect(base64);
-    } catch (error) {
-      console.error("Error fetching gallery image:", error);
-    } finally {
-      setIsLoading(null);
-    }
-  };
-
-  return (
-    <div className="grid grid-cols-3 gap-4">
-      {MOCK_GALLERY_IMAGES.map(url => (
-        <div key={url} className="relative aspect-square cursor-pointer group" onClick={() => handleSelect(url)}>
-          <img src={url} alt="Gallery item" className="w-full h-full object-cover rounded-md" />
-          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-            {isLoading === url ? (
-              <Loader className="animate-spin text-white" />
-            ) : (
-              <ImageIcon size={32} className="text-white" />
-            )}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
-
 const FileUploadView: React.FC<{ onUpload: (base64: string) => void }> = ({ onUpload }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
@@ -149,7 +112,7 @@ const ImageUploadModal: React.FC<{
   onClose: () => void;
   onImageSelected: (base64: string) => void;
 }> = ({ isOpen, onClose, onImageSelected }) => {
-  type View = 'options' | 'file' | 'gallery' | 'camera';
+  type View = 'options' | 'file' | 'camera';
   const [view, setView] = useState<View>('options');
 
   useEffect(() => {
@@ -161,17 +124,13 @@ const ImageUploadModal: React.FC<{
   const renderContent = () => {
     switch (view) {
       case 'file': return <FileUploadView onUpload={onImageSelected} />;
-      case 'gallery': return <GalleryView onSelect={onImageSelected} />;
       case 'camera': return <CameraView onCapture={onImageSelected} onCancel={() => setView('options')}/>;
       case 'options':
       default:
         return (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-center">
             <button onClick={() => setView('file')} className="p-6 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
               <Upload size={32} className="mx-auto mb-2" /> Upload File
-            </button>
-            <button onClick={() => setView('gallery')} className="p-6 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-              <ImageIcon size={32} className="mx-auto mb-2" /> From Gallery
             </button>
             <button onClick={() => setView('camera')} className="p-6 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
               <Camera size={32} className="mx-auto mb-2" /> Use Camera
