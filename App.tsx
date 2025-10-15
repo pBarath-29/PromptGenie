@@ -20,6 +20,8 @@ import AdminPage from './pages/AdminPage';
 import AdminRoute from './components/AdminRoute';
 import UpgradePage from './pages/UpgradePage';
 import ContactPage from './pages/ContactPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 const AppContent: React.FC = () => {
   const { user } = useAuth();
@@ -57,6 +59,8 @@ const AppContent: React.FC = () => {
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignUpPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
     </Routes>
   );
 };

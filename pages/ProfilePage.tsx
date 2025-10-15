@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { usePrompts } from '../contexts/PromptContext';
 import { useCollections } from '../contexts/CollectionContext';
 import { useHistory } from '../contexts/HistoryContext';
-import { Award, Edit, BookOpen, ShoppingBag, Bookmark, Package, History } from 'lucide-react';
+import { Award, Edit, BookOpen, ShoppingBag, Bookmark, Package, History, KeyRound } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Modal from '../components/Modal';
 import Button from '../components/Button';
@@ -16,6 +16,7 @@ import ConfirmationModal from '../components/ConfirmationModal';
 import HistoryDetailModal from '../components/HistoryDetailModal';
 import ImageUpload from '../components/ImageUpload';
 import Pagination from '../components/Pagination';
+import ChangePasswordModal from '../components/ChangePasswordModal';
 
 const HISTORY_PER_PAGE = 5;
 const PROMPTS_PER_PAGE = 6;
@@ -28,6 +29,7 @@ const ProfilePage: React.FC = () => {
   const { history } = useHistory();
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
   const [bio, setBio] = useState('');
   const [avatar, setAvatar] = useState(user?.avatar || '');
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
@@ -139,9 +141,14 @@ const ProfilePage: React.FC = () => {
         <div className="text-center md:text-left flex-grow">
           <div className="flex items-center justify-center md:justify-start space-x-4">
             <h1 className="text-4xl font-extrabold">{user.name}</h1>
-            <Button variant="secondary" onClick={() => setIsEditModalOpen(true)} icon={<Edit size={16}/>}>
-              Edit Profile
-            </Button>
+            <div className="flex items-center space-x-2">
+              <Button variant="secondary" onClick={() => setIsEditModalOpen(true)} icon={<Edit size={16}/>}>
+                Edit Profile
+              </Button>
+               <Button variant="secondary" onClick={() => setIsChangePasswordModalOpen(true)} icon={<KeyRound size={16}/>}>
+                Change Password
+              </Button>
+            </div>
           </div>
           <p className="text-gray-500 dark:text-gray-400 mt-2 max-w-xl">{bio}</p>
           <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-4">
@@ -309,6 +316,11 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
       </Modal>
+
+      <ChangePasswordModal 
+        isOpen={isChangePasswordModalOpen}
+        onClose={() => setIsChangePasswordModalOpen(false)}
+      />
       
       <PromptDetailModal
         isOpen={!!selectedPrompt}
