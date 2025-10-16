@@ -1,4 +1,5 @@
 
+
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { User as AppUser } from '../types';
 import { FREE_TIER_LIMIT, FREE_TIER_POST_LIMIT, PRO_TIER_POST_LIMIT } from '../config';
@@ -11,6 +12,9 @@ import {
   signOut,
   sendEmailVerification,
   User as FirebaseUser,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
 } from 'firebase/auth';
 
 
@@ -36,6 +40,7 @@ interface AuthContextType {
   completeTutorial: () => void;
   cancelSubscription: () => void;
   getUserById: (userId: string) => Promise<AppUser | undefined>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -299,8 +304,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return user || undefined;
   }, []);
 
+  const changePassword = async (currentPassword: string, newPassword: string) => {
+    const firebaseUser = auth.currentUser;
+    if (!firebaseUser || !firebaseUser.email) {
+        throw new Error("No user is currently signed in or user email is not available.");
+    }
+    
+    const credential = EmailAuthProvider.credential(firebaseUser.email, currentPassword);
+    
+    // Re-authenticate the user to ensure they know their current password
+    await reauthenticateWithCredential(firebaseUser, credential);
+    
+    // If re-authentication is successful, update the password
+    await updatePassword(firebaseUser, newPassword);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout, resendVerificationEmail, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, handleVote, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro, getSubmissionsLeft, incrementSubmissionCount, completeTutorial, cancelSubscription, getUserById }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout, resendVerificationEmail, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, handleVote, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro, getSubmissionsLeft, incrementSubmissionCount, completeTutorial, cancelSubscription, getUserById, changePassword }}>
       {children}
     </AuthContext.Provider>
   );

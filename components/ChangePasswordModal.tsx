@@ -1,7 +1,9 @@
+
 import React, { useState } from 'react';
 import Modal from './Modal';
 import Button from './Button';
 import { CheckCircle } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface ChangePasswordModalProps {
   isOpen: boolean;
@@ -15,6 +17,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const { changePassword } = useAuth();
 
   const resetForm = () => {
     setCurrentPassword('');
@@ -30,7 +33,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
     onClose();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentPassword || !newPassword || !confirmPassword) {
       setError('All fields are required.');
@@ -47,12 +50,15 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
     setError('');
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      setIsSuccess(true);
-      resetForm();
-    }, 1000);
+    try {
+        await changePassword(currentPassword, newPassword);
+        setIsSuccess(true);
+        resetForm();
+    } catch (err: any) {
+        setError(err.message.replace('Firebase: ', ''));
+    } finally {
+        setIsLoading(false);
+    }
   };
   
   return (

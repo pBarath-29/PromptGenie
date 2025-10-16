@@ -1,21 +1,29 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Button from '../components/Button';
 import { Mail, Zap, CheckCircle } from 'lucide-react';
+import { auth } from '../services/firebase';
+import { sendPasswordResetEmail } from 'firebase/auth';
 
 const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    setError('');
+    try {
+      await sendPasswordResetEmail(auth, email);
       setIsSubmitted(true);
-    }, 1000);
+    } catch (err: any) {
+      setError(err.message.replace('Firebase: ', ''));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (isSubmitted) {
@@ -71,6 +79,9 @@ const ForgotPasswordPage: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
+
+            {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+
             <div>
             <Button type="submit" className="w-full" isLoading={isLoading} icon={<Mail size={20}/>}>
               Send Reset Link
