@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import Button from '../components/Button';
@@ -15,7 +16,7 @@ const ContactPage: React.FC = () => {
 
     useEffect(() => {
         if (user) {
-            setFormData(prev => ({ ...prev, name: user.name, email: `${user.name.toLowerCase().replace(' ', '')}@example.com` }));
+            setFormData(prev => ({ ...prev, name: user.name, email: user.email }));
         }
     }, [user]);
 
@@ -38,7 +39,7 @@ const ContactPage: React.FC = () => {
 
             if (response.ok) {
                 setStatus('success');
-                setFormData({ name: user?.name || '', email: user ? `${user.name.toLowerCase().replace(' ', '')}@example.com` : '', message: '' });
+                setFormData({ name: user?.name || '', email: user?.email || '', message: '' });
             } else {
                 throw new Error('Failed to send message. Please try again later.');
             }

@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Prompt, Comment, User } from '../types';
-import { MOCK_PROMPTS } from '../types';
+import { getData, setData, updateData, deleteData } from '../services/firebaseService';
 
 interface PromptContextType {
   prompts: Prompt[];
@@ -15,48 +15,66 @@ interface PromptContextType {
 const PromptContext = createContext<PromptContextType | undefined>(undefined);
 
 export const PromptProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [prompts, setPrompts] = useState<Prompt[]>(MOCK_PROMPTS);
+  const [prompts, setPrompts] = useState<Prompt[]>([]);
+
+  useEffect(() => {
+    const loadPrompts = async () => {
+        try {
+            const promptsData = await getData<{ [key: string]: Prompt }>('prompts');
+            const promptsArray = promptsData ? Object.values(promptsData).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) : [];
+            setPrompts(promptsArray);
+        } catch (error) {
+            console.error("Failed to load prompts:", error);
+            setPrompts([]);
+        }
+    }
+    loadPrompts();
+  }, []);
 
   const addPrompt = (prompt: Prompt) => {
+    // Optimistic update
     setPrompts(prevPrompts => [prompt, ...prevPrompts]);
+    setData(`prompts/${prompt.id}`, prompt).catch(error => {
+        console.error("Failed to add prompt to DB:", error);
+        // Revert state if API call fails
+        setPrompts(prevPrompts => prevPrompts.filter(p => p.id !== prompt.id));
+    });
   };
   
   const updatePrompt = (updatedPrompt: Prompt) => {
     setPrompts(prevPrompts =>
       prevPrompts.map(p => (p.id === updatedPrompt.id ? updatedPrompt : p))
     );
+    updateData(`prompts/${updatedPrompt.id}`, updatedPrompt).catch(error => console.error("Failed to update prompt:", error));
   };
 
   const deletePrompt = (promptId: string) => {
     setPrompts(prevPrompts => prevPrompts.filter(p => p.id !== promptId));
+    deleteData(`prompts/${promptId}`).catch(error => console.error("Failed to delete prompt:", error));
   };
 
   const handlePromptVote = (promptId: string, voteType: 'up' | 'down', previousVote?: 'up' | 'down' | null) => {
-    setPrompts(prevPrompts =>
-      prevPrompts.map(p => {
+    const originalPrompts = [...prompts];
+    const updatedPrompts = prompts.map(p => {
         if (p.id === promptId) {
-          let newUpvotes = p.upvotes;
-          let newDownvotes = p.downvotes;
-
-          // Revert previous vote if it exists
-          if (previousVote === 'up') newUpvotes--;
-          if (previousVote === 'down') newDownvotes--;
-          
-          // Apply new vote, or toggle off
-          if (previousVote !== voteType) {
-            if (voteType === 'up') newUpvotes++;
-            if (voteType === 'down') newDownvotes++;
-          }
-          
-          return {
-            ...p,
-            upvotes: Math.max(0, newUpvotes),
-            downvotes: Math.max(0, newDownvotes),
-          };
+            let newUpvotes = p.upvotes;
+            let newDownvotes = p.downvotes;
+            if (previousVote === 'up') newUpvotes--;
+            if (previousVote === 'down') newDownvotes--;
+            if (previousVote !== voteType) {
+                if (voteType === 'up') newUpvotes++;
+                if (voteType === 'down') newDownvotes++;
+            }
+            const updatedPrompt = { ...p, upvotes: Math.max(0, newUpvotes), downvotes: Math.max(0, newDownvotes) };
+            updateData(`prompts/${promptId}`, { upvotes: updatedPrompt.upvotes, downvotes: updatedPrompt.downvotes }).catch(err => {
+                console.error("Failed to sync vote:", err);
+                setPrompts(originalPrompts); // Revert on failure
+            });
+            return updatedPrompt;
         }
         return p;
-      })
-    );
+    });
+    setPrompts(updatedPrompts);
   };
 
   const addComment = (promptId: string, comment: { author: User; text: string }) => {
@@ -65,19 +83,28 @@ export const PromptProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       id: `c${Date.now()}`,
       createdAt: new Date().toISOString(),
     };
-    setPrompts(prevPrompts =>
-      prevPrompts.map(p =>
-        p.id === promptId
-          ? { ...p, comments: [newComment, ...p.comments] }
-          : p
-      )
-    );
+    
+    const originalPrompts = [...prompts];
+    const updatedPrompts = prompts.map(p => {
+        if (p.id === promptId) {
+            const updatedComments = [newComment, ...(p.comments || [])];
+            const updatedPrompt = { ...p, comments: updatedComments };
+            updateData(`prompts/${promptId}`, { comments: updatedComments }).catch(err => {
+                console.error("Failed to sync comment:", err);
+                setPrompts(originalPrompts); // Revert
+            });
+            return updatedPrompt;
+        }
+        return p;
+    });
+    setPrompts(updatedPrompts);
   };
 
   const updatePromptStatus = (promptId: string, status: 'approved' | 'rejected') => {
     setPrompts(prevPrompts =>
       prevPrompts.map(p => (p.id === promptId ? { ...p, status } : p))
     );
+    updateData(`prompts/${promptId}`, { status }).catch(error => console.error("Failed to update prompt status:", error));
   };
 
   return (

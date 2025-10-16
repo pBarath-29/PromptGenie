@@ -1,7 +1,9 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+
+import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { User } from '../types';
-import { MOCK_USERS } from '../types';
 import { FREE_TIER_LIMIT, FREE_TIER_POST_LIMIT, PRO_TIER_POST_LIMIT } from '../config';
+import { getData, setData, updateData, pushData } from '../services/firebaseService';
+
 
 interface AuthContextType {
   user: User | null;
@@ -22,7 +24,7 @@ interface AuthContextType {
   incrementSubmissionCount: () => void;
   completeTutorial: () => void;
   cancelSubscription: () => void;
-  getUserById: (userId: string) => User | undefined;
+  getUserById: (userId: string) => Promise<User | undefined>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -66,8 +68,6 @@ const normalizeUser = (userToNormalize: User | any): User | null => {
 
     let normalizedUser = { ...userToNormalize };
     
-    // Default hasCompletedTutorial to true for existing users.
-    // This prevents the tutorial from showing to users who signed up before the feature existed.
     if (typeof normalizedUser.hasCompletedTutorial === 'undefined') {
         normalizedUser.hasCompletedTutorial = true;
     }
@@ -76,7 +76,6 @@ const normalizeUser = (userToNormalize: User | any): User | null => {
       normalizedUser.votes = {};
     }
 
-    // Pass through existing normalization/reset functions
     const userWithGenReset = checkAndResetGenerationCount(normalizedUser);
     const userWithSubReset = checkAndResetSubmissionCount(userWithGenReset);
     
@@ -89,16 +88,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       const storedUser = localStorage.getItem(USER_STORAGE_KEY);
       const loadedUser = storedUser ? JSON.parse(storedUser) : null;
-      // Normalize user on initial load to handle schema changes.
       return normalizeUser(loadedUser);
     } catch (error) {
       console.error("Failed to parse user from localStorage", error);
       return null;
     }
   });
-
-  // This is a mock user store for demonstration. In a real app, this would be your user database.
-  const [users, setUsers] = useState<User[]>(MOCK_USERS);
 
   useEffect(() => {
     if (user) {
@@ -108,59 +103,60 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, [user]);
 
-  const login = (email: string, password?: string): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => { // Simulate API latency
-        let foundUser: User | undefined;
-        if (email.toLowerCase() === 'admin@example.com') {
-            foundUser = users.find(u => u.role === 'admin');
-        } else {
-            foundUser = users.find(u => u.name.toLowerCase().replace(' ', '') + '@example.com' === email.toLowerCase());
-        }
+  const login = async (email: string, password?: string): Promise<void> => {
+      const usersData = await getData<{ [key: string]: User }>('users');
 
-        if (foundUser) {
-          // Normalize user on login to ensure all flags and counters are correctly set.
-          setUser(normalizeUser(foundUser));
-          resolve();
-        } else {
-          reject(new Error('Invalid email or password'));
-        }
-      }, 500);
-    });
+      if (!usersData) {
+        throw new Error('Invalid email or password');
+      }
+      
+      const usersArray = Object.values(usersData);
+      
+      const foundUser = usersArray.find(u => u.email && u.email.toLowerCase() === email.toLowerCase());
+
+      if (foundUser) {
+        setUser(normalizeUser(foundUser));
+      } else {
+        throw new Error('Invalid email or password');
+      }
   };
 
-  const signup = (name: string, email: string, password?: string): Promise<void> => {
-    return new Promise((resolve, reject) => {
-        setTimeout(() => { // Simulate API latency
-            const existingUser = users.find(u => u.name.toLowerCase().replace(' ', '') + '@example.com' === email.toLowerCase());
-            if(existingUser) {
-                reject(new Error('An account with this email already exists.'));
-                return;
-            }
+  const signup = async (name: string, email: string, password?: string): Promise<void> => {
+      const usersData = await getData<{ [key: string]: User }>('users');
+      if (usersData) {
+          const existingUser = Object.values(usersData).find(u => u.email && u.email.toLowerCase() === email.toLowerCase());
+          if(existingUser) {
+              throw new Error('An account with this email already exists.');
+          }
+      }
+      
+      const isAdminByEmail = email.toLowerCase() === 'pbarath29@gmail.com';
 
-            const newUser: User = {
-                id: `u${Date.now()}`,
-                name,
-                avatar: `https://www.gravatar.com/avatar/?d=mp`,
-                bio: "Hey there! I'm using Prompter.",
-                submittedPrompts: [],
-                purchasedCollections: [],
-                savedPrompts: [],
-                createdCollections: [],
-                subscriptionTier: 'free',
-                role: 'user',
-                promptGenerations: 0,
-                lastGenerationReset: `${new Date().getFullYear()}-${new Date().getMonth()}`,
-                promptsSubmittedToday: 0,
-                lastSubmissionDate: new Date().toISOString().split('T')[0],
-                hasCompletedTutorial: false, // New users start with the tutorial incomplete.
-                votes: {},
-            };
-            setUsers(prev => [...prev, newUser]);
-            setUser(newUser);
-            resolve();
-        }, 500)
-    });
+      const newUser: Omit<User, 'id'> = {
+          name,
+          email,
+          avatar: `https://www.gravatar.com/avatar/?d=mp`,
+          bio: "Hey there! I'm using Prompter.",
+          submittedPrompts: [],
+          purchasedCollections: [],
+          savedPrompts: [],
+          createdCollections: [],
+          subscriptionTier: isAdminByEmail ? 'pro' : 'free',
+          role: isAdminByEmail ? 'admin' : 'user',
+          promptGenerations: isAdminByEmail ? 999 : 0,
+          lastGenerationReset: `${new Date().getFullYear()}-${new Date().getMonth()}`,
+          promptsSubmittedToday: 0,
+          lastSubmissionDate: new Date().toISOString().split('T')[0],
+          hasCompletedTutorial: false,
+          votes: {},
+      };
+      
+      const response = await pushData('users', newUser);
+      const newId = response.name;
+      const userWithId = { ...newUser, id: newId };
+
+      await updateData(`users/${newId}`, { id: newId });
+      setUser(userWithId);
   };
 
   const logout = () => {
@@ -169,95 +165,72 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   
   const updateUserProfile = (data: { bio?: string; avatar?: string }) => {
     if (user) {
-      setUser(prevUser => prevUser ? { ...prevUser, ...data } : null);
+      const updatedUser = { ...user, ...data };
+      setUser(updatedUser);
+      updateData(`users/${user.id}`, data).catch(err => console.error("Failed to sync profile update", err));
     }
   };
 
   const purchaseCollection = (collectionId: string) => {
     if (user && !user.purchasedCollections?.includes(collectionId)) {
-      setUser(prevUser => prevUser ? {
-        ...prevUser,
-        purchasedCollections: [...(prevUser.purchasedCollections || []), collectionId],
-      } : null);
+      const updatedCollections = [...(user.purchasedCollections || []), collectionId];
+      setUser({ ...user, purchasedCollections: updatedCollections });
+      updateData(`users/${user.id}`, { purchasedCollections: updatedCollections }).catch(err => console.error("Failed to sync purchase", err));
     }
   };
   
   const addSubmittedPrompt = (promptId: string) => {
       if (user) {
-          setUser(prevUser => prevUser ? {
-              ...prevUser,
-              submittedPrompts: [...(prevUser.submittedPrompts || []), promptId],
-          } : null);
+          const updatedPrompts = [...(user.submittedPrompts || []), promptId];
+          setUser({ ...user, submittedPrompts: updatedPrompts });
+          updateData(`users/${user.id}`, { submittedPrompts: updatedPrompts }).catch(err => console.error("Failed to sync submitted prompt", err));
       }
   };
 
   const removeSubmittedPrompt = (promptId: string) => {
     if (user) {
-      setUser(prevUser => {
-        if (!prevUser) return null;
-        const newSubmittedPrompts = prevUser.submittedPrompts?.filter(id => id !== promptId);
-        return { ...prevUser, submittedPrompts: newSubmittedPrompts };
-      });
+      const updatedPrompts = user.submittedPrompts?.filter(id => id !== promptId);
+      setUser({ ...user, submittedPrompts: updatedPrompts });
+      updateData(`users/${user.id}`, { submittedPrompts: updatedPrompts }).catch(err => console.error("Failed to sync prompt removal", err));
     }
   };
 
   const toggleSavePrompt = (promptId: string) => {
     if (!user) return;
     
-    setUser(prevUser => {
-      if (!prevUser) return null;
-      
-      const savedPrompts = prevUser.savedPrompts || [];
-      const isSaved = savedPrompts.includes(promptId);
-      
-      let newSavedPrompts: string[];
-      if (isSaved) {
-        newSavedPrompts = savedPrompts.filter(id => id !== promptId);
-      } else {
-        newSavedPrompts = [...savedPrompts, promptId];
-      }
-      
-      return { ...prevUser, savedPrompts: newSavedPrompts };
-    });
+    const savedPrompts = user.savedPrompts || [];
+    const isSaved = savedPrompts.includes(promptId);
+    const newSavedPrompts = isSaved ? savedPrompts.filter(id => id !== promptId) : [...savedPrompts, promptId];
+    
+    setUser({ ...user, savedPrompts: newSavedPrompts });
+    updateData(`users/${user.id}`, { savedPrompts: newSavedPrompts }).catch(err => console.error("Failed to sync saved prompt", err));
   };
 
   const handleVote = (promptId: string, voteType: 'up' | 'down') => {
     if (!user) return;
-
-    setUser(prevUser => {
-      if (!prevUser) return null;
-
-      const currentVotes = { ...(prevUser.votes || {}) };
-      const currentVote = currentVotes[promptId];
-      
-      if (currentVote === voteType) {
-        // User is clicking the same vote button again, so remove the vote
-        delete currentVotes[promptId];
-      } else {
-        // New vote or changing vote
-        currentVotes[promptId] = voteType;
-      }
-      
-      return { ...prevUser, votes: currentVotes };
-    });
+    
+    const currentVotes = { ...(user.votes || {}) };
+    const currentVote = currentVotes[promptId];
+    if (currentVote === voteType) delete currentVotes[promptId];
+    else currentVotes[promptId] = voteType;
+    
+    setUser({ ...user, votes: currentVotes });
+    updateData(`users/${user.id}`, { votes: currentVotes }).catch(err => console.error("Failed to sync vote", err));
   };
 
   const addCreatedCollection = (collectionId: string) => {
     if (user) {
-      setUser(prevUser => prevUser ? {
-        ...prevUser,
-        createdCollections: [...(prevUser.createdCollections || []), collectionId],
-      } : null);
+      const updatedCollections = [...(user.createdCollections || []), collectionId];
+      setUser({ ...user, createdCollections: updatedCollections });
+      updateData(`users/${user.id}`, { createdCollections: updatedCollections }).catch(err => console.error("Failed to sync created collection", err));
     }
   };
 
   const getGenerationsLeft = (): number => {
     if (!user || user.subscriptionTier === 'pro') return Infinity;
-
     const now = new Date();
     const currentMonthYear = `${now.getFullYear()}-${now.getMonth()}`;
     const generations = user.lastGenerationReset === currentMonthYear ? user.promptGenerations : 0;
-    
     return FREE_TIER_LIMIT - generations;
   }
 
@@ -265,48 +238,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (user && user.subscriptionTier === 'free') {
       const now = new Date();
       const currentMonthYear = `${now.getFullYear()}-${now.getMonth()}`;
-
-      let currentGenerations = user.promptGenerations;
-      let lastReset = user.lastGenerationReset;
-
-      if (lastReset !== currentMonthYear) {
-        currentGenerations = 0;
-        lastReset = currentMonthYear;
-      }
-      
-      setUser({
-        ...user,
-        promptGenerations: currentGenerations + 1,
-        lastGenerationReset: lastReset,
-      });
+      let currentGenerations = user.lastGenerationReset === currentMonthYear ? user.promptGenerations : 0;
+      const updatedUser = { ...user, promptGenerations: currentGenerations + 1, lastGenerationReset: currentMonthYear };
+      setUser(updatedUser);
+      updateData(`users/${user.id}`, { promptGenerations: updatedUser.promptGenerations, lastGenerationReset: updatedUser.lastGenerationReset });
     }
   };
 
   const upgradeToPro = () => {
     if (user) {
-      setUser(prevUser => prevUser ? {
-        ...prevUser,
-        subscriptionTier: 'pro'
-      } : null);
+      setUser({ ...user, subscriptionTier: 'pro' });
+      updateData(`users/${user.id}`, { subscriptionTier: 'pro' });
     }
   };
 
   const cancelSubscription = () => {
     if (user && user.subscriptionTier === 'pro') {
-        setUser(prevUser => prevUser ? {
-            ...prevUser,
-            subscriptionTier: 'free'
-        } : null);
+        setUser({ ...user, subscriptionTier: 'free' });
+        updateData(`users/${user.id}`, { subscriptionTier: 'free' });
     }
   };
 
   const getSubmissionsLeft = (): number => {
     if (!user) return 0;
     const limit = user.subscriptionTier === 'pro' ? PRO_TIER_POST_LIMIT : FREE_TIER_POST_LIMIT;
-    
-    // The submission count should have been reset on login/load, so we can use it directly
-    const submissions = user.promptsSubmittedToday;
-    
+    const today = new Date().toISOString().split('T')[0];
+    const submissions = user.lastSubmissionDate === today ? user.promptsSubmittedToday : 0;
     return limit - submissions;
   }
 
@@ -314,28 +271,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (user) {
       const today = new Date().toISOString().split('T')[0];
       const currentSubmissions = user.lastSubmissionDate === today ? user.promptsSubmittedToday : 0;
-
-      setUser({
-        ...user,
-        promptsSubmittedToday: currentSubmissions + 1,
-        lastSubmissionDate: today,
-      });
+      const updatedUser = { ...user, promptsSubmittedToday: currentSubmissions + 1, lastSubmissionDate: today };
+      setUser(updatedUser);
+      updateData(`users/${user.id}`, { promptsSubmittedToday: updatedUser.promptsSubmittedToday, lastSubmissionDate: updatedUser.lastSubmissionDate });
     }
   };
 
   const completeTutorial = () => {
       if (user) {
-          setUser(prevUser => prevUser ? {
-              ...prevUser,
-              hasCompletedTutorial: true,
-          } : null);
+          setUser({ ...user, hasCompletedTutorial: true });
+          updateData(`users/${user.id}`, { hasCompletedTutorial: true });
       }
   };
   
-  const getUserById = (userId: string): User | undefined => {
-      // In a real app, this might be an API call. Here we search all known users.
-      return users.find(u => u.id === userId);
-  };
+  const getUserById = useCallback(async (userId: string): Promise<User | undefined> => {
+      const user = await getData<User>(`users/${userId}`);
+      return user || undefined;
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, login, signup, logout, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, handleVote, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro, getSubmissionsLeft, incrementSubmissionCount, completeTutorial, cancelSubscription, getUserById }}>

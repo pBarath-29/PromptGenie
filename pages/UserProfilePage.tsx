@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { usePrompts } from '../contexts/PromptContext';
-import { Prompt } from '../types';
+import { Prompt, User } from '../types';
 import PromptCard from '../components/PromptCard';
 import PromptDetailModal from '../components/PromptDetailModal';
-import { BookOpen, UserX } from 'lucide-react';
+import { BookOpen, UserX, Loader } from 'lucide-react';
 import Button from '../components/Button';
 import Pagination from '../components/Pagination';
 import UserProfileHeader from '../components/UserProfileHeader';
@@ -18,17 +18,47 @@ const UserProfilePage: React.FC = () => {
     const { getUserById, user: loggedInUser } = useAuth();
     const { prompts } = usePrompts();
 
+    const [userProfile, setUserProfile] = useState<User | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
     const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
-
-    const userProfile = userId ? getUserById(userId) : null;
-
-    React.useEffect(() => {
-        // If the logged-in user is viewing their own public profile, redirect them to their editable profile page
+    
+    useEffect(() => {
         if (userId === loggedInUser?.id) {
             navigate('/profile', { replace: true });
         }
     }, [userId, loggedInUser, navigate]);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            if (!userId) {
+                setIsLoading(false);
+                return;
+            };
+            setIsLoading(true);
+            try {
+                const user = await getUserById(userId);
+                setUserProfile(user || null);
+            } catch (error) {
+                console.error("Failed to fetch user profile", error);
+                setUserProfile(null);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        
+        if (userId !== loggedInUser?.id) {
+            fetchUser();
+        }
+    }, [userId, getUserById, loggedInUser?.id]);
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <Loader size={48} className="animate-spin text-primary-500" />
+            </div>
+        )
+    }
 
     if (!userProfile) {
         return (

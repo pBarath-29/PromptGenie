@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { FeedbackItem } from '../types';
-import { MOCK_FEEDBACK } from '../types';
+import { getData, setData, pushData, updateData } from '../services/firebaseService';
 
 interface FeedbackContextType {
   feedback: FeedbackItem[];
@@ -11,22 +11,46 @@ interface FeedbackContextType {
 const FeedbackContext = createContext<FeedbackContextType | undefined>(undefined);
 
 export const FeedbackProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [feedback, setFeedback] = useState<FeedbackItem[]>(MOCK_FEEDBACK);
+  const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
+  
+  useEffect(() => {
+    const loadFeedback = async () => {
+        try {
+            const feedbackData = await getData<{ [key: string]: FeedbackItem }>('feedback');
+            const feedbackArray = feedbackData ? Object.values(feedbackData).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) : [];
+            setFeedback(feedbackArray);
+        } catch (error) {
+            console.error("Failed to load feedback:", error);
+            setFeedback([]);
+        }
+    }
+    loadFeedback();
+  }, []);
 
-  const addFeedback = (newFeedback: Omit<FeedbackItem, 'id' | 'createdAt' | 'status'>) => {
-    const feedbackItem: FeedbackItem = {
+
+  const addFeedback = async (newFeedback: Omit<FeedbackItem, 'id' | 'createdAt' | 'status'>) => {
+    const feedbackItem: Omit<FeedbackItem, 'id'> = {
       ...newFeedback,
-      id: `f${Date.now()}`,
       createdAt: new Date().toISOString(),
       status: 'pending',
     };
-    setFeedback(prevFeedback => [feedbackItem, ...prevFeedback]);
+    
+    try {
+        const response = await pushData('feedback', feedbackItem);
+        const newId = response.name;
+        const finalFeedbackItem = { ...feedbackItem, id: newId };
+        await updateData(`feedback/${newId}`, { id: newId });
+        setFeedback(prevFeedback => [finalFeedbackItem, ...prevFeedback]);
+    } catch (error) {
+        console.error("Failed to add feedback to DB:", error);
+    }
   };
   
   const updateFeedbackStatus = (feedbackId: string, status: 'pending' | 'reviewed') => {
     setFeedback(prevFeedback =>
       prevFeedback.map(f => (f.id === feedbackId ? { ...f, status } : f))
     );
+    updateData(`feedback/${feedbackId}`, { status }).catch(error => console.error("Failed to update feedback status:", error));
   };
 
   return (

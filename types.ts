@@ -1,6 +1,8 @@
+
 export interface User {
   id: string;
   name: string;
+  email: string;
   avatar: string;
   bio?: string;
   submittedPrompts?: string[];
@@ -106,6 +108,7 @@ export const MOCK_USERS: User[] = [
   { 
     id: 'u1', 
     name: 'Alex Doe', 
+    email: 'alexdoe@example.com',
     avatar: 'https://i.pravatar.cc/150?u=u1', 
     bio: 'Prompt engineering enthusiast.', 
     submittedPrompts: ['p1', 'p3', 'p5'], 
@@ -124,6 +127,7 @@ export const MOCK_USERS: User[] = [
   { 
     id: 'u2', 
     name: 'Jane Smith', 
+    email: 'janesmith@example.com',
     avatar: 'https://i.pravatar.cc/150?u=u2', 
     bio: 'AI Artist and developer.', 
     submittedPrompts: ['p2', 'p4', 'p6', 'p7'], 
@@ -142,6 +146,7 @@ export const MOCK_USERS: User[] = [
   { 
     id: 'u3', 
     name: 'Sam Wilson', 
+    email: 'samwilson@example.com',
     avatar: 'https://i.pravatar.cc/150?u=u3', 
     submittedPrompts: [], 
     purchasedCollections: [], 
@@ -159,6 +164,7 @@ export const MOCK_USERS: User[] = [
   { 
     id: 'u4', 
     name: 'Admin', 
+    email: 'admin@example.com',
     avatar: 'https://i.pravatar.cc/150?u=u4', 
     bio: 'Site Administrator.', 
     submittedPrompts: [], 
@@ -177,6 +183,7 @@ export const MOCK_USERS: User[] = [
   { 
     id: 'u5', 
     name: 'Patricia Master', 
+    email: 'patriciamaster@example.com',
     avatar: 'https://i.pravatar.cc/150?u=u5', 
     bio: 'I love submitting high-quality prompts!',
     submittedPrompts: Array.from({ length: 20 }, (_, i) => `pm${i + 1}`), 
@@ -188,6 +195,25 @@ export const MOCK_USERS: User[] = [
     promptGenerations: 50,
     lastGenerationReset: `${new Date().getFullYear()}-${new Date().getMonth()}`,
     promptsSubmittedToday: 2,
+    lastSubmissionDate: new Date().toISOString().split('T')[0],
+    hasCompletedTutorial: true,
+    votes: {},
+  },
+  { 
+    id: 'u6', 
+    name: 'Pbarath Admin', 
+    email: 'pbarath29@gmail.com',
+    avatar: 'https://i.pravatar.cc/150?u=u6', 
+    bio: 'Site Administrator.', 
+    submittedPrompts: [], 
+    purchasedCollections: [], 
+    savedPrompts: [], 
+    createdCollections: [],
+    subscriptionTier: 'pro',
+    role: 'admin',
+    promptGenerations: 999,
+    lastGenerationReset: `${new Date().getFullYear()}-${new Date().getMonth()}`,
+    promptsSubmittedToday: 0,
     lastSubmissionDate: new Date().toISOString().split('T')[0],
     hasCompletedTutorial: true,
     votes: {},
