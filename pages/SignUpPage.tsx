@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Button from '../components/Button';
-import { UserPlus, Zap } from 'lucide-react';
+import { UserPlus, Zap, CheckCircle } from 'lucide-react';
 
 const SignUpPage: React.FC = () => {
   const [name, setName] = useState('');
@@ -10,8 +11,8 @@ const SignUpPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const { signup } = useAuth();
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,14 +24,34 @@ const SignUpPage: React.FC = () => {
     setIsLoading(true);
     try {
       await signup(name, email, password);
-      sessionStorage.setItem('newUserGreeting', 'true'); // Flag for welcome message
-      navigate('/'); // Redirect to home page after sign up
+      setIsSuccess(true);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message.replace('Firebase: ', ''));
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (isSuccess) {
+    return (
+      <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-md space-y-8 text-center">
+          <CheckCircle size={56} className="mx-auto text-green-500" />
+          <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+            Account Created!
+          </h2>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            We've sent a verification link to <span className="font-medium">{email}</span>. Please check your inbox (and spam folder) to activate your account.
+          </p>
+          <div className="mt-6">
+            <Link to="/login">
+              <Button>Proceed to Login</Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">

@@ -1,30 +1,61 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
 import { LogIn, Zap } from 'lucide-react';
+import { User as FirebaseUser } from 'firebase/auth';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, resendVerificationEmail } = useAuth();
   const navigate = useNavigate();
+
+  const [showVerificationMessage, setShowVerificationMessage] = useState(false);
+  const [unverifiedUser, setUnverifiedUser] = useState<FirebaseUser | null>(null);
+  const [resendStatus, setResendStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
+    setShowVerificationMessage(false);
+    setUnverifiedUser(null);
+    setResendStatus('idle');
+
     try {
-      // In a real app, you would validate credentials.
-      // Here, we simulate a successful login if the user exists.
       await login(email, password);
-      navigate('/profile'); // Redirect to profile after login
+      navigate('/');
     } catch (err: any) {
-      setError(err.message);
+       if (err.code === 'auth/email-not-verified') {
+        setError(err.message);
+        setShowVerificationMessage(true);
+        setUnverifiedUser(err.unverifiedUser);
+      } else {
+        // Handle other errors like wrong password, user not found, etc.
+        setError(err.message.replace('Firebase: ', ''));
+        setShowVerificationMessage(false);
+        setUnverifiedUser(null);
+      }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!unverifiedUser) return;
+    setResendStatus('sending');
+    try {
+        await resendVerificationEmail(unverifiedUser);
+        setResendStatus('sent');
+        // Clear the general error to avoid confusion
+        setError("A new verification email has been sent to your inbox.");
+    } catch (err) {
+        setError("Failed to resend email. Please try again in a few minutes.");
+        setResendStatus('idle');
     }
   };
 
@@ -90,7 +121,26 @@ const LoginPage: React.FC = () => {
             </div>
           </div>
 
-          {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+          {error && (
+            <div className={`text-sm text-center p-3 rounded-lg ${showVerificationMessage ? 'bg-yellow-100/50 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200' : 'bg-red-100/50 dark:bg-red-900/30 text-red-600 dark:text-red-300'}`}>
+              {error}
+            </div>
+          )}
+
+          {showVerificationMessage && (
+              <div className="text-center">
+                  <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={handleResendVerification}
+                      isLoading={resendStatus === 'sending'}
+                      disabled={resendStatus !== 'idle'}
+                  >
+                      {resendStatus === 'sent' ? 'Verification Sent!' : 'Resend Verification Email'}
+                  </Button>
+              </div>
+          )}
+
 
           <div>
             <Button type="submit" className="w-full" isLoading={isLoading} icon={<LogIn size={20}/>}>

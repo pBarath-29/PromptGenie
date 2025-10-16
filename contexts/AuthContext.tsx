@@ -9,6 +9,7 @@ import {
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
   signOut,
+  sendEmailVerification,
   User as FirebaseUser,
 } from 'firebase/auth';
 
@@ -19,6 +20,7 @@ interface AuthContextType {
   login: (email: string, password?: string) => Promise<void>;
   signup: (name: string, email: string, password?: string) => Promise<void>;
   logout: () => void;
+  resendVerificationEmail: (user: FirebaseUser) => Promise<void>;
   updateUserProfile: (data: { bio?: string; avatar?: string }) => void;
   purchaseCollection: (collectionId: string) => void;
   addSubmittedPrompt: (promptId: string) => void;
@@ -96,20 +98,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
-      if (firebaseUser) {
-        // User is signed in. Fetch our custom user profile.
+      if (firebaseUser && firebaseUser.emailVerified) {
+        // User is signed in and verified. Fetch our custom user profile.
         const userProfile = await getData<AppUser>(`users/${firebaseUser.uid}`);
         if (userProfile) {
           setUser(normalizeUser(userProfile));
         } else {
-            // This case might happen if DB entry creation failed after signup.
-            // Or if user was deleted from DB but not from auth.
             console.warn(`No user profile found in DB for UID: ${firebaseUser.uid}. Logging out.`);
             await signOut(auth);
             setUser(null);
         }
       } else {
-        // User is signed out.
+        // User is signed out or not verified.
         setUser(null);
       }
       setLoading(false);
@@ -120,13 +120,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = async (email: string, password?: string): Promise<void> => {
       if (!password) throw new Error("Password is required for login.");
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+      if (!userCredential.user.emailVerified) {
+        await signOut(auth);
+        const error = new Error("Please verify your email before logging in. Check your inbox for the verification link.");
+        (error as any).code = "auth/email-not-verified";
+        (error as any).unverifiedUser = userCredential.user;
+        throw error;
+      }
+      // If verified, the onAuthStateChanged listener will handle setting the user state.
   };
 
   const signup = async (name: string, email: string, password?: string): Promise<void> => {
       if (!password) throw new Error("Password is required for signup.");
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
+      
+      await sendEmailVerification(firebaseUser);
       
       const isAdminByEmail = email.toLowerCase() === 'pbarath29@gmail.com';
 
@@ -151,10 +162,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       };
       
       await setData(`users/${firebaseUser.uid}`, newUser);
+      await signOut(auth); // Force user to login after verifying email
   };
 
   const logout = async () => {
     await signOut(auth);
+  };
+
+  const resendVerificationEmail = async (unverifiedUser: FirebaseUser) => {
+    await sendEmailVerification(unverifiedUser);
   };
   
   const updateUserProfile = (data: { bio?: string; avatar?: string }) => {
@@ -284,7 +300,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, handleVote, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro, getSubmissionsLeft, incrementSubmissionCount, completeTutorial, cancelSubscription, getUserById }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout, resendVerificationEmail, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, handleVote, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro, getSubmissionsLeft, incrementSubmissionCount, completeTutorial, cancelSubscription, getUserById }}>
       {children}
     </AuthContext.Provider>
   );
