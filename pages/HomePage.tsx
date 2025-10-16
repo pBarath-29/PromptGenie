@@ -37,7 +37,7 @@ const tutorialSteps = [
     {
         selector: "#user-menu-button",
         title: "Your Account",
-        content: "Access your profile, dashboard, saved prompts, and manage your account settings right here."
+        content: "Access your profile, saved prompts, and manage your account settings right here."
     },
     {
         title: "You're All Set!",

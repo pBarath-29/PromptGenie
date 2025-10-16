@@ -56,7 +56,11 @@ const SubmitCollectionModal: React.FC<SubmitCollectionModalProps> = ({ isOpen, o
     const handleBack = () => setStep(prev => prev - 1);
 
     const handleAddPrompt = () => {
-        setPrompts(prev => [...prev, currentPrompt]);
+        // FIX: Convert the `tags` string from the form state into a `string[]` to match the `NewPromptData` type.
+        setPrompts(prev => [...prev, {
+            ...currentPrompt,
+            tags: currentPrompt.tags.split(',').map(tag => tag.trim()).filter(Boolean),
+        }]);
         setCurrentPrompt(initialPromptData);
         setStep(5); // Go back to manage prompts view
     };
