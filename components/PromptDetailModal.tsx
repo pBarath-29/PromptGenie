@@ -215,10 +215,10 @@ const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, o
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 flex items-center">
                 <MessageSquare size={20} className="mr-2 text-primary-500"/>
-                Comments ({prompt.comments.length})
+                Comments ({prompt.comments?.length || 0})
               </h3>
               <div className="space-y-4">
-                {prompt.comments.map(comment => (
+                {(prompt.comments || []).map(comment => (
                   <div key={comment.id} className="flex items-start space-x-3">
                     {user?.id !== comment.author.id ? (
                       <Link to={`/profile/${comment.author.id}`} onClick={onClose} className="group flex-shrink-0">
@@ -237,7 +237,7 @@ const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, o
                     </div>
                   </div>
                 ))}
-                {prompt.comments.length === 0 && (
+                {(prompt.comments?.length || 0) === 0 && (
                   <p className="text-sm text-center py-4 text-gray-500 dark:text-gray-400">No comments yet. Be the first to leave feedback!</p>
                 )}
               </div>

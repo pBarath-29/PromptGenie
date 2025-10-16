@@ -142,7 +142,7 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, onClick, onEdit, onDele
           />
           <div className="flex items-center space-x-1">
               <MessageSquare size={16} />
-              <span>{prompt.comments.length}</span>
+              <span>{prompt.comments?.length || 0}</span>
           </div>
           <div className="hidden sm:flex items-center space-x-1.5">
               <Clock size={16} />
