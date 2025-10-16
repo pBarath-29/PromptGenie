@@ -5,6 +5,7 @@ import Button from '../components/Button';
 import { Mail, Zap, CheckCircle } from 'lucide-react';
 import { auth } from '../services/firebase';
 import { sendPasswordResetEmail } from 'firebase/auth';
+import { getFriendlyFirebaseAuthError } from '../utils/firebaseErrors';
 
 const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -20,7 +21,7 @@ const ForgotPasswordPage: React.FC = () => {
       await sendPasswordResetEmail(auth, email);
       setIsSubmitted(true);
     } catch (err: any) {
-      setError(err.message.replace('Firebase: ', ''));
+      setError(getFriendlyFirebaseAuthError(err));
     } finally {
       setIsLoading(false);
     }

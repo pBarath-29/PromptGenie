@@ -1,14 +1,18 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Button from '../components/Button';
-import { KeyRound, Zap, CheckCircle, AlertTriangle, Loader } from 'lucide-react';
+import { KeyRound, Zap, CheckCircle, AlertTriangle, Loader, Eye, EyeOff } from 'lucide-react';
 import { auth } from '../services/firebase';
 import { confirmPasswordReset, verifyPasswordResetCode } from 'firebase/auth';
+import { getFriendlyFirebaseAuthError } from '../utils/firebaseErrors';
 
 const ResetPasswordPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -53,7 +57,7 @@ const ResetPasswordPage: React.FC = () => {
         await confirmPasswordReset(auth, oobCode, password);
         setIsSuccess(true);
     } catch (err: any) {
-        setError(err.message.replace('Firebase: ', ''));
+        setError(getFriendlyFirebaseAuthError(err));
     } finally {
         setIsLoading(false);
     }
@@ -107,33 +111,53 @@ const ResetPasswordPage: React.FC = () => {
                         <label htmlFor="password" className="sr-only">
                             New Password
                         </label>
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            autoComplete="new-password"
-                            required
-                            className="relative block w-full appearance-none rounded-none rounded-t-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-primary-500 focus:outline-none focus:ring-primary-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            placeholder="New Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
+                        <div className="relative">
+                            <input
+                                id="password"
+                                name="password"
+                                type={isPasswordVisible ? 'text' : 'password'}
+                                autoComplete="new-password"
+                                required
+                                className="relative block w-full appearance-none rounded-none rounded-t-md border border-gray-300 px-3 py-2 pr-10 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-primary-500 focus:outline-none focus:ring-primary-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                placeholder="New Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                                className="absolute inset-y-0 right-0 z-20 flex items-center px-3 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                                aria-label={isPasswordVisible ? "Hide password" : "Show password"}
+                                >
+                                {isPasswordVisible ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </button>
+                        </div>
                         </div>
                         <div>
                         <label htmlFor="confirm-password" className="sr-only">
                             Confirm New Password
                         </label>
-                        <input
-                            id="confirm-password"
-                            name="confirm-password"
-                            type="password"
-                            autoComplete="new-password"
-                            required
-                            className="relative block w-full appearance-none rounded-none rounded-b-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-primary-500 focus:outline-none focus:ring-primary-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            placeholder="Confirm New Password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                        />
+                        <div className="relative">
+                            <input
+                                id="confirm-password"
+                                name="confirm-password"
+                                type={isConfirmPasswordVisible ? 'text' : 'password'}
+                                autoComplete="new-password"
+                                required
+                                className="relative block w-full appearance-none rounded-none rounded-b-md border border-gray-300 px-3 py-2 pr-10 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-primary-500 focus:outline-none focus:ring-primary-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                placeholder="Confirm New Password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setIsConfirmPasswordVisible(!isConfirmPasswordVisible)}
+                                className="absolute inset-y-0 right-0 z-20 flex items-center px-3 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                                aria-label={isConfirmPasswordVisible ? "Hide password" : "Show password"}
+                                >
+                                {isConfirmPasswordVisible ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </button>
+                        </div>
                         </div>
                     </div>
 
