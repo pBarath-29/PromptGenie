@@ -24,9 +24,18 @@ import ContactPage from './pages/ContactPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import FeedbackPage from './pages/FeedbackPage';
+import { Loader } from 'lucide-react';
 
 const AppContent: React.FC = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+        <Loader size={48} className="animate-spin text-primary-500" />
+      </div>
+    );
+  }
 
   const mainLayout = (children: React.ReactNode) => (
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">

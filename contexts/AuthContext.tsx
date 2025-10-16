@@ -1,12 +1,21 @@
 
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { User } from '../types';
+import { User as AppUser } from '../types';
 import { FREE_TIER_LIMIT, FREE_TIER_POST_LIMIT, PRO_TIER_POST_LIMIT } from '../config';
-import { getData, setData, updateData, pushData } from '../services/firebaseService';
+import { getData, setData, updateData } from '../services/firebaseService';
+import { auth } from '../services/firebase';
+import { 
+  onAuthStateChanged, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  signOut,
+  User as FirebaseUser,
+} from 'firebase/auth';
 
 
 interface AuthContextType {
-  user: User | null;
+  user: AppUser | null;
+  loading: boolean;
   login: (email: string, password?: string) => Promise<void>;
   signup: (name: string, email: string, password?: string) => Promise<void>;
   logout: () => void;
@@ -24,14 +33,12 @@ interface AuthContextType {
   incrementSubmissionCount: () => void;
   completeTutorial: () => void;
   cancelSubscription: () => void;
-  getUserById: (userId: string) => Promise<User | undefined>;
+  getUserById: (userId: string) => Promise<AppUser | undefined>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const USER_STORAGE_KEY = 'prompter-user';
-
-const checkAndResetGenerationCount = (currentUser: User | null): User | null => {
+const checkAndResetGenerationCount = (currentUser: AppUser | null): AppUser | null => {
     if (!currentUser || currentUser.subscriptionTier === 'pro') return currentUser;
     
     const now = new Date();
@@ -47,7 +54,7 @@ const checkAndResetGenerationCount = (currentUser: User | null): User | null => 
     return currentUser;
 };
 
-const checkAndResetSubmissionCount = (currentUser: User | null): User | null => {
+const checkAndResetSubmissionCount = (currentUser: AppUser | null): AppUser | null => {
     if (!currentUser) return currentUser;
 
     const today = new Date().toISOString().split('T')[0];
@@ -63,7 +70,7 @@ const checkAndResetSubmissionCount = (currentUser: User | null): User | null => 
 };
 
 // Helper to ensure user object is consistent, especially for users from older localStorage versions.
-const normalizeUser = (userToNormalize: User | any): User | null => {
+const normalizeUser = (userToNormalize: AppUser | any): AppUser | null => {
     if (!userToNormalize) return null;
 
     let normalizedUser = { ...userToNormalize };
@@ -84,55 +91,47 @@ const normalizeUser = (userToNormalize: User | any): User | null => {
 
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(() => {
-    try {
-      const storedUser = localStorage.getItem(USER_STORAGE_KEY);
-      const loadedUser = storedUser ? JSON.parse(storedUser) : null;
-      return normalizeUser(loadedUser);
-    } catch (error) {
-      console.error("Failed to parse user from localStorage", error);
-      return null;
-    }
-  });
+  const [user, setUser] = useState<AppUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
-    } else {
-      localStorage.removeItem(USER_STORAGE_KEY);
-    }
-  }, [user]);
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
+      if (firebaseUser) {
+        // User is signed in. Fetch our custom user profile.
+        const userProfile = await getData<AppUser>(`users/${firebaseUser.uid}`);
+        if (userProfile) {
+          setUser(normalizeUser(userProfile));
+        } else {
+            // This case might happen if DB entry creation failed after signup.
+            // Or if user was deleted from DB but not from auth.
+            console.warn(`No user profile found in DB for UID: ${firebaseUser.uid}. Logging out.`);
+            await signOut(auth);
+            setUser(null);
+        }
+      } else {
+        // User is signed out.
+        setUser(null);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const login = async (email: string, password?: string): Promise<void> => {
-      const usersData = await getData<{ [key: string]: User }>('users');
-
-      if (!usersData) {
-        throw new Error('Invalid email or password');
-      }
-      
-      const usersArray = Object.values(usersData);
-      
-      const foundUser = usersArray.find(u => u.email && u.email.toLowerCase() === email.toLowerCase());
-
-      if (foundUser) {
-        setUser(normalizeUser(foundUser));
-      } else {
-        throw new Error('Invalid email or password');
-      }
+      if (!password) throw new Error("Password is required for login.");
+      await signInWithEmailAndPassword(auth, email, password);
   };
 
   const signup = async (name: string, email: string, password?: string): Promise<void> => {
-      const usersData = await getData<{ [key: string]: User }>('users');
-      if (usersData) {
-          const existingUser = Object.values(usersData).find(u => u.email && u.email.toLowerCase() === email.toLowerCase());
-          if(existingUser) {
-              throw new Error('An account with this email already exists.');
-          }
-      }
+      if (!password) throw new Error("Password is required for signup.");
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const firebaseUser = userCredential.user;
       
       const isAdminByEmail = email.toLowerCase() === 'pbarath29@gmail.com';
 
-      const newUser: Omit<User, 'id'> = {
+      const newUser: AppUser = {
+          id: firebaseUser.uid,
           name,
           email,
           avatar: `https://www.gravatar.com/avatar/?d=mp`,
@@ -151,16 +150,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           votes: {},
       };
       
-      const response = await pushData('users', newUser);
-      const newId = response.name;
-      const userWithId = { ...newUser, id: newId };
-
-      await updateData(`users/${newId}`, { id: newId });
-      setUser(userWithId);
+      await setData(`users/${firebaseUser.uid}`, newUser);
   };
 
-  const logout = () => {
-    setUser(null);
+  const logout = async () => {
+    await signOut(auth);
   };
   
   const updateUserProfile = (data: { bio?: string; avatar?: string }) => {
@@ -284,13 +278,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
   };
   
-  const getUserById = useCallback(async (userId: string): Promise<User | undefined> => {
-      const user = await getData<User>(`users/${userId}`);
+  const getUserById = useCallback(async (userId: string): Promise<AppUser | undefined> => {
+      const user = await getData<AppUser>(`users/${userId}`);
       return user || undefined;
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, handleVote, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro, getSubmissionsLeft, incrementSubmissionCount, completeTutorial, cancelSubscription, getUserById }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, handleVote, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro, getSubmissionsLeft, incrementSubmissionCount, completeTutorial, cancelSubscription, getUserById }}>
       {children}
     </AuthContext.Provider>
   );

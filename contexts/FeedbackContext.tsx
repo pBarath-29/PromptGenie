@@ -37,7 +37,8 @@ export const FeedbackProvider: React.FC<{ children: ReactNode }> = ({ children }
     
     try {
         const response = await pushData('feedback', feedbackItem);
-        const newId = response.name;
+        const newId = response.key;
+        if (!newId) throw new Error("Failed to get new key from Firebase");
         const finalFeedbackItem = { ...feedbackItem, id: newId };
         await updateData(`feedback/${newId}`, { id: newId });
         setFeedback(prevFeedback => [finalFeedbackItem, ...prevFeedback]);
