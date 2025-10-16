@@ -43,8 +43,8 @@ const EditPromptModal: React.FC<EditPromptModalProps> = ({ isOpen, onClose, onSu
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !promptText.trim() || !description.trim()) {
-      setError('Title, Prompt, and Description are required fields.');
+    if (!title.trim() || !promptText.trim() || !description.trim() || !exampleOutput.trim()) {
+      setError('Title, Prompt, Description, and Example Output are required fields.');
       return;
     }
     if (!prompt) return;
@@ -60,7 +60,7 @@ const EditPromptModal: React.FC<EditPromptModalProps> = ({ isOpen, onClose, onSu
       tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
       isPublic,
       status: 'pending',
-      exampleOutput: exampleOutput.trim() || undefined,
+      exampleOutput: exampleOutput.trim(),
     });
   };
 
@@ -105,7 +105,7 @@ const EditPromptModal: React.FC<EditPromptModalProps> = ({ isOpen, onClose, onSu
 
         <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Example Output Type (Optional)
+                Example Output Type
             </label>
             <div className="flex items-center space-x-4">
                 <label className="flex items-center cursor-pointer">
@@ -154,7 +154,7 @@ const EditPromptModal: React.FC<EditPromptModalProps> = ({ isOpen, onClose, onSu
                         className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700"
                     />
                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        This helps others understand what to expect from your prompt.
+                        An example output is required to help others understand what to expect.
                     </p>
                 </>
             )}

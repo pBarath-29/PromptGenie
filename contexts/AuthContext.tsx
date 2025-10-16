@@ -123,7 +123,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setUser(normalizeUser(foundUser));
           resolve();
         } else {
-          reject(new Error('Invalid email or password. Try alexdoe@example.com or admin@example.com'));
+          reject(new Error('Invalid email or password'));
         }
       }, 500);
     });

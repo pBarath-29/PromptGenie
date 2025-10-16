@@ -70,7 +70,7 @@ const SubmitPromptModal: React.FC<SubmitPromptModalProps> = ({ isOpen, onClose, 
       model: formData.model,
       tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
       isPublic: true,
-      exampleOutput: formData.exampleOutput.trim() || undefined,
+      exampleOutput: formData.exampleOutput.trim(),
     });
     setSubmitted(true);
   };
@@ -86,6 +86,7 @@ const SubmitPromptModal: React.FC<SubmitPromptModalProps> = ({ isOpen, onClose, 
           case 1: return formData.title.trim() !== '';
           case 2: return formData.prompt.trim() !== '';
           case 3: return formData.description.trim() !== '';
+          case 6: return formData.exampleOutput.trim() !== '';
           default: return true;
       }
   }
@@ -178,8 +179,8 @@ const SubmitPromptModal: React.FC<SubmitPromptModalProps> = ({ isOpen, onClose, 
           case 6:
               return (
                   <div>
-                      <h3 className="text-xl font-semibold mb-2 text-center">Optionally, provide an example output.</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 text-center">This helps others understand what to expect.</p>
+                      <h3 className="text-xl font-semibold mb-2 text-center">Provide an example output.</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 text-center">This is required and helps others understand what to expect.</p>
                       <div className="flex items-center justify-center space-x-4 mb-4">
                           <label className="flex items-center cursor-pointer">
                               <input type="radio" name="outputType" value="text" checked={formData.outputType === 'text'} onChange={() => setFormData(prev=>({...prev, outputType: 'text', exampleOutput: ''}))} />
