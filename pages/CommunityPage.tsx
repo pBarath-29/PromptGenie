@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { usePrompts } from '../contexts/PromptContext';
 import PromptCard from '../components/PromptCard';
 import PromptDetailModal from '../components/PromptDetailModal';
-import { Prompt, AIModel, Category } from '../constants';
+import { Prompt, AIModel, Category } from '../types';
 import { AI_MODELS, CATEGORIES } from '../types';
 import { ChevronDown, Search, PlusCircle, ArrowLeft, ArrowRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';

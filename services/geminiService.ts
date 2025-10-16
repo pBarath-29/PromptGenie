@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from '@google/genai';
-import { Category, Prompt, Tone } from '../constants';
+import { Category, Prompt, Tone } from '../types';
 
 if (!process.env.API_KEY) {
   console.warn("API_KEY environment variable not set. Prompt generation will fail.");

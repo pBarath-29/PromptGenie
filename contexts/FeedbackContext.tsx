@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { FeedbackItem } from '../constants';
+import { FeedbackItem } from '../types';
 import { MOCK_FEEDBACK } from '../types';
 
 interface FeedbackContextType {

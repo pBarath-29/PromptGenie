@@ -1,5 +1,5 @@
 import React from 'react';
-import { Collection } from '../constants';
+import { Collection } from '../types';
 import { ShoppingCart, Zap, Eye } from 'lucide-react';
 import Button from './Button';
 import { useAuth } from '../contexts/AuthContext';

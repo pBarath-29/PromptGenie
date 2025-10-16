@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Collection } from '../constants';
+import { Collection } from '../types';
 import { MOCK_COLLECTIONS } from '../types';
 
 interface CollectionContextType {

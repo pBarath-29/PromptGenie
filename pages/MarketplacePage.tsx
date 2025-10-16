@@ -5,7 +5,7 @@ import { useCollections } from '../contexts/CollectionContext';
 import { useAuth } from '../contexts/AuthContext';
 import { usePrompts } from '../contexts/PromptContext';
 import SubmitCollectionModal from '../components/SubmitCollectionModal';
-import { Collection, Prompt } from '../constants';
+import { Collection, Prompt } from '../types';
 import Button from '../components/Button';
 import { useNavigate } from 'react-router-dom';
 import CollectionPreviewModal from '../components/CollectionPreviewModal';

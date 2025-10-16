@@ -1,5 +1,5 @@
 import React from 'react';
-import { Collection, Prompt } from '../constants';
+import { Collection, Prompt } from '../types';
 import Modal from './Modal';
 import Button from './Button';
 import { Lock, ShoppingCart, Cpu, Book, Tag as TagIcon } from 'lucide-react';

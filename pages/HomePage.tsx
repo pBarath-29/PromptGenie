@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Zap, Mic, Copy, Loader, ChevronDown } from 'lucide-react';
-import { TONES, CATEGORIES } from '../types';
-import { Tone, Category } from '../constants';
+import { TONES, CATEGORIES, Tone, Category } from '../types';
 import Button from '../components/Button';
 import useSpeechRecognition from '../hooks/useSpeechRecognition';
 import { generateOptimizedPrompt } from '../services/geminiService';

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { HistoryItem } from '../constants';
+// FIX: Changed import from '../constants' to '../types' as types are now consolidated in types.ts.
+import { HistoryItem } from '../types';
 import Modal from './Modal';
 import Button from './Button';
 import { Copy, Check, Tag as TagIcon } from 'lucide-react';

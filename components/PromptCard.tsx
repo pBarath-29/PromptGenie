@@ -1,5 +1,5 @@
 import React from 'react';
-import { Prompt } from '../constants';
+import { Prompt } from '../types';
 import { Copy, Bookmark, Edit, Trash2, MessageSquare, Clock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import RatingControl from './StarRating';

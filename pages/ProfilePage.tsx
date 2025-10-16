@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePrompts } from '../contexts/PromptContext';
 import { useCollections } from '../contexts/CollectionContext';
 import { useHistory } from '../contexts/HistoryContext';
-import { Award, Edit, BookOpen, ShoppingBag, Bookmark, Package, History, KeyRound, CreditCard, ArrowRight } from 'lucide-react';
+import { Award, BookOpen, ShoppingBag, Bookmark, Package, History, CreditCard, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Modal from '../components/Modal';
 import Button from '../components/Button';
 import PromptCard from '../components/PromptCard';
-import { Prompt, HistoryItem } from '../constants';
+import { Prompt, HistoryItem } from '../types';
 import PromptDetailModal from '../components/PromptDetailModal';
 import CollectionCard from '../components/CollectionCard';
 import EditPromptModal from '../components/EditPromptModal';
@@ -17,6 +17,7 @@ import HistoryDetailModal from '../components/HistoryDetailModal';
 import ImageUpload from '../components/ImageUpload';
 import Pagination from '../components/Pagination';
 import ChangePasswordModal from '../components/ChangePasswordModal';
+import UserProfileHeader from '../components/UserProfileHeader';
 
 const HISTORY_PER_PAGE = 5;
 const PROMPTS_PER_PAGE = 6;
@@ -52,35 +53,6 @@ const ProfilePage: React.FC = () => {
       setAvatar(user.avatar);
     }
   }, [user, isEditModalOpen]);
-
-  const badges = useMemo(() => {
-    if (!user) return [];
-    
-    const calculatedBadges: string[] = [];
-    
-    // Admin badge
-    if (user.role === 'admin') {
-        calculatedBadges.push('Admin');
-    }
-
-    const approvedPrompts = prompts.filter(p => user.submittedPrompts?.includes(p.id) && p.status === 'approved');
-    
-    // Prompt Master badge: 20 or more approved prompts
-    if (approvedPrompts.length >= 20) {
-        calculatedBadges.push('Prompt Master');
-    }
-    
-    // Top Creator badge: Average of 100+ upvotes across all approved prompts
-    if (approvedPrompts.length > 0) {
-        const totalUpvotes = approvedPrompts.reduce((sum, p) => sum + p.upvotes, 0);
-        const averageUpvotes = totalUpvotes / approvedPrompts.length;
-        if (averageUpvotes >= 100) {
-            calculatedBadges.push('Top Creator');
-        }
-    }
-    
-    return calculatedBadges;
-  }, [user, prompts]);
 
   if (!user) {
     return <div className="text-center text-lg">Please log in to view your profile.</div>;
@@ -142,35 +114,12 @@ const ProfilePage: React.FC = () => {
 
   return (
     <div className="space-y-12">
-      <div className="p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
-        <img src={avatar} alt={user.name} className="w-32 h-32 rounded-full ring-4 ring-primary-500 object-cover" />
-        <div className="text-center md:text-left flex-grow">
-          <div className="flex items-center justify-center md:justify-start space-x-4">
-            <h1 className="text-4xl font-extrabold">{user.name}</h1>
-            <div className="flex items-center space-x-2">
-              <Button variant="secondary" onClick={() => setIsEditModalOpen(true)} icon={<Edit size={16}/>}>
-                Edit Profile
-              </Button>
-               <Button variant="secondary" onClick={() => setIsChangePasswordModalOpen(true)} icon={<KeyRound size={16}/>}>
-                Change Password
-              </Button>
-            </div>
-          </div>
-          <p className="text-gray-500 dark:text-gray-400 mt-2 max-w-xl">{bio}</p>
-          <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-4">
-            <div className="flex items-center px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200 text-sm font-semibold rounded-full">
-                <BookOpen size={16} className="mr-1.5" />
-                <span>{user.submittedPrompts?.length || 0} Prompts Submitted</span>
-            </div>
-            {badges.map(badge => (
-              <span key={badge} className="flex items-center px-3 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-sm font-semibold rounded-full">
-                <Award size={16} className="mr-1.5" />
-                {badge}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
+      <UserProfileHeader 
+        user={user} 
+        isEditable={true} 
+        onEditProfileClick={() => setIsEditModalOpen(true)}
+        onChangePasswordClick={() => setIsChangePasswordModalOpen(true)}
+      />
 
       <section>
         <h2 className="text-2xl font-bold mb-4 flex items-center"><CreditCard className="mr-3 text-primary-500"/> My Subscription</h2>

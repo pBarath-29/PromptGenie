@@ -3,7 +3,8 @@ import { usePrompts } from '../contexts/PromptContext';
 import { useCollections } from '../contexts/CollectionContext';
 import Button from '../components/Button';
 import { CheckCircle, XCircle, Eye, Inbox, Package, Clock } from 'lucide-react';
-import { Prompt, Collection } from '../constants';
+// FIX: Changed import from '../constants' to '../types' as types are now consolidated in types.ts.
+import { Prompt, Collection } from '../types';
 import PromptDetailModal from '../components/PromptDetailModal';
 import CollectionPreviewModal from '../components/CollectionPreviewModal';
 import Pagination from '../components/Pagination';

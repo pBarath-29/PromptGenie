@@ -1,9 +1,84 @@
-import { AIModel, Category, Collection, Prompt, User, Tone, FeedbackType, FeedbackItem } from './constants';
+export interface User {
+  id: string;
+  name: string;
+  avatar: string;
+  bio?: string;
+  submittedPrompts?: string[];
+  purchasedCollections?: string[];
+  savedPrompts?: string[];
+  createdCollections?: string[];
+  subscriptionTier: 'free' | 'pro';
+  role: 'user' | 'admin';
+  promptGenerations: number;
+  lastGenerationReset: string; // Format 'YYYY-MM'
+  promptsSubmittedToday: number;
+  lastSubmissionDate: string; // Format 'YYYY-MM-DD'
+  hasCompletedTutorial: boolean;
+  votes?: { [promptId: string]: 'up' | 'down' };
+}
+
+export interface Comment {
+  id: string;
+  author: User;
+  text: string;
+  createdAt: string;
+}
+
+export interface Prompt {
+  id: string;
+  title: string;
+  prompt: string;
+  description: string;
+  author: User;
+  category: Category;
+  tags: string[];
+  upvotes: number;
+  downvotes: number;
+  comments: Comment[];
+  createdAt: string;
+  model: AIModel;
+  isPublic: boolean;
+  status: 'pending' | 'approved' | 'rejected';
+  exampleOutput?: string;
+}
+
+export interface Collection {
+  id: string;
+  name: string;
+  description: string;
+  creator: User;
+  price: number;
+  promptCount: number;
+  coverImage: string;
+  promptIds: string[];
+  status: 'pending' | 'approved' | 'rejected';
+}
+
+export interface HistoryItem {
+  id: string;
+  title: string;
+  prompt: string;
+  tags: string[];
+  createdAt: string;
+}
+
+export type AIModel = 'ChatGPT' | 'Claude' | 'Gemini' | 'MidJourney' | 'DALL-E';
+export type Category = 'Education' | 'Coding' | 'Business' | 'Art' | 'Marketing' | 'Fun';
+export type Tone = 'Professional' | 'Casual' | 'Creative' | 'Academic' | 'Humorous';
+export type FeedbackType = 'General Feedback' | 'Bug Report' | 'Feature Request' | 'Praise';
+
+export interface FeedbackItem {
+  id: string;
+  user: User;
+  type: FeedbackType;
+  message: string;
+  createdAt: string;
+  status: 'pending' | 'reviewed';
+}
 
 export const AI_MODELS: AIModel[] = ['ChatGPT', 'Claude', 'Gemini', 'MidJourney', 'DALL-E'];
 export const CATEGORIES: Category[] = ['Education', 'Coding', 'Business', 'Art', 'Marketing', 'Fun'];
 export const TONES: Tone[] = ['Professional', 'Casual', 'Creative', 'Academic', 'Humorous'];
-// FIX: Export FEEDBACK_TYPES to resolve import error in pages/FeedbackPage.tsx
 export const FEEDBACK_TYPES: FeedbackType[] = ['General Feedback', 'Bug Report', 'Feature Request', 'Praise'];
 
 
@@ -366,7 +441,6 @@ export const MOCK_COLLECTIONS: Collection[] = [
     }
 ];
 
-// FIX: Export MOCK_FEEDBACK to resolve import error in contexts/FeedbackContext.tsx
 export const MOCK_FEEDBACK: FeedbackItem[] = [
     {
         id: 'f1',

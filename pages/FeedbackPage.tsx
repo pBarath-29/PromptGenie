@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useFeedback } from '../contexts/FeedbackContext';
-import { FeedbackType } from '../constants';
+import { FeedbackType } from '../types';
 import { FEEDBACK_TYPES } from '../types';
 import Button from '../components/Button';
 import { ChevronDown, CheckCircle, Send } from 'lucide-react';

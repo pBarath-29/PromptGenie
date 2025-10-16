@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Prompt, Comment, User } from '../constants';
+import { Prompt, Comment, User } from '../types';
 import { MOCK_PROMPTS } from '../types';
 
 interface PromptContextType {

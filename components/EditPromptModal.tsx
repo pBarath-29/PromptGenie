@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 import Button from './Button';
-import { AI_MODELS, CATEGORIES } from '../types';
-import { AIModel, Category, Prompt } from '../constants';
+import { AI_MODELS, CATEGORIES, AIModel, Category, Prompt } from '../types';
 import { ChevronDown } from 'lucide-react';
 import ImageUpload from './ImageUpload';
 

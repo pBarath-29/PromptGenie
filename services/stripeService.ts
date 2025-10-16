@@ -1,4 +1,4 @@
-import { User } from '../constants';
+import { User } from '../types';
 
 /**
  * Simulates a backend API call to create a Stripe checkout session and process a payment.

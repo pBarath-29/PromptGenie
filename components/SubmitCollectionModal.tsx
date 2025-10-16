@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 import Button from './Button';
-import { Collection, Prompt, AIModel, Category } from '../constants';
+import { Collection, Prompt, AIModel, Category } from '../types';
 import { AI_MODELS, CATEGORIES } from '../types';
 import { ChevronDown, PlusCircle, Trash2, CheckCircle, ArrowLeft, ArrowRight, Package } from 'lucide-react';
 import ImageUpload from './ImageUpload';
