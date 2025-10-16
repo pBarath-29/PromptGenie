@@ -254,7 +254,7 @@ const HomePage: React.FC = () => {
             {error && <div className="text-center text-red-500">{error}</div>}
 
             {isLoading && (
-                <div className="text-center flex flex-col items-center justify-center space-y-4">
+                <div className="text-center flex flex-col items-center justify-center space-y-4 animate-fade-in">
                     <Loader size={48} className="animate-spin text-primary-500" />
                     <p className="text-lg">Generating your masterpiece...</p>
                 </div>

@@ -75,8 +75,8 @@ const UpgradePage: React.FC = () => {
     };
 
     const PaymentSuccessView: React.FC = () => (
-        <div className="text-center p-8 flex flex-col items-center justify-center space-y-4">
-            <PartyPopper size={56} className="text-green-500" />
+        <div className="text-center p-8 flex flex-col items-center justify-center space-y-4 animate-fade-in">
+            <PartyPopper size={56} className="text-green-500 animate-pop-in" />
             <h2 className="text-3xl font-bold">Welcome to Pro!</h2>
             <p className="text-gray-600 dark:text-gray-300">
                 Your upgrade was successful. You now have access to all Pro features.

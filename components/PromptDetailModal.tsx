@@ -169,21 +169,21 @@ const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, o
                 </div>
             )}
             {isLoading && (
-              <div className="text-center flex flex-col items-center justify-center space-y-2">
+              <div className="text-center flex flex-col items-center justify-center space-y-2 animate-fade-in">
                 <Loader size={32} className="animate-spin text-primary-500" />
                 <p className="text-sm text-gray-500 dark:text-gray-400">Generating example...</p>
               </div>
             )}
-            {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+            {error && <p className="text-red-500 text-sm text-center animate-fade-in">{error}</p>}
             {!isLoading && !error && example && (
-              <>
+              <div className="animate-fade-in w-full flex justify-center">
                 {example.type === 'text' && (
                   <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap text-sm">{example.content}</p>
                 )}
                 {example.type === 'image' && (
                   <img src={example.content} alt="Generated example" className="rounded-lg max-w-full max-h-80 object-contain"/>
                 )}
-              </>
+              </div>
             )}
              {!isLoading && !error && !example && (
                 <p className="text-sm text-gray-500 dark:text-gray-400">No example output was provided for this prompt.</p>

@@ -11,15 +11,24 @@ const AdModal: React.FC<AdModalProps> = ({ isOpen, onClose }) => {
   const [countdown, setCountdown] = useState(5);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  // Animation states
+  const [isRendered, setIsRendered] = useState(isOpen);
+  const [isShowing, setIsShowing] = useState(false);
+
   useEffect(() => {
+    // FIX: Replaced `NodeJS.Timeout` with `ReturnType<typeof setInterval>` to correctly type the timer ID in a browser environment and resolve the "Cannot find namespace 'NodeJS'" error.
+    let countdownTimer: ReturnType<typeof setInterval>;
     if (isOpen) {
+      setIsRendered(true);
+      const animationTimer = setTimeout(() => setIsShowing(true), 20);
+
       setCanClose(false);
       setCountdown(5);
       
-      const timer = setInterval(() => {
+      countdownTimer = setInterval(() => {
         setCountdown(prev => {
           if (prev <= 1) {
-            clearInterval(timer);
+            clearInterval(countdownTimer);
             setCanClose(true);
             return 0;
           }
@@ -32,11 +41,18 @@ const AdModal: React.FC<AdModalProps> = ({ isOpen, onClose }) => {
         console.log("Video autoplay was prevented:", error);
       });
 
-      return () => clearInterval(timer);
+      return () => {
+        clearTimeout(animationTimer);
+        clearInterval(countdownTimer);
+      };
+    } else {
+        setIsShowing(false);
+        const animationTimer = setTimeout(() => setIsRendered(false), 300);
+        return () => clearTimeout(animationTimer);
     }
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  if (!isRendered) return null;
 
   const handleClose = () => {
     videoRef.current?.pause();
@@ -44,8 +60,8 @@ const AdModal: React.FC<AdModalProps> = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-80 z-50 flex justify-center items-center p-4" aria-modal="true" role="dialog">
-        <div className="bg-gray-900 rounded-lg shadow-xl w-full max-w-4xl transform transition-all relative aspect-video flex flex-col items-center justify-center">
+    <div className={`fixed inset-0 bg-black z-50 flex justify-center items-center p-4 transition-opacity duration-300 ${isShowing ? 'bg-opacity-80' : 'bg-opacity-0 pointer-events-none'}`} aria-modal="true" role="dialog">
+        <div className={`bg-gray-900 rounded-lg shadow-xl w-full max-w-4xl transform transition-all duration-300 ease-out relative aspect-video flex flex-col items-center justify-center ${isShowing ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
             
             <div className="absolute top-2 right-2 z-20">
               {canClose ? (
