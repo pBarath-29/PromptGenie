@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { FeedbackItem } from '../types';
-import { getData, setData, pushData, updateData } from '../services/firebaseService';
+import { getData, setData, pushData, updateData, deleteData } from '../services/firebaseService';
 
 interface FeedbackContextType {
   feedback: FeedbackItem[];
   addFeedback: (newFeedback: Omit<FeedbackItem, 'id' | 'createdAt' | 'status'>) => void;
   updateFeedbackStatus: (feedbackId: string, status: 'pending' | 'reviewed') => void;
+  deleteUserFeedback: (userId: string) => Promise<void>;
 }
 
 const FeedbackContext = createContext<FeedbackContextType | undefined>(undefined);
@@ -54,8 +55,19 @@ export const FeedbackProvider: React.FC<{ children: ReactNode }> = ({ children }
     updateData(`feedback/${feedbackId}`, { status }).catch(error => console.error("Failed to update feedback status:", error));
   };
 
+  const deleteUserFeedback = async (userId: string) => {
+    const userFeedback = feedback.filter(f => f.user.id === userId);
+    if (userFeedback.length === 0) return;
+
+    const deletePromises = userFeedback.map(f => deleteData(`feedback/${f.id}`));
+
+    await Promise.all(deletePromises);
+
+    setFeedback(prev => prev.filter(f => f.user.id !== userId));
+  };
+
   return (
-    <FeedbackContext.Provider value={{ feedback, addFeedback, updateFeedbackStatus }}>
+    <FeedbackContext.Provider value={{ feedback, addFeedback, updateFeedbackStatus, deleteUserFeedback }}>
       {children}
     </FeedbackContext.Provider>
   );

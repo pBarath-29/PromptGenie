@@ -1,9 +1,7 @@
-
-
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { User as AppUser } from '../types';
 import { FREE_TIER_LIMIT, FREE_TIER_POST_LIMIT, PRO_TIER_POST_LIMIT } from '../config';
-import { getData, setData, updateData } from '../services/firebaseService';
+import { getData, setData, updateData, deleteData } from '../services/firebaseService';
 import { auth } from '../services/firebase';
 import { 
   onAuthStateChanged, 
@@ -15,6 +13,7 @@ import {
   updatePassword,
   reauthenticateWithCredential,
   EmailAuthProvider,
+  deleteUser,
 } from 'firebase/auth';
 
 
@@ -41,6 +40,7 @@ interface AuthContextType {
   cancelSubscription: () => void;
   getUserById: (userId: string) => Promise<AppUser | undefined>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
+  deleteAccount: (password: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -319,8 +319,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     await updatePassword(firebaseUser, newPassword);
   };
 
+  const deleteAccount = async (password: string) => {
+    const firebaseUser = auth.currentUser;
+    if (!firebaseUser || !firebaseUser.email) {
+        throw new Error("No user is currently signed in.");
+    }
+    
+    const credential = EmailAuthProvider.credential(firebaseUser.email, password);
+    
+    // Re-authenticate before sensitive operation
+    await reauthenticateWithCredential(firebaseUser, credential);
+    
+    // Delete user's DB record
+    await deleteData(`users/${firebaseUser.uid}`);
+    
+    // Finally, delete the auth user
+    await deleteUser(firebaseUser); // This will trigger onAuthStateChanged
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout, resendVerificationEmail, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, handleVote, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro, getSubmissionsLeft, incrementSubmissionCount, completeTutorial, cancelSubscription, getUserById, changePassword }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout, resendVerificationEmail, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, handleVote, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro, getSubmissionsLeft, incrementSubmissionCount, completeTutorial, cancelSubscription, getUserById, changePassword, deleteAccount }}>
       {children}
     </AuthContext.Provider>
   );

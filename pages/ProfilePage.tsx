@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { usePrompts } from '../contexts/PromptContext';
 import { useCollections } from '../contexts/CollectionContext';
 import { useHistory } from '../contexts/HistoryContext';
-import { Award, BookOpen, ShoppingBag, Bookmark, Package, History, CreditCard, ArrowRight } from 'lucide-react';
+import { Award, BookOpen, ShoppingBag, Bookmark, Package, History, CreditCard, ArrowRight, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Modal from '../components/Modal';
 import Button from '../components/Button';
@@ -18,20 +18,26 @@ import ImageUpload from '../components/ImageUpload';
 import Pagination from '../components/Pagination';
 import ChangePasswordModal from '../components/ChangePasswordModal';
 import UserProfileHeader from '../components/UserProfileHeader';
+import { useFeedback } from '../contexts/FeedbackContext';
+import ReauthenticationModal from '../components/ReauthenticationModal';
 
 const HISTORY_PER_PAGE = 5;
 const PROMPTS_PER_PAGE = 6;
 const COLLECTIONS_PER_PAGE = 4;
 
 const ProfilePage: React.FC = () => {
-  const { user, updateUserProfile, removeSubmittedPrompt, cancelSubscription } = useAuth();
-  const { prompts, updatePrompt, deletePrompt } = usePrompts();
-  const { collections } = useCollections();
+  const { user, updateUserProfile, removeSubmittedPrompt, cancelSubscription, deleteAccount } = useAuth();
+  const { prompts, updatePrompt, deletePrompt, anonymizeUserPrompts } = usePrompts();
+  const { collections, anonymizeUserCollections } = useCollections();
   const { history } = useHistory();
+  const { deleteUserFeedback } = useFeedback();
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
   const [isCancelSubModalOpen, setIsCancelSubModalOpen] = useState(false);
+  const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
+  const [isReauthModalOpen, setIsReauthModalOpen] = useState(false);
+
   const [bio, setBio] = useState('');
   const [avatar, setAvatar] = useState(user?.avatar || '');
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
@@ -90,6 +96,22 @@ const ProfilePage: React.FC = () => {
   const handleCancelSubscription = () => {
     cancelSubscription();
     setIsCancelSubModalOpen(false);
+  };
+
+  const handleStartDeleteProcess = () => {
+      setIsDeleteConfirmModalOpen(false);
+      setIsReauthModalOpen(true);
+  };
+
+  const handleDeleteAccount = async (password: string) => {
+    if (!user) {
+        throw new Error("User not found");
+    }
+    await anonymizeUserPrompts(user.id);
+    await anonymizeUserCollections(user.id);
+    await deleteUserFeedback(user.id);
+    await deleteAccount(password);
+    // On success, the AuthProvider will handle logout and redirect.
   };
   
   // Data for sections
@@ -286,6 +308,19 @@ const ProfilePage: React.FC = () => {
           </div>
         )}
       </section>
+      
+      <section>
+        <h2 className="text-2xl font-bold mb-4 flex items-center text-red-600 dark:text-red-400"><AlertTriangle className="mr-3"/> Danger Zone</h2>
+        <div className="p-6 bg-red-50 dark:bg-red-900/20 rounded-lg shadow-sm border border-red-200 dark:border-red-800 flex flex-col md:flex-row justify-between md:items-center gap-4">
+            <div>
+                <h3 className="font-bold">Delete Account</h3>
+                <p className="text-sm text-red-700 dark:text-red-300">Once you delete your account, all personal data will be removed, and your content will be anonymized. This action is irreversible.</p>
+            </div>
+            <Button variant="danger" onClick={() => setIsDeleteConfirmModalOpen(true)}>
+                Delete My Account
+            </Button>
+        </div>
+      </section>
 
       <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} title="Edit Your Profile">
         <div className="space-y-4">
@@ -347,6 +382,25 @@ const ProfilePage: React.FC = () => {
         message="Are you sure you want to cancel your Pro subscription? You will lose access to Pro benefits at the end of your current billing cycle."
         confirmButtonText="Confirm Cancellation"
         confirmButtonVariant="danger"
+      />
+      
+      <ConfirmationModal
+        isOpen={isDeleteConfirmModalOpen}
+        onClose={() => setIsDeleteConfirmModalOpen(false)}
+        onConfirm={handleStartDeleteProcess}
+        title="Delete Your Account"
+        message="This is a permanent action. Are you absolutely sure you want to delete your account?"
+        confirmButtonText="Yes, Delete My Account"
+        confirmButtonVariant="danger"
+      />
+      
+      <ReauthenticationModal
+        isOpen={isReauthModalOpen}
+        onClose={() => setIsReauthModalOpen(false)}
+        onConfirm={handleDeleteAccount}
+        title="Confirm Account Deletion"
+        message="For your security, please enter your password to confirm."
+        confirmButtonText="Permanently Delete Account"
       />
 
       <HistoryDetailModal

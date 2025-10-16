@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { Collection } from '../types';
+import { Collection, User } from '../types';
 import { getData, setData, updateData } from '../services/firebaseService';
 
 interface CollectionContextType {
   collections: Collection[];
   addCollection: (collection: Collection) => void;
   updateCollectionStatus: (collectionId: string, status: 'approved' | 'rejected') => void;
+  anonymizeUserCollections: (userId: string) => Promise<void>;
 }
 
 const CollectionContext = createContext<CollectionContextType | undefined>(undefined);
@@ -42,8 +43,45 @@ export const CollectionProvider: React.FC<{ children: ReactNode }> = ({ children
     updateData(`collections/${collectionId}`, { status }).catch(error => console.error("Failed to update collection status:", error));
   };
 
+  const anonymizeUserCollections = async (userId: string) => {
+    const userCollections = collections.filter(c => c.creator.id === userId);
+    if (userCollections.length === 0) return;
+
+    const anonymizedCreator: User = {
+        id: 'deleted-user',
+        name: 'Deleted User',
+        email: '',
+        avatar: 'https://www.gravatar.com/avatar/?d=mp',
+        subscriptionTier: 'free',
+        role: 'user',
+        bio: '',
+        submittedPrompts: [],
+        purchasedCollections: [],
+        savedPrompts: [],
+        createdCollections: [],
+        promptGenerations: 0,
+        lastGenerationReset: '',
+        promptsSubmittedToday: 0,
+        lastSubmissionDate: '',
+        hasCompletedTutorial: true,
+        votes: {},
+    };
+
+    const updatePromises = userCollections.map(collection => 
+        updateData(`collections/${collection.id}`, { creator: anonymizedCreator })
+    );
+    
+    await Promise.all(updatePromises);
+
+    setCollections(prev => 
+        prev.map(c => 
+            c.creator.id === userId ? { ...c, creator: anonymizedCreator } : c
+        )
+    );
+  };
+
   return (
-    <CollectionContext.Provider value={{ collections, addCollection, updateCollectionStatus }}>
+    <CollectionContext.Provider value={{ collections, addCollection, updateCollectionStatus, anonymizeUserCollections }}>
       {children}
     </CollectionContext.Provider>
   );

@@ -10,6 +10,7 @@ interface PromptContextType {
   handlePromptVote: (promptId: string, voteType: 'up' | 'down', previousVote?: 'up' | 'down' | null) => void;
   addComment: (promptId: string, comment: { author: User; text: string }) => void;
   updatePromptStatus: (promptId: string, status: 'approved' | 'rejected') => void;
+  anonymizeUserPrompts: (userId: string) => Promise<void>;
 }
 
 const PromptContext = createContext<PromptContextType | undefined>(undefined);
@@ -106,9 +107,46 @@ export const PromptProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     );
     updateData(`prompts/${promptId}`, { status }).catch(error => console.error("Failed to update prompt status:", error));
   };
+  
+  const anonymizeUserPrompts = async (userId: string) => {
+    const userPrompts = prompts.filter(p => p.author.id === userId);
+    if (userPrompts.length === 0) return;
+
+    const anonymizedAuthor: User = {
+        id: 'deleted-user',
+        name: 'Deleted User',
+        email: '',
+        avatar: 'https://www.gravatar.com/avatar/?d=mp',
+        subscriptionTier: 'free',
+        role: 'user',
+        bio: '',
+        submittedPrompts: [],
+        purchasedCollections: [],
+        savedPrompts: [],
+        createdCollections: [],
+        promptGenerations: 0,
+        lastGenerationReset: '',
+        promptsSubmittedToday: 0,
+        lastSubmissionDate: '',
+        hasCompletedTutorial: true,
+        votes: {},
+    };
+
+    const updatePromises = userPrompts.map(prompt => 
+        updateData(`prompts/${prompt.id}`, { author: anonymizedAuthor })
+    );
+
+    await Promise.all(updatePromises);
+
+    setPrompts(prevPrompts => 
+        prevPrompts.map(p => 
+            p.author.id === userId ? { ...p, author: anonymizedAuthor } : p
+        )
+    );
+  };
 
   return (
-    <PromptContext.Provider value={{ prompts, addPrompt, updatePrompt, deletePrompt, handlePromptVote, addComment, updatePromptStatus }}>
+    <PromptContext.Provider value={{ prompts, addPrompt, updatePrompt, deletePrompt, handlePromptVote, addComment, updatePromptStatus, anonymizeUserPrompts }}>
       {children}
     </PromptContext.Provider>
   );
