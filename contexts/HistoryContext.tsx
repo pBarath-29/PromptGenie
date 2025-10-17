@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { HistoryItem } from '../types';
+import { useAuth } from './AuthContext';
+import { getData, setData } from '../services/firebaseService';
 
 interface HistoryContextType {
   history: HistoryItem[];
@@ -8,30 +10,53 @@ interface HistoryContextType {
 
 const HistoryContext = createContext<HistoryContextType | undefined>(undefined);
 
-const HISTORY_STORAGE_KEY = 'prompter-history';
-
 export const HistoryProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [history, setHistory] = useState<HistoryItem[]>(() => {
-    try {
-      const storedHistory = localStorage.getItem(HISTORY_STORAGE_KEY);
-      return storedHistory ? JSON.parse(storedHistory) : [];
-    } catch (error) {
-      console.error("Failed to parse history from localStorage", error);
-      return [];
-    }
-  });
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const { user } = useAuth();
 
   useEffect(() => {
-    localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
-  }, [history]);
+    const loadHistory = async () => {
+      if (user) {
+        try {
+          const userHistory = await getData<HistoryItem[] | { [key: string]: HistoryItem }>(`user-history/${user.id}`);
+          if (userHistory) {
+            const historyArray = Array.isArray(userHistory) ? userHistory : Object.values(userHistory);
+            const sortedHistory = historyArray.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            setHistory(sortedHistory);
+          } else {
+            setHistory([]);
+          }
+        } catch (error) {
+          console.error("Failed to load user history from Firebase", error);
+          setHistory([]);
+        }
+      } else {
+        // User logged out, clear history
+        setHistory([]);
+      }
+    };
+
+    loadHistory();
+  }, [user]);
 
   const addToHistory = (promptData: { title: string; prompt: string; tags: string[] }) => {
+    if (!user) return; // Don't add history for non-logged-in users
+
     const newItem: HistoryItem = {
       id: `hist-${Date.now()}`,
       ...promptData,
       createdAt: new Date().toISOString(),
     };
-    setHistory(prevHistory => [newItem, ...prevHistory]);
+
+    const newHistory = [newItem, ...history];
+    setHistory(newHistory);
+
+    // Save to Firebase
+    setData(`user-history/${user.id}`, newHistory).catch(error => {
+      console.error("Failed to save history to Firebase", error);
+      // Revert state on failure
+      setHistory(history);
+    });
   };
 
   return (

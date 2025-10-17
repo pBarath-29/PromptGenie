@@ -115,7 +115,7 @@ const ProfilePage: React.FC = () => {
   };
   
   // Data for sections
-  const userPrompts = prompts.filter(p => user.submittedPrompts?.includes(p.id));
+  const userPrompts = prompts.filter(p => user.submittedPrompts?.includes(p.id) && p.isPublic);
   const userCreatedCollections = collections.filter(c => user.createdCollections?.includes(c.id));
   const userPurchasedCollections = collections.filter(c => user.purchasedCollections?.includes(c.id));
   const savedPrompts = prompts.filter(p => user.savedPrompts?.includes(p.id));

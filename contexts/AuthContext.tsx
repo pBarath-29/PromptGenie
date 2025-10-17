@@ -330,8 +330,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Re-authenticate before sensitive operation
     await reauthenticateWithCredential(firebaseUser, credential);
     
-    // Delete user's DB record
+    // Delete user's DB records
     await deleteData(`users/${firebaseUser.uid}`);
+    await deleteData(`user-history/${firebaseUser.uid}`);
     
     // Finally, delete the auth user
     await deleteUser(firebaseUser); // This will trigger onAuthStateChanged

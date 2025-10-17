@@ -66,17 +66,25 @@ const HomePage: React.FC = () => {
     }, [user]);
 
     useEffect(() => {
-        // Handle new user greeting banner
-        const isNewUser = sessionStorage.getItem('newUserGreeting');
-        if (isNewUser === 'true') {
-            setShowWelcomeBanner(true);
-            sessionStorage.removeItem('newUserGreeting');
-        }
+        if (user) {
+            // Handle new user greeting banner
+            const isNewUser = sessionStorage.getItem('newUserGreeting');
+            if (isNewUser === 'true') {
+                setShowWelcomeBanner(true);
+                sessionStorage.removeItem('newUserGreeting');
+            }
 
-        // Launch tutorial for new users
-        if (user && !user.hasCompletedTutorial) {
-            // A small delay to ensure the page has rendered
-            setTimeout(() => setIsTutorialActive(true), 500);
+            // Launch tutorial for new users
+            if (!user.hasCompletedTutorial) {
+                // A small delay to ensure the page has rendered
+                setTimeout(() => setIsTutorialActive(true), 500);
+            }
+        } else {
+            // When user logs out, clear the generator state
+            setRequest('');
+            setGeneratedPrompt(null);
+            setError(null);
+            setShowWelcomeBanner(false);
         }
     }, [user]);
 
