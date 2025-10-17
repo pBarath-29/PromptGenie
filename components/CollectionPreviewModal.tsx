@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Collection, Prompt } from '../types';
 import Modal from './Modal';
@@ -22,17 +23,20 @@ const PromptPreviewCard: React.FC<{ prompt: Prompt, isAdminPreview?: boolean }> 
             <span className="flex items-center"><Book size={14} className="mr-1.5" /> {prompt.category}</span>
         </div>
         
-        <div className={`relative mt-2 ${!isAdminPreview ? 'max-h-32' : ''} overflow-hidden`}>
+        <div className={`relative mt-2 ${!isAdminPreview ? 'max-h-64' : ''} overflow-hidden`}>
             <p className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-gray-700 dark:text-gray-300">
                 {prompt.prompt}
             </p>
             {!isAdminPreview && (
-                <div className="absolute inset-0 flex flex-col items-center justify-end pt-12 bg-gradient-to-t from-white via-white dark:from-gray-800 dark:via-gray-800 to-transparent">
-                     <div className="flex flex-col items-center justify-center text-center p-4 bg-gray-200/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-md">
-                        <Lock size={20} className="text-gray-600 dark:text-gray-400 mb-1" />
+              <>
+                <div className="absolute inset-0 bg-gradient-to-t from-white via-white/20 dark:from-gray-800 dark:via-gray-800/20 to-transparent pointer-events-none"></div>
+                <div className="absolute bottom-0 left-0 right-0 p-4 flex flex-col items-center justify-center text-center">
+                     <div className="flex items-center justify-center text-center p-2 bg-gray-200/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-full shadow">
+                        <Lock size={16} className="text-gray-600 dark:text-gray-400 mr-2" />
                         <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Purchase to Reveal Full Prompt</span>
                     </div>
                 </div>
+              </>
             )}
         </div>
 
