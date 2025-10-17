@@ -1,4 +1,5 @@
 
+
 export interface User {
   id: string;
   name: string;
@@ -17,6 +18,7 @@ export interface User {
   lastSubmissionDate: string; // Format 'YYYY-MM-DD'
   hasCompletedTutorial: boolean;
   votes?: { [promptId: string]: 'up' | 'down' };
+  themePreference?: 'light' | 'dark';
 }
 
 export interface Comment {
@@ -123,6 +125,7 @@ export const MOCK_USERS: User[] = [
     lastSubmissionDate: new Date().toISOString().split('T')[0],
     hasCompletedTutorial: true,
     votes: { 'p2': 'up', 'p7': 'up' },
+    themePreference: 'dark',
   },
   { 
     id: 'u2', 
@@ -142,6 +145,7 @@ export const MOCK_USERS: User[] = [
     lastSubmissionDate: new Date().toISOString().split('T')[0],
     hasCompletedTutorial: true,
     votes: { 'p1': 'up', 'p3': 'down' },
+    themePreference: 'light',
   },
   { 
     id: 'u3', 
@@ -160,6 +164,7 @@ export const MOCK_USERS: User[] = [
     lastSubmissionDate: new Date().toISOString().split('T')[0],
     hasCompletedTutorial: true,
     votes: {},
+    themePreference: 'light',
   },
   { 
     id: 'u4', 
@@ -179,6 +184,7 @@ export const MOCK_USERS: User[] = [
     lastSubmissionDate: new Date().toISOString().split('T')[0],
     hasCompletedTutorial: true,
     votes: {},
+    themePreference: 'dark',
   },
   { 
     id: 'u5', 
@@ -198,6 +204,7 @@ export const MOCK_USERS: User[] = [
     lastSubmissionDate: new Date().toISOString().split('T')[0],
     hasCompletedTutorial: true,
     votes: {},
+    themePreference: 'light',
   },
   { 
     id: 'u6', 
@@ -217,6 +224,7 @@ export const MOCK_USERS: User[] = [
     lastSubmissionDate: new Date().toISOString().split('T')[0],
     hasCompletedTutorial: true,
     votes: {},
+    themePreference: 'dark',
   },
 ];
 

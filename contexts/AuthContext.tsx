@@ -41,6 +41,7 @@ interface AuthContextType {
   getUserById: (userId: string) => Promise<AppUser | undefined>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
   deleteAccount: (password: string) => Promise<void>;
+  updateUserThemePreference: (theme: 'light' | 'dark') => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -88,6 +89,10 @@ const normalizeUser = (userToNormalize: AppUser | any): AppUser | null => {
 
     if (typeof normalizedUser.votes === 'undefined') {
       normalizedUser.votes = {};
+    }
+
+    if (typeof normalizedUser.themePreference === 'undefined') {
+        normalizedUser.themePreference = 'light';
     }
 
     const userWithGenReset = checkAndResetGenerationCount(normalizedUser);
@@ -164,6 +169,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           lastSubmissionDate: new Date().toISOString().split('T')[0],
           hasCompletedTutorial: false,
           votes: {},
+          themePreference: 'light',
       };
       
       await setData(`users/${firebaseUser.uid}`, newUser);
@@ -338,8 +344,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     await deleteUser(firebaseUser); // This will trigger onAuthStateChanged
   };
 
+  const updateUserThemePreference = (theme: 'light' | 'dark') => {
+    if (user) {
+      const updatedUser = { ...user, themePreference: theme };
+      setUser(updatedUser);
+      updateData(`users/${user.id}`, { themePreference: theme }).catch(err => console.error("Failed to sync theme preference", err));
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout, resendVerificationEmail, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, handleVote, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro, getSubmissionsLeft, incrementSubmissionCount, completeTutorial, cancelSubscription, getUserById, changePassword, deleteAccount }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout, resendVerificationEmail, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, handleVote, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro, getSubmissionsLeft, incrementSubmissionCount, completeTutorial, cancelSubscription, getUserById, changePassword, deleteAccount, updateUserThemePreference }}>
       {children}
     </AuthContext.Provider>
   );

@@ -79,8 +79,8 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <ThemeProvider>
-      <AuthProvider>
+    <AuthProvider>
+      <ThemeProvider>
         <PromptProvider>
           <CollectionProvider>
             <HistoryProvider>
@@ -92,8 +92,8 @@ const App: React.FC = () => {
             </HistoryProvider>
           </CollectionProvider>
         </PromptProvider>
-      </AuthProvider>
-    </ThemeProvider>
+      </ThemeProvider>
+    </AuthProvider>
   );
 };
 
