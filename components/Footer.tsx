@@ -9,7 +9,6 @@ const Footer: React.FC = () => {
           <p>&copy; {new Date().getFullYear()} Prompter. All rights reserved.</p>
           <div className="flex space-x-4">
             <Link to="/feedback" className="hover:text-primary-500">Feedback</Link>
-            <Link to="/contact" className="hover:text-primary-500">Contact</Link>
           </div>
         </div>
       </div>

@@ -20,7 +20,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminPage from './pages/AdminPage';
 import AdminRoute from './components/AdminRoute';
 import UpgradePage from './pages/UpgradePage';
-import ContactPage from './pages/ContactPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import FeedbackPage from './pages/FeedbackPage';
@@ -67,7 +66,6 @@ const AppContent: React.FC = () => {
       <Route path="/collection/:collectionId" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
       <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
       <Route path="/upgrade" element={<ProtectedRoute><UpgradePage /></ProtectedRoute>} />
-      <Route path="/contact" element={<ContactPage />} />
       <Route path="/feedback" element={<FeedbackPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignUpPage />} />
