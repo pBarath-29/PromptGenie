@@ -115,7 +115,7 @@ const ProfilePage: React.FC = () => {
   };
   
   // Data for sections
-  const userPrompts = prompts.filter(p => user.submittedPrompts?.includes(p.id) && p.isPublic);
+  const userPrompts = prompts.filter(p => user.submittedPrompts?.includes(p.id) && p.status === 'approved');
   const userCreatedCollections = collections.filter(c => user.createdCollections?.includes(c.id));
   const userPurchasedCollections = collections.filter(c => user.purchasedCollections?.includes(c.id));
   const savedPrompts = prompts.filter(p => user.savedPrompts?.includes(p.id));
@@ -234,9 +234,9 @@ const ProfilePage: React.FC = () => {
           </>
         ) : (
           <div className="text-center py-8 px-4 border-2 border-dashed rounded-lg">
-            <p className="text-gray-500 dark:text-gray-400">You haven't submitted any prompts yet.</p>
+            <p className="text-gray-500 dark:text-gray-400">You haven't submitted any approved prompts yet.</p>
             <Link to="/community">
-                <Button className="mt-4">Submit Your First Prompt</Button>
+                <Button className="mt-4">Submit a Prompt</Button>
             </Link>
           </div>
         )}

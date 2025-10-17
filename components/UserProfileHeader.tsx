@@ -14,14 +14,16 @@ interface UserProfileHeaderProps {
 const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ user, isEditable, onEditProfileClick, onChangePasswordClick }) => {
   const { prompts } = usePrompts();
 
+  const approvedPrompts = useMemo(() => {
+    return prompts.filter(p => user.submittedPrompts?.includes(p.id) && p.status === 'approved');
+  }, [prompts, user.submittedPrompts]);
+
   const badges = useMemo(() => {
     const calculatedBadges: string[] = [];
     
     if (user.role === 'admin') {
         calculatedBadges.push('Admin');
     }
-
-    const approvedPrompts = prompts.filter(p => user.submittedPrompts?.includes(p.id) && p.status === 'approved');
     
     if (approvedPrompts.length >= 20) {
         calculatedBadges.push('Prompt Master');
@@ -36,7 +38,7 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ user, isEditable,
     }
     
     return calculatedBadges;
-  }, [user, prompts]);
+  }, [user.role, approvedPrompts]);
 
   return (
     <div className="p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
@@ -59,7 +61,7 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ user, isEditable,
         <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-4">
           <div className="flex items-center px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200 text-sm font-semibold rounded-full">
               <BookOpen size={16} className="mr-1.5" />
-              <span>{user.submittedPrompts?.length || 0} Prompts Submitted</span>
+              <span>{approvedPrompts.length} Prompts Submitted</span>
           </div>
           {badges.map(badge => (
             <span key={badge} className="flex items-center px-3 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-sm font-semibold rounded-full">
