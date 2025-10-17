@@ -7,6 +7,7 @@ interface FeedbackContextType {
   addFeedback: (newFeedback: Omit<FeedbackItem, 'id' | 'createdAt' | 'status'>) => void;
   updateFeedbackStatus: (feedbackId: string, status: 'pending' | 'reviewed') => void;
   deleteUserFeedback: (userId: string) => Promise<void>;
+  deleteFeedback: (feedbackId: string) => void;
 }
 
 const FeedbackContext = createContext<FeedbackContextType | undefined>(undefined);
@@ -55,6 +56,15 @@ export const FeedbackProvider: React.FC<{ children: ReactNode }> = ({ children }
     updateData(`feedback/${feedbackId}`, { status }).catch(error => console.error("Failed to update feedback status:", error));
   };
 
+  const deleteFeedback = (feedbackId: string) => {
+    const originalFeedback = [...feedback];
+    setFeedback(prevFeedback => prevFeedback.filter(f => f.id !== feedbackId));
+    deleteData(`feedback/${feedbackId}`).catch(error => {
+        console.error("Failed to delete feedback:", error);
+        setFeedback(originalFeedback);
+    });
+  };
+
   const deleteUserFeedback = async (userId: string) => {
     const userFeedback = feedback.filter(f => f.user.id === userId);
     if (userFeedback.length === 0) return;
@@ -67,7 +77,7 @@ export const FeedbackProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
 
   return (
-    <FeedbackContext.Provider value={{ feedback, addFeedback, updateFeedbackStatus, deleteUserFeedback }}>
+    <FeedbackContext.Provider value={{ feedback, addFeedback, updateFeedbackStatus, deleteUserFeedback, deleteFeedback }}>
       {children}
     </FeedbackContext.Provider>
   );
