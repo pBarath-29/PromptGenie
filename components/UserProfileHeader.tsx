@@ -15,7 +15,7 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ user, isEditable,
   const { prompts } = usePrompts();
 
   const approvedPrompts = useMemo(() => {
-    return prompts.filter(p => user.submittedPrompts?.includes(p.id) && p.status === 'approved');
+    return prompts.filter(p => user.submittedPrompts?.includes(p.id) && p.status === 'approved' && p.isPublic);
   }, [prompts, user.submittedPrompts]);
 
   const badges = useMemo(() => {

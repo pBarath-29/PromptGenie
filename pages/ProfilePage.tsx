@@ -47,7 +47,7 @@ const ProfilePage: React.FC = () => {
 
   // Pagination states
   const [historyPage, setHistoryPage] = useState(1);
-  const [submittedPromptsPage, setSubmittedPromptsPage] = useState(1);
+  const [communityPromptsPage, setCommunityPromptsPage] = useState(1);
   const [createdCollectionsPage, setCreatedCollectionsPage] = useState(1);
   const [savedPromptsPage, setSavedPromptsPage] = useState(1);
   const [purchasedCollectionsPage, setPurchasedCollectionsPage] = useState(1);
@@ -115,7 +115,7 @@ const ProfilePage: React.FC = () => {
   };
   
   // Data for sections
-  const userPrompts = prompts.filter(p => user.submittedPrompts?.includes(p.id) && p.status === 'approved');
+  const userCommunityPrompts = prompts.filter(p => user.submittedPrompts?.includes(p.id) && p.status === 'approved' && p.isPublic);
   const userCreatedCollections = collections.filter(c => user.createdCollections?.includes(c.id));
   const userPurchasedCollections = collections.filter(c => user.purchasedCollections?.includes(c.id));
   const savedPrompts = prompts.filter(p => user.savedPrompts?.includes(p.id));
@@ -128,7 +128,7 @@ const ProfilePage: React.FC = () => {
   };
 
   const { totalPages: historyTotalPages, paginatedItems: paginatedHistory } = paginate(history, historyPage, HISTORY_PER_PAGE);
-  const { totalPages: submittedPromptsTotalPages, paginatedItems: paginatedSubmittedPrompts } = paginate(userPrompts, submittedPromptsPage, PROMPTS_PER_PAGE);
+  const { totalPages: communityPromptsTotalPages, paginatedItems: paginatedCommunityPrompts } = paginate(userCommunityPrompts, communityPromptsPage, PROMPTS_PER_PAGE);
   const { totalPages: createdCollectionsTotalPages, paginatedItems: paginatedCreatedCollections } = paginate(userCreatedCollections, createdCollectionsPage, COLLECTIONS_PER_PAGE);
   const { totalPages: savedPromptsTotalPages, paginatedItems: paginatedSavedPrompts } = paginate(savedPrompts, savedPromptsPage, PROMPTS_PER_PAGE);
   const { totalPages: purchasedCollectionsTotalPages, paginatedItems: paginatedPurchasedCollections } = paginate(userPurchasedCollections, purchasedCollectionsPage, COLLECTIONS_PER_PAGE);
@@ -216,11 +216,11 @@ const ProfilePage: React.FC = () => {
       </section>
       
       <section>
-        <h2 className="text-2xl font-bold mb-4 flex items-center"><BookOpen className="mr-3 text-primary-500"/> My Submitted Prompts</h2>
-        {userPrompts.length > 0 ? (
+        <h2 className="text-2xl font-bold mb-4 flex items-center"><BookOpen className="mr-3 text-primary-500"/> My Community Prompts</h2>
+        {userCommunityPrompts.length > 0 ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {paginatedSubmittedPrompts.map(prompt => (
+              {paginatedCommunityPrompts.map(prompt => (
                 <PromptCard 
                   key={prompt.id} 
                   prompt={prompt} 
@@ -230,11 +230,11 @@ const ProfilePage: React.FC = () => {
                 />
               ))}
             </div>
-            <Pagination currentPage={submittedPromptsPage} totalPages={submittedPromptsTotalPages} onPageChange={setSubmittedPromptsPage} />
+            <Pagination currentPage={communityPromptsPage} totalPages={communityPromptsTotalPages} onPageChange={setCommunityPromptsPage} />
           </>
         ) : (
           <div className="text-center py-8 px-4 border-2 border-dashed rounded-lg">
-            <p className="text-gray-500 dark:text-gray-400">You haven't submitted any approved prompts yet.</p>
+            <p className="text-gray-500 dark:text-gray-400">You haven't submitted any approved community prompts yet.</p>
             <Link to="/community">
                 <Button className="mt-4">Submit a Prompt</Button>
             </Link>
