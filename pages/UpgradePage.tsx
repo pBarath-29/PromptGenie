@@ -5,6 +5,7 @@ import Button from '../components/Button';
 import { CheckCircle, Zap, Tag, ShieldCheck, TrendingUp, XCircle, PartyPopper } from 'lucide-react';
 import { FREE_TIER_POST_LIMIT, PRO_TIER_POST_LIMIT, FREE_TIER_LIMIT } from '../config';
 import { processPayment } from '../services/stripeService';
+import { usePromoCodes } from '../contexts/PromoCodeContext';
 
 const benefits = [
     {
@@ -33,25 +34,36 @@ type PaymentState = 'idle' | 'processing' | 'success';
 
 const UpgradePage: React.FC = () => {
     const { user, upgradeToPro } = useAuth();
+    const { validatePromoCode, incrementPromoCodeUsage } = usePromoCodes();
     const navigate = useNavigate();
     const [promoCode, setPromoCode] = useState('');
-    const [discount, setDiscount] = useState(0);
+    const [appliedCode, setAppliedCode] = useState<{ code: string; discount: number } | null>(null);
     const [promoError, setPromoError] = useState('');
     const [promoSuccess, setPromoSuccess] = useState('');
     const [paymentState, setPaymentState] = useState<PaymentState>('idle');
+    const [isApplying, setIsApplying] = useState(false);
 
     const basePrice = 9.90;
-    const finalPrice = basePrice * (1 - discount);
+    const finalPrice = basePrice * (1 - (appliedCode?.discount || 0));
 
-    const handleApplyPromo = () => {
+    const handleApplyPromo = async () => {
         setPromoError('');
         setPromoSuccess('');
-        if (promoCode.toUpperCase() === 'PRO50') {
-            setDiscount(0.5);
-            setPromoSuccess('Success! 50% discount applied.');
+        setAppliedCode(null);
+        if (!promoCode.trim()) {
+            setPromoError('Please enter a code.');
+            return;
+        }
+        
+        setIsApplying(true);
+        const result = await validatePromoCode(promoCode);
+        setIsApplying(false);
+
+        if (result.success) {
+            setPromoSuccess(result.message);
+            setAppliedCode({ code: promoCode.toUpperCase(), discount: result.discount });
         } else {
-            setDiscount(0);
-            setPromoError('Invalid promotional code.');
+            setPromoError(result.message);
         }
     };
     
@@ -62,6 +74,11 @@ const UpgradePage: React.FC = () => {
             // Simulate calling backend to create Stripe session and process payment
             await processPayment(user, finalPrice);
             
+            // If a promo code was used, finalize its use after successful payment
+            if (appliedCode) {
+                await incrementPromoCodeUsage(appliedCode.code);
+            }
+
             // On successful payment, update user state
             upgradeToPro();
             
@@ -127,12 +144,12 @@ const UpgradePage: React.FC = () => {
                                             type="text"
                                             value={promoCode}
                                             onChange={(e) => setPromoCode(e.target.value)}
-                                            placeholder="e.g., PRO50"
+                                            placeholder="Enter promo code"
                                             className="w-full pl-10 pr-4 py-2 border rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600"
                                             disabled={paymentState === 'processing'}
                                         />
                                    </div>
-                                   <Button variant="secondary" onClick={handleApplyPromo} disabled={paymentState === 'processing'}>Apply</Button>
+                                   <Button variant="secondary" onClick={handleApplyPromo} disabled={paymentState === 'processing'} isLoading={isApplying}>Apply</Button>
                                 </div>
                                 {promoError && <p className="text-sm text-red-500 flex items-center"><XCircle size={14} className="mr-1.5" />{promoError}</p>}
                                 {promoSuccess && <p className="text-sm text-green-500 flex items-center"><CheckCircle size={14} className="mr-1.5" />{promoSuccess}</p>}
@@ -141,7 +158,7 @@ const UpgradePage: React.FC = () => {
                             <div className="flex-grow"></div>
                             
                             <div className="text-center pt-6 border-t dark:border-gray-700">
-                                {discount > 0 && (
+                                {appliedCode && (
                                     <p className="text-xl text-gray-500 dark:text-gray-400 line-through">
                                         ${basePrice.toFixed(2)}
                                     </p>

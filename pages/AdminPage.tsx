@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { usePrompts } from '../contexts/PromptContext';
 import { useCollections } from '../contexts/CollectionContext';
 import Button from '../components/Button';
-import { CheckCircle, XCircle, Eye, Inbox, Package, Clock, MessageSquare, Trash2 } from 'lucide-react';
+import { CheckCircle, XCircle, Eye, Inbox, Package, Clock, MessageSquare, Trash2, Tag } from 'lucide-react';
 import { Prompt, Collection, FeedbackItem } from '../types';
 import PromptDetailModal from '../components/PromptDetailModal';
 import CollectionPreviewModal from '../components/CollectionPreviewModal';
 import Pagination from '../components/Pagination';
 import { useFeedback } from '../contexts/FeedbackContext';
 import ConfirmationModal from '../components/ConfirmationModal';
+import { usePromoCodes } from '../contexts/PromoCodeContext';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -16,16 +17,26 @@ const AdminPage: React.FC = () => {
     const { prompts, updatePromptStatus } = usePrompts();
     const { collections, updateCollectionStatus } = useCollections();
     const { feedback, updateFeedbackStatus: updateFeedbackItemStatus, deleteFeedback } = useFeedback();
+    const { promoCodes, addPromoCode, deletePromoCode } = usePromoCodes();
     
-    const [activeTab, setActiveTab] = useState<'prompts' | 'collections' | 'feedback'>('prompts');
+    const [activeTab, setActiveTab] = useState<'prompts' | 'collections' | 'feedback' | 'promoCodes'>('prompts');
     const [promptToPreview, setPromptToPreview] = useState<Prompt | null>(null);
     const [collectionToPreview, setCollectionToPreview] = useState<Collection | null>(null);
     const [feedbackToDelete, setFeedbackToDelete] = useState<string | null>(null);
+    const [promoToDelete, setPromoToDelete] = useState<string | null>(null);
+
+    // Form states for new promo code
+    const [newCodeName, setNewCodeName] = useState('');
+    const [newCodeDiscount, setNewCodeDiscount] = useState<number | ''>('');
+    const [newCodeLimit, setNewCodeLimit] = useState<number | ''>('');
+    const [promoCodeError, setPromoCodeError] = useState('');
+
 
     // Pagination states
     const [promptsPage, setPromptsPage] = useState(1);
     const [collectionsPage, setCollectionsPage] = useState(1);
     const [feedbackPage, setFeedbackPage] = useState(1);
+    const [promoCodesPage, setPromoCodesPage] = useState(1);
 
     const pendingPrompts = prompts.filter(p => p.status === 'pending');
     const pendingCollections = collections.filter(c => c.status === 'pending');
@@ -41,11 +52,51 @@ const AdminPage: React.FC = () => {
     const { totalPages: promptsTotalPages, paginatedItems: paginatedPrompts } = paginate(pendingPrompts, promptsPage);
     const { totalPages: collectionsTotalPages, paginatedItems: paginatedCollections } = paginate(pendingCollections, collectionsPage);
     const { totalPages: feedbackTotalPages, paginatedItems: paginatedFeedback } = paginate(pendingFeedback, feedbackPage);
+    // FIX: Removed the third argument 'ITEMS_PER_PAGE' as the 'paginate' function only accepts two arguments.
+    const { totalPages: promoCodesTotalPages, paginatedItems: paginatedPromoCodes } = paginate(promoCodes, promoCodesPage);
 
     const handleConfirmDeleteFeedback = () => {
         if (!feedbackToDelete) return;
         deleteFeedback(feedbackToDelete);
         setFeedbackToDelete(null);
+    };
+
+    const handleCreatePromoCode = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setPromoCodeError('');
+        if (!newCodeName.trim() || !newCodeDiscount || !newCodeLimit) {
+            setPromoCodeError('All fields are required.');
+            return;
+        }
+        if (newCodeDiscount <= 0 || newCodeDiscount > 100) {
+            setPromoCodeError('Discount must be between 1 and 100.');
+            return;
+        }
+        if (newCodeLimit <= 0) {
+            setPromoCodeError('Usage limit must be greater than 0.');
+            return;
+        }
+
+        try {
+            await addPromoCode({
+                id: newCodeName,
+                discountPercentage: newCodeDiscount,
+                usageLimit: newCodeLimit
+            });
+            // Reset form
+            setNewCodeName('');
+            setNewCodeDiscount('');
+            setNewCodeLimit('');
+        } catch (error) {
+            setPromoCodeError('Failed to create promo code. It might already exist.');
+            console.error(error);
+        }
+    };
+    
+    const handleConfirmDeletePromoCode = () => {
+        if (!promoToDelete) return;
+        deletePromoCode(promoToDelete);
+        setPromoToDelete(null);
     };
 
     const TabButton: React.FC<{
@@ -101,6 +152,13 @@ const AdminPage: React.FC = () => {
             isActive={activeTab === 'feedback'}
             onClick={() => setActiveTab('feedback')}
             icon={<MessageSquare size={18} />}
+          />
+          <TabButton 
+            label="Promo Codes" 
+            count={promoCodes.length} 
+            isActive={activeTab === 'promoCodes'}
+            onClick={() => setActiveTab('promoCodes')}
+            icon={<Tag size={18} />}
           />
         </div>
         
@@ -185,6 +243,53 @@ const AdminPage: React.FC = () => {
                     )}
                 </div>
             )}
+
+            {activeTab === 'promoCodes' && (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-1">
+                        <h3 className="text-xl font-bold mb-4">Create New Promo Code</h3>
+                        <form onSubmit={handleCreatePromoCode} className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 space-y-4">
+                            <div>
+                                <label htmlFor="codeName" className="block text-sm font-medium mb-1">Code Name</label>
+                                <input id="codeName" type="text" value={newCodeName} onChange={e => setNewCodeName(e.target.value.toUpperCase())} placeholder="e.g., SAVE25" className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"/>
+                            </div>
+                            <div>
+                                <label htmlFor="discount" className="block text-sm font-medium mb-1">Discount (%)</label>
+                                <input id="discount" type="number" value={newCodeDiscount} onChange={e => setNewCodeDiscount(e.target.value === '' ? '' : parseInt(e.target.value))} placeholder="e.g., 25" className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"/>
+                            </div>
+                            <div>
+                                <label htmlFor="limit" className="block text-sm font-medium mb-1">Usage Limit</label>
+                                <input id="limit" type="number" value={newCodeLimit} onChange={e => setNewCodeLimit(e.target.value === '' ? '' : parseInt(e.target.value))} placeholder="e.g., 100" className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"/>
+                            </div>
+                            {promoCodeError && <p className="text-sm text-red-500">{promoCodeError}</p>}
+                            <Button type="submit" className="w-full">Create Code</Button>
+                        </form>
+                    </div>
+                    <div className="lg:col-span-2 space-y-4">
+                        <h3 className="text-xl font-bold mb-4">Existing Promo Codes</h3>
+                        {paginatedPromoCodes.length > 0 ? paginatedPromoCodes.map(code => (
+                            <div key={code.id} className="flex flex-col md:flex-row justify-between md:items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700">
+                                <div>
+                                    <p className="font-bold text-lg font-mono">{code.id}</p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        <span className="font-medium text-primary-500">{code.discountPercentage}% OFF</span>
+                                        <span className="mx-2">|</span>
+                                        <span>Usage: {code.timesUsed} / {code.usageLimit}</span>
+                                    </p>
+                                </div>
+                                <div className="mt-2 md:mt-0">
+                                    <Button variant="danger" onClick={() => setPromoToDelete(code.id)} icon={<Trash2 size={16}/>}>Delete</Button>
+                                </div>
+                            </div>
+                        )) : (
+                           <p className="text-center py-8 text-gray-500 dark:text-gray-400">No promo codes have been created.</p>
+                        )}
+                        {promoCodes.length > 0 && (
+                            <Pagination currentPage={promoCodesPage} totalPages={promoCodesTotalPages} onPageChange={setPromoCodesPage} />
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
 
         <PromptDetailModal isOpen={!!promptToPreview} onClose={() => setPromptToPreview(null)} prompt={promptToPreview} isAdminPreview={true} />
@@ -200,6 +305,15 @@ const AdminPage: React.FC = () => {
             onConfirm={handleConfirmDeleteFeedback}
             title="Delete Feedback"
             message="Are you sure you want to permanently delete this feedback? This action cannot be undone."
+            confirmButtonText="Delete"
+            confirmButtonVariant="danger"
+        />
+        <ConfirmationModal
+            isOpen={!!promoToDelete}
+            onClose={() => setPromoToDelete(null)}
+            onConfirm={handleConfirmDeletePromoCode}
+            title="Delete Promo Code"
+            message={`Are you sure you want to delete the promo code "${promoToDelete}"? This action cannot be undone.`}
             confirmButtonText="Delete"
             confirmButtonVariant="danger"
         />

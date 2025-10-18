@@ -24,6 +24,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import FeedbackPage from './pages/FeedbackPage';
 import { Loader } from 'lucide-react';
+import { PromoCodeProvider } from './contexts/PromoCodeContext';
 
 const AppContent: React.FC = () => {
   const { user, loading } = useAuth();
@@ -79,17 +80,19 @@ const App: React.FC = () => {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <PromptProvider>
-          <CollectionProvider>
-            <HistoryProvider>
-              <FeedbackProvider>
-                <HashRouter>
-                  <AppContent />
-                </HashRouter>
-              </FeedbackProvider>
-            </HistoryProvider>
-          </CollectionProvider>
-        </PromptProvider>
+        <PromoCodeProvider>
+          <PromptProvider>
+            <CollectionProvider>
+              <HistoryProvider>
+                <FeedbackProvider>
+                  <HashRouter>
+                    <AppContent />
+                  </HashRouter>
+                </FeedbackProvider>
+              </HistoryProvider>
+            </CollectionProvider>
+          </PromptProvider>
+        </PromoCodeProvider>
       </ThemeProvider>
     </AuthProvider>
   );

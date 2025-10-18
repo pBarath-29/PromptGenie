@@ -80,6 +80,14 @@ export interface FeedbackItem {
   status: 'pending' | 'reviewed';
 }
 
+export interface PromoCode {
+  id: string; // The code itself, e.g., "SAVE25"
+  discountPercentage: number;
+  usageLimit: number;
+  timesUsed: number;
+  createdAt: string;
+}
+
 export const AI_MODELS: AIModel[] = ['ChatGPT', 'Claude', 'Gemini', 'MidJourney', 'DALL-E'];
 export const CATEGORIES: Category[] = ['Education', 'Coding', 'Business', 'Art', 'Marketing', 'Fun'];
 export const TONES: Tone[] = ['Professional', 'Casual', 'Creative', 'Academic', 'Humorous'];
