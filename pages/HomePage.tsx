@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Zap, Mic, Copy, Loader, ChevronDown } from 'lucide-react';
+import { Zap, Mic, Copy, Loader, ChevronDown, X } from 'lucide-react';
 import { TONES, CATEGORIES, Tone, Category } from '../types';
 import Button from '../components/Button';
 import useSpeechRecognition from '../hooks/useSpeechRecognition';
@@ -190,15 +190,8 @@ const HomePage: React.FC = () => {
 
             <div id="prompt-generator-card" className="max-w-4xl mx-auto p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl space-y-6">
                 <div className={`${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                    <div className="flex justify-between items-baseline mb-1">
+                    <div className="mb-1">
                         <label htmlFor="request" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Describe your goal</label>
-                        <button
-                            onClick={handleClear}
-                            className="text-sm font-medium text-primary-600 hover:text-primary-500 disabled:text-gray-400 dark:disabled:text-gray-500 disabled:cursor-not-allowed transition-colors"
-                            disabled={(!request && !generatedPrompt && !error) || isLoading}
-                        >
-                            Clear
-                        </button>
                     </div>
                     <div className="relative">
                         <textarea
@@ -208,16 +201,25 @@ const HomePage: React.FC = () => {
                             placeholder="e.g., 'A marketing campaign slogan for a new coffee brand'"
                             value={request}
                             onChange={(e) => setRequest(e.target.value)}
-                            disabled={!user}
+                            disabled={!user || isLoading}
                         />
                         <button 
                             onClick={isListening ? stopListening : startListening}
                             className={`absolute top-3 right-3 p-2 rounded-full transition-colors ${isListening ? 'bg-red-500 text-white animate-pulse' : 'hover:bg-gray-200 dark:hover:bg-gray-600'}`}
                             title={isListening ? 'Stop recording' : 'Start recording'}
-                            disabled={!user}
+                            disabled={!user || isLoading}
                         >
                             <Mic size={20} />
                         </button>
+                        {request && !isLoading && (
+                            <button
+                                onClick={handleClear}
+                                className="absolute bottom-3 right-3 p-2 rounded-full bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors"
+                                title="Clear"
+                            >
+                                <X size={16} />
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -229,7 +231,7 @@ const HomePage: React.FC = () => {
                             className="w-full p-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700 disabled:bg-gray-200 dark:disabled:bg-gray-700/50"
                             value={tone}
                             onChange={(e) => setTone(e.target.value as Tone)}
-                            disabled={!user}
+                            disabled={!user || isLoading}
                         >
                             {TONES.map(t => <option key={t} value={t}>{t}</option>)}
                         </select>
@@ -242,7 +244,7 @@ const HomePage: React.FC = () => {
                             className="w-full p-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700 disabled:bg-gray-200 dark:disabled:bg-gray-700/50"
                             value={category}
                             onChange={(e) => setCategory(e.target.value as Category)}
-                            disabled={!user}
+                            disabled={!user || isLoading}
                         >
                             {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                         </select>
