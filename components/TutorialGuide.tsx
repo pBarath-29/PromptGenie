@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useLayoutEffect, useRef, useCallback } from 'react';
 import Button from './Button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
@@ -16,31 +16,48 @@ interface TutorialGuideProps {
 const TutorialGuide: React.FC<TutorialGuideProps> = ({ steps, onComplete }) => {
     const [currentStep, setCurrentStep] = useState(0);
     const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
+    const tooltipRef = useRef<HTMLDivElement>(null);
 
     const step = steps[currentStep];
     const isFirstStep = currentStep === 0;
     const isLastStep = currentStep === steps.length - 1;
 
-    useLayoutEffect(() => {
+    const updatePosition = useCallback(() => {
         if (step.selector) {
             const element = document.querySelector(step.selector) as HTMLElement;
             if (element) {
-                element.style.zIndex = '10001';
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                const rect = element.getBoundingClientRect();
-                setTargetRect(rect);
+                setTargetRect(element.getBoundingClientRect());
+            } else {
+                setTargetRect(null);
             }
         } else {
             setTargetRect(null); // For modal-like steps
         }
+    }, [step.selector]);
+
+    useLayoutEffect(() => {
+        updatePosition();
+        
+        if (step.selector) {
+            const element = document.querySelector(step.selector) as HTMLElement;
+            if (element) {
+                element.style.zIndex = '10001';
+                element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+            }
+        }
+
+        window.addEventListener('resize', updatePosition);
+        window.addEventListener('scroll', updatePosition, true); // Use capture to get scroll events early
         
         return () => {
             if (step.selector) {
                 const element = document.querySelector(step.selector) as HTMLElement;
                 if (element) element.style.zIndex = '';
             }
+            window.removeEventListener('resize', updatePosition);
+            window.removeEventListener('scroll', updatePosition, true);
         };
-    }, [currentStep, step.selector]);
+    }, [currentStep, step.selector, updatePosition]);
 
     const handleNext = () => {
         if (!isLastStep) {
@@ -67,17 +84,38 @@ const TutorialGuide: React.FC<TutorialGuideProps> = ({ steps, onComplete }) => {
             };
         }
 
-        const top = targetRect.bottom + 10;
-        const left = targetRect.left + targetRect.width / 2;
-        
-        // Adjust if it goes off-screen
-        const tooltipWidth = 320; // approx width of tooltip
-        const adjustedLeft = Math.max(10, Math.min(left - (tooltipWidth / 2), window.innerWidth - tooltipWidth - 10));
+        const tooltipHeight = tooltipRef.current?.offsetHeight || 200; // Use ref height or fallback
+        const tooltipWidth = 320; // from max-w-sm
+        const margin = 15;
+        let top: number;
+        let left = targetRect.left + targetRect.width / 2;
+        let transform = 'translateX(-50%)';
+
+        // Vertical placement
+        if (targetRect.bottom + tooltipHeight + margin > window.innerHeight && targetRect.top > tooltipHeight + margin) {
+            // Not enough space below, place above
+            top = targetRect.top - margin;
+            transform += ' translateY(-100%)';
+        } else {
+            // Place below
+            top = targetRect.bottom + margin;
+        }
+
+        // Correct for horizontal overflow
+        if (left - (tooltipWidth / 2) < margin) {
+            left = margin;
+            transform = transform.replace('translateX(-50%)', 'translateX(0)');
+        }
+        if (left + (tooltipWidth / 2) > window.innerWidth - margin) {
+            left = window.innerWidth - margin;
+            transform = transform.replace('translateX(-50%)', 'translateX(-100%)');
+        }
 
         return {
             top: `${top}px`,
-            left: `${adjustedLeft}px`,
+            left: `${left}px`,
             position: 'fixed',
+            transform,
         };
     };
 
@@ -85,7 +123,7 @@ const TutorialGuide: React.FC<TutorialGuideProps> = ({ steps, onComplete }) => {
         <div className="fixed inset-0 z-[10000]">
             {/* Overlay */}
             <div 
-                className="fixed inset-0 bg-black/70 backdrop-blur-sm"
+                className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-all duration-300"
                 style={{
                     clipPath: targetRect 
                         ? `path(evenodd, 'M0 0 H ${window.innerWidth} V ${window.innerHeight} H 0 Z M ${targetRect.left - 5} ${targetRect.top - 5} H ${targetRect.right + 5} V ${targetRect.bottom + 5} H ${targetRect.left - 5} Z')`
@@ -95,8 +133,9 @@ const TutorialGuide: React.FC<TutorialGuideProps> = ({ steps, onComplete }) => {
 
             {/* Tooltip */}
             <div
+                ref={tooltipRef}
                 style={getTooltipStyle()}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-6 w-full max-w-sm animate-fade-in"
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-6 w-full max-w-sm animate-fade-in transition-all duration-300"
             >
                 <h3 className="text-xl font-bold mb-2">{step.title}</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">{step.content}</p>
@@ -111,7 +150,11 @@ const TutorialGuide: React.FC<TutorialGuideProps> = ({ steps, onComplete }) => {
                                 Prev
                             </Button>
                         )}
-                        <Button onClick={handleNext} icon={!isLastStep && <ArrowRight size={16}/>}>
+                        <Button 
+                            onClick={handleNext} 
+                            icon={!isLastStep ? <ArrowRight size={16}/> : undefined}
+                            className={!isLastStep ? '!flex-row-reverse' : ''}
+                        >
                             {isLastStep ? 'Finish' : 'Next'}
                         </Button>
                     </div>
