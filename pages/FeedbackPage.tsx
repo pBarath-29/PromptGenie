@@ -65,7 +65,7 @@ const FeedbackPage: React.FC = () => {
                         </label>
                         <select
                             id="feedback-type"
-                            className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700"
+                            className="w-full p-3 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700"
                             value={type}
                             onChange={(e) => setType(e.target.value as FeedbackType)}
                         >

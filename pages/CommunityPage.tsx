@@ -137,7 +137,7 @@ const CommunityPage: React.FC = () => {
                         <select
                             value={selectedCategory}
                             onChange={e => setSelectedCategory(e.target.value as Category | 'all')}
-                            className="w-full md:w-auto p-2 border rounded-lg appearance-none bg-white dark:bg-gray-800 dark:border-gray-700 focus:ring-primary-500 focus:border-primary-500"
+                            className="w-full md:w-auto p-2 pr-10 border rounded-lg appearance-none bg-white dark:bg-gray-800 dark:border-gray-700 focus:ring-primary-500 focus:border-primary-500"
                         >
                             <option value="all">All Categories</option>
                             {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -149,7 +149,7 @@ const CommunityPage: React.FC = () => {
                          <select
                             value={selectedModel}
                             onChange={e => setSelectedModel(e.target.value as AIModel | 'all')}
-                            className="w-full md:w-auto p-2 border rounded-lg appearance-none bg-white dark:bg-gray-800 dark:border-gray-700 focus:ring-primary-500 focus:border-primary-500"
+                            className="w-full md:w-auto p-2 pr-10 border rounded-lg appearance-none bg-white dark:bg-gray-800 dark:border-gray-700 focus:ring-primary-500 focus:border-primary-500"
                         >
                             <option value="all">All Models</option>
                             {AI_MODELS.map(m => <option key={m} value={m}>{m}</option>)}
@@ -161,7 +161,7 @@ const CommunityPage: React.FC = () => {
                          <select
                             value={sortBy}
                             onChange={e => setSortBy(e.target.value as 'popular' | 'newest')}
-                            className="w-full md:w-auto p-2 border rounded-lg appearance-none bg-white dark:bg-gray-800 dark:border-gray-700 focus:ring-primary-500 focus:border-primary-500"
+                            className="w-full md:w-auto p-2 pr-10 border rounded-lg appearance-none bg-white dark:bg-gray-800 dark:border-gray-700 focus:ring-primary-500 focus:border-primary-500"
                         >
                             <option value="popular">Popular</option>
                             <option value="newest">Newest</option>

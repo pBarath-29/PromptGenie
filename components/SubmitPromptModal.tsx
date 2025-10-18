@@ -144,14 +144,14 @@ const SubmitPromptModal: React.FC<SubmitPromptModalProps> = ({ isOpen, onClose, 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="relative">
                               <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
-                              <select id="category" className="w-full p-2 border rounded-lg appearance-none" value={formData.category} onChange={(e) => setFormData(prev => ({...prev, category: e.target.value as Category}))}>
+                              <select id="category" className="w-full p-2 pr-10 border rounded-lg appearance-none" value={formData.category} onChange={(e) => setFormData(prev => ({...prev, category: e.target.value as Category}))}>
                                   {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                               </select>
                               <ChevronDown size={20} className="absolute right-3 top-9 text-gray-400 pointer-events-none"/>
                           </div>
                           <div className="relative">
                               <label htmlFor="model" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">AI Model</label>
-                              <select id="model" className="w-full p-2 border rounded-lg appearance-none" value={formData.model} onChange={(e) => setFormData(prev => ({...prev, model: e.target.value as AIModel}))}>
+                              <select id="model" className="w-full p-2 pr-10 border rounded-lg appearance-none" value={formData.model} onChange={(e) => setFormData(prev => ({...prev, model: e.target.value as AIModel}))}>
                                   {AI_MODELS.map(m => <option key={m} value={m}>{m}</option>)}
                               </select>
                               <ChevronDown size={20} className="absolute right-3 top-9 text-gray-400 pointer-events-none"/>

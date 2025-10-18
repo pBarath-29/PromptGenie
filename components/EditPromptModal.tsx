@@ -164,7 +164,7 @@ const EditPromptModal: React.FC<EditPromptModalProps> = ({ isOpen, onClose, onSu
                 <label htmlFor="edit-category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
                 <select
                     id="edit-category"
-                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700"
+                    className="w-full p-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700"
                     value={category}
                     onChange={(e) => setCategory(e.target.value as Category)}
                 >
@@ -176,7 +176,7 @@ const EditPromptModal: React.FC<EditPromptModalProps> = ({ isOpen, onClose, onSu
                 <label htmlFor="edit-model" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">AI Model</label>
                 <select
                     id="edit-model"
-                    className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700"
+                    className="w-full p-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700"
                     value={model}
                     onChange={(e) => setModel(e.target.value as AIModel)}
                 >

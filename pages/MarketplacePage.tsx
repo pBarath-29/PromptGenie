@@ -145,7 +145,7 @@ const MarketplacePage: React.FC = () => {
                          <select
                             value={sortBy}
                             onChange={e => setSortBy(e.target.value as 'prompts-desc' | 'price-asc' | 'price-desc')}
-                            className="w-full md:w-auto p-2 border rounded-lg appearance-none bg-white dark:bg-gray-800 dark:border-gray-700 focus:ring-primary-500 focus:border-primary-500"
+                            className="w-full md:w-auto p-2 pr-10 border rounded-lg appearance-none bg-white dark:bg-gray-800 dark:border-gray-700 focus:ring-primary-500 focus:border-primary-500"
                         >
                             <option value="prompts-desc">Most Prompts</option>
                             <option value="price-asc">Price: Low to High</option>
