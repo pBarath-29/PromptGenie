@@ -98,6 +98,12 @@ const HomePage: React.FC = () => {
         stopListening,
     } = useSpeechRecognition({ onResult: setRequest });
 
+    const handleClear = () => {
+        setRequest('');
+        setGeneratedPrompt(null);
+        setError(null);
+    };
+
     const proceedWithGeneration = async () => {
         setIsLoading(true);
         setError(null);
@@ -184,7 +190,16 @@ const HomePage: React.FC = () => {
 
             <div id="prompt-generator-card" className="max-w-4xl mx-auto p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl space-y-6">
                 <div className={`${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                    <label htmlFor="request" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Describe your goal</label>
+                    <div className="flex justify-between items-baseline mb-1">
+                        <label htmlFor="request" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Describe your goal</label>
+                        <button
+                            onClick={handleClear}
+                            className="text-sm font-medium text-primary-600 hover:text-primary-500 disabled:text-gray-400 dark:disabled:text-gray-500 disabled:cursor-not-allowed transition-colors"
+                            disabled={(!request && !generatedPrompt && !error) || isLoading}
+                        >
+                            Clear
+                        </button>
+                    </div>
                     <div className="relative">
                         <textarea
                             id="request"
