@@ -150,17 +150,6 @@ export const PromptProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const propagateUserUpdates = async (updatedUser: User) => {
     const updates: { [key: string]: any } = {};
     let needsStateUpdate = false;
-    
-    // Create a clean, consistent summary of the user for display purposes.
-    // This prevents storing the entire user object in every prompt/comment.
-    const userSummary = {
-        id: updatedUser.id,
-        name: updatedUser.name,
-        avatar: updatedUser.avatar,
-        bio: updatedUser.bio,
-        subscriptionTier: updatedUser.subscriptionTier,
-        role: updatedUser.role,
-    };
 
     const newPrompts = prompts.map(p => {
         let promptWasModified = false;
@@ -168,26 +157,24 @@ export const PromptProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         let newComments = p.comments;
 
         if (p.author.id === updatedUser.id) {
-            // Replace the entire author object with the fresh summary
-            newAuthor = { ...p.author, ...userSummary };
-            updates[`/prompts/${p.id}/author`] = newAuthor;
+            // Replace the entire stale author object with the fresh, updated user object.
+            newAuthor = updatedUser;
+            updates[`/prompts/${p.id}/author`] = updatedUser;
             promptWasModified = true;
         }
 
         if (p.comments && p.comments.length > 0) {
-            const updatedCommentsList: Comment[] = [];
             let commentsWereModified = false;
-            p.comments.forEach((comment, index) => {
+            const updatedCommentsList = p.comments.map((comment, index) => {
                 if (comment.author.id === updatedUser.id) {
-                    // Replace the author object on the comment as well
-                    const newCommentAuthor = { ...comment.author, ...userSummary };
-                    updates[`/prompts/${p.id}/comments/${index}/author`] = newCommentAuthor;
-                    updatedCommentsList.push({ ...comment, author: newCommentAuthor });
                     commentsWereModified = true;
-                } else {
-                    updatedCommentsList.push(comment);
+                    // Replace the stale author object on the comment.
+                    updates[`/prompts/${p.id}/comments/${index}/author`] = updatedUser;
+                    return { ...comment, author: updatedUser };
                 }
+                return comment;
             });
+            
             if (commentsWereModified) {
                 newComments = updatedCommentsList;
                 promptWasModified = true;
@@ -211,6 +198,7 @@ export const PromptProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         }
     }
   };
+
 
   return (
     <PromptContext.Provider value={{ prompts, addPrompt, updatePrompt, deletePrompt, handlePromptVote, addComment, updatePromptStatus, anonymizeUserPrompts, propagateUserUpdates }}>

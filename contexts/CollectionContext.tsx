@@ -85,24 +85,13 @@ export const CollectionProvider: React.FC<{ children: ReactNode }> = ({ children
   const propagateUserUpdates = async (updatedUser: User) => {
     const updates: { [key: string]: any } = {};
     let needsStateUpdate = false;
-    
-    // Create a clean, consistent summary of the user for display purposes.
-    const userSummary = {
-        id: updatedUser.id,
-        name: updatedUser.name,
-        avatar: updatedUser.avatar,
-        bio: updatedUser.bio,
-        subscriptionTier: updatedUser.subscriptionTier,
-        role: updatedUser.role
-    };
 
     const newCollections = collections.map(c => {
         if (c.creator.id === updatedUser.id) {
             needsStateUpdate = true;
-            // Replace the entire creator object with the fresh summary
-            const newCreator = { ...c.creator, ...userSummary };
-            updates[`/collections/${c.id}/creator`] = newCreator;
-            return { ...c, creator: newCreator };
+            // Replace the entire stale creator object with the fresh, updated user object.
+            updates[`/collections/${c.id}/creator`] = updatedUser;
+            return { ...c, creator: updatedUser };
         }
         return c;
     });
@@ -117,6 +106,7 @@ export const CollectionProvider: React.FC<{ children: ReactNode }> = ({ children
         }
     }
   };
+
 
   return (
     <CollectionContext.Provider value={{ collections, addCollection, updateCollectionStatus, anonymizeUserCollections, propagateUserUpdates }}>

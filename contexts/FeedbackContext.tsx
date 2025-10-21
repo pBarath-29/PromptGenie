@@ -81,23 +81,12 @@ export const FeedbackProvider: React.FC<{ children: ReactNode }> = ({ children }
     const updates: { [key: string]: any } = {};
     let needsStateUpdate = false;
 
-    // Create a clean, consistent summary of the user for display purposes.
-    const userSummary = {
-        id: updatedUser.id,
-        name: updatedUser.name,
-        avatar: updatedUser.avatar,
-        bio: updatedUser.bio,
-        subscriptionTier: updatedUser.subscriptionTier,
-        role: updatedUser.role
-    };
-
     const newFeedback = feedback.map(f => {
         if (f.user.id === updatedUser.id) {
             needsStateUpdate = true;
-            // Replace the entire user object with the fresh summary
-            const newUser = { ...f.user, ...userSummary };
-            updates[`/feedback/${f.id}/user`] = newUser;
-            return { ...f, user: newUser };
+            // Replace the entire stale user object with the fresh, updated user object.
+            updates[`/feedback/${f.id}/user`] = updatedUser;
+            return { ...f, user: updatedUser };
         }
         return f;
     });
@@ -112,6 +101,7 @@ export const FeedbackProvider: React.FC<{ children: ReactNode }> = ({ children }
         }
     }
   };
+
 
   return (
     <FeedbackContext.Provider value={{ feedback, addFeedback, updateFeedbackStatus, deleteUserFeedback, deleteFeedback, propagateUserUpdates }}>
