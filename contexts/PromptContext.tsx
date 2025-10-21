@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Prompt, Comment, User } from '../types';
-import { getData, setData, updateData, deleteData } from '../services/firebaseService';
+import { getData, setData, updateData, deleteData, performMultiPathUpdate } from '../services/firebaseService';
 
 interface PromptContextType {
   prompts: Prompt[];
@@ -11,6 +11,7 @@ interface PromptContextType {
   addComment: (promptId: string, comment: { author: User; text: string }) => void;
   updatePromptStatus: (promptId: string, status: 'approved' | 'rejected') => void;
   anonymizeUserPrompts: (userId: string) => Promise<void>;
+  propagateUserUpdates: (updatedUser: User) => Promise<void>;
 }
 
 const PromptContext = createContext<PromptContextType | undefined>(undefined);
@@ -146,8 +147,73 @@ export const PromptProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     );
   };
 
+  const propagateUserUpdates = async (updatedUser: User) => {
+    const updates: { [key: string]: any } = {};
+    let needsStateUpdate = false;
+    
+    // Create a clean, consistent summary of the user for display purposes.
+    // This prevents storing the entire user object in every prompt/comment.
+    const userSummary = {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        avatar: updatedUser.avatar,
+        bio: updatedUser.bio,
+        subscriptionTier: updatedUser.subscriptionTier,
+        role: updatedUser.role,
+    };
+
+    const newPrompts = prompts.map(p => {
+        let promptWasModified = false;
+        let newAuthor = p.author;
+        let newComments = p.comments;
+
+        if (p.author.id === updatedUser.id) {
+            // Replace the entire author object with the fresh summary
+            newAuthor = { ...p.author, ...userSummary };
+            updates[`/prompts/${p.id}/author`] = newAuthor;
+            promptWasModified = true;
+        }
+
+        if (p.comments && p.comments.length > 0) {
+            const updatedCommentsList: Comment[] = [];
+            let commentsWereModified = false;
+            p.comments.forEach((comment, index) => {
+                if (comment.author.id === updatedUser.id) {
+                    // Replace the author object on the comment as well
+                    const newCommentAuthor = { ...comment.author, ...userSummary };
+                    updates[`/prompts/${p.id}/comments/${index}/author`] = newCommentAuthor;
+                    updatedCommentsList.push({ ...comment, author: newCommentAuthor });
+                    commentsWereModified = true;
+                } else {
+                    updatedCommentsList.push(comment);
+                }
+            });
+            if (commentsWereModified) {
+                newComments = updatedCommentsList;
+                promptWasModified = true;
+            }
+        }
+        
+        if (promptWasModified) {
+            needsStateUpdate = true;
+            return { ...p, author: newAuthor, comments: newComments };
+        }
+        return p;
+    });
+
+    if (needsStateUpdate) {
+        setPrompts(newPrompts);
+        try {
+            await performMultiPathUpdate(updates);
+        } catch (error) {
+            console.error("Failed to propagate user updates to prompts.", error);
+            // In a real app, you might want to revert the state change here.
+        }
+    }
+  };
+
   return (
-    <PromptContext.Provider value={{ prompts, addPrompt, updatePrompt, deletePrompt, handlePromptVote, addComment, updatePromptStatus, anonymizeUserPrompts }}>
+    <PromptContext.Provider value={{ prompts, addPrompt, updatePrompt, deletePrompt, handlePromptVote, addComment, updatePromptStatus, anonymizeUserPrompts, propagateUserUpdates }}>
       {children}
     </PromptContext.Provider>
   );

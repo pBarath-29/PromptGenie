@@ -24,7 +24,7 @@ interface AuthContextType {
   signup: (name: string, email: string, password?: string) => Promise<void>;
   logout: () => void;
   resendVerificationEmail: (user: FirebaseUser) => Promise<void>;
-  updateUserProfile: (data: { bio?: string; avatar?: string }) => void;
+  updateUserProfile: (data: { bio?: string; avatar?: string }) => Promise<AppUser | null>;
   purchaseCollection: (collectionId: string) => void;
   addSubmittedPrompt: (promptId: string) => void;
   removeSubmittedPrompt: (promptId: string) => void;
@@ -204,12 +204,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     await sendEmailVerification(unverifiedUser);
   };
   
-  const updateUserProfile = (data: { bio?: string; avatar?: string }) => {
+  const updateUserProfile = async (data: { bio?: string; avatar?: string }): Promise<AppUser | null> => {
     if (user) {
       const updatedUser = { ...user, ...data };
       setUser(updatedUser);
-      updateData(`users/${user.id}`, data).catch(err => console.error("Failed to sync profile update", err));
+      await updateData(`users/${user.id}`, data);
+      return updatedUser;
     }
+    return null;
   };
 
   const purchaseCollection = (collectionId: string) => {

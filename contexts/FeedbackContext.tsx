@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { FeedbackItem } from '../types';
-import { getData, setData, pushData, updateData, deleteData } from '../services/firebaseService';
+import { FeedbackItem, User } from '../types';
+import { getData, setData, pushData, updateData, deleteData, performMultiPathUpdate } from '../services/firebaseService';
 
 interface FeedbackContextType {
   feedback: FeedbackItem[];
@@ -8,6 +8,7 @@ interface FeedbackContextType {
   updateFeedbackStatus: (feedbackId: string, status: 'pending' | 'reviewed') => void;
   deleteUserFeedback: (userId: string) => Promise<void>;
   deleteFeedback: (feedbackId: string) => void;
+  propagateUserUpdates: (updatedUser: User) => Promise<void>;
 }
 
 const FeedbackContext = createContext<FeedbackContextType | undefined>(undefined);
@@ -76,8 +77,44 @@ export const FeedbackProvider: React.FC<{ children: ReactNode }> = ({ children }
     setFeedback(prev => prev.filter(f => f.user.id !== userId));
   };
 
+  const propagateUserUpdates = async (updatedUser: User) => {
+    const updates: { [key: string]: any } = {};
+    let needsStateUpdate = false;
+
+    // Create a clean, consistent summary of the user for display purposes.
+    const userSummary = {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        avatar: updatedUser.avatar,
+        bio: updatedUser.bio,
+        subscriptionTier: updatedUser.subscriptionTier,
+        role: updatedUser.role
+    };
+
+    const newFeedback = feedback.map(f => {
+        if (f.user.id === updatedUser.id) {
+            needsStateUpdate = true;
+            // Replace the entire user object with the fresh summary
+            const newUser = { ...f.user, ...userSummary };
+            updates[`/feedback/${f.id}/user`] = newUser;
+            return { ...f, user: newUser };
+        }
+        return f;
+    });
+    
+    if (needsStateUpdate) {
+        setFeedback(newFeedback);
+        try {
+            await performMultiPathUpdate(updates);
+        } catch (error) {
+            console.error("Failed to propagate user updates to feedback.", error);
+            // In a real app, you might want to revert the state change here.
+        }
+    }
+  };
+
   return (
-    <FeedbackContext.Provider value={{ feedback, addFeedback, updateFeedbackStatus, deleteUserFeedback, deleteFeedback }}>
+    <FeedbackContext.Provider value={{ feedback, addFeedback, updateFeedbackStatus, deleteUserFeedback, deleteFeedback, propagateUserUpdates }}>
       {children}
     </FeedbackContext.Provider>
   );

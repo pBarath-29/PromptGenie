@@ -1,12 +1,13 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Collection, User } from '../types';
-import { getData, setData, updateData } from '../services/firebaseService';
+import { getData, setData, updateData, performMultiPathUpdate } from '../services/firebaseService';
 
 interface CollectionContextType {
   collections: Collection[];
   addCollection: (collection: Collection) => void;
   updateCollectionStatus: (collectionId: string, status: 'approved' | 'rejected') => void;
   anonymizeUserCollections: (userId: string) => Promise<void>;
+  propagateUserUpdates: (updatedUser: User) => Promise<void>;
 }
 
 const CollectionContext = createContext<CollectionContextType | undefined>(undefined);
@@ -81,8 +82,44 @@ export const CollectionProvider: React.FC<{ children: ReactNode }> = ({ children
     );
   };
 
+  const propagateUserUpdates = async (updatedUser: User) => {
+    const updates: { [key: string]: any } = {};
+    let needsStateUpdate = false;
+    
+    // Create a clean, consistent summary of the user for display purposes.
+    const userSummary = {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        avatar: updatedUser.avatar,
+        bio: updatedUser.bio,
+        subscriptionTier: updatedUser.subscriptionTier,
+        role: updatedUser.role
+    };
+
+    const newCollections = collections.map(c => {
+        if (c.creator.id === updatedUser.id) {
+            needsStateUpdate = true;
+            // Replace the entire creator object with the fresh summary
+            const newCreator = { ...c.creator, ...userSummary };
+            updates[`/collections/${c.id}/creator`] = newCreator;
+            return { ...c, creator: newCreator };
+        }
+        return c;
+    });
+
+    if (needsStateUpdate) {
+        setCollections(newCollections);
+        try {
+            await performMultiPathUpdate(updates);
+        } catch (error) {
+            console.error("Failed to propagate user updates to collections.", error);
+            // In a real app, you might want to revert the state change here.
+        }
+    }
+  };
+
   return (
-    <CollectionContext.Provider value={{ collections, addCollection, updateCollectionStatus, anonymizeUserCollections }}>
+    <CollectionContext.Provider value={{ collections, addCollection, updateCollectionStatus, anonymizeUserCollections, propagateUserUpdates }}>
       {children}
     </CollectionContext.Provider>
   );

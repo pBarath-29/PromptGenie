@@ -27,10 +27,10 @@ const COLLECTIONS_PER_PAGE = 4;
 
 const ProfilePage: React.FC = () => {
   const { user, updateUserProfile, removeSubmittedPrompt, cancelSubscription, deleteAccount } = useAuth();
-  const { prompts, updatePrompt, deletePrompt, anonymizeUserPrompts } = usePrompts();
-  const { collections, anonymizeUserCollections } = useCollections();
+  const { prompts, updatePrompt, deletePrompt, anonymizeUserPrompts, propagateUserUpdates: propagateToPrompts } = usePrompts();
+  const { collections, anonymizeUserCollections, propagateUserUpdates: propagateToCollections } = useCollections();
   const { history } = useHistory();
-  const { deleteUserFeedback } = useFeedback();
+  const { deleteUserFeedback, propagateUserUpdates: propagateToFeedback } = useFeedback();
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
@@ -64,9 +64,20 @@ const ProfilePage: React.FC = () => {
     return <div className="text-center text-lg">Please log in to view your profile.</div>;
   }
 
-  const handleProfileUpdate = () => {
-    updateUserProfile({ bio, avatar });
+  const handleProfileUpdate = async () => {
+    const updatedUser = await updateUserProfile({ bio, avatar });
     setIsEditModalOpen(false);
+
+    if (updatedUser) {
+        // Run propagations in parallel in the background
+        Promise.all([
+            propagateToPrompts(updatedUser),
+            propagateToCollections(updatedUser),
+            propagateToFeedback(updatedUser)
+        ]).catch(error => {
+            console.error("Failed to propagate user updates across all contexts:", error);
+        });
+    }
   };
   
   const handlePromptClick = (prompt: Prompt) => setSelectedPrompt(prompt);

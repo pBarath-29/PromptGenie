@@ -78,3 +78,16 @@ export const deleteData = async (path: string): Promise<void> => {
         throw error;
     }
 };
+
+/**
+ * Performs a multi-path update.
+ * @param updates An object where keys are paths and values are the data to write.
+ */
+export const performMultiPathUpdate = async (updates: object): Promise<void> => {
+    try {
+        return await update(ref(db), updates);
+    } catch (error) {
+        console.error(`Firebase multi-path update Error:`, error);
+        throw error;
+    }
+};
