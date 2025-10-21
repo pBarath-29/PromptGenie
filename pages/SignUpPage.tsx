@@ -12,6 +12,7 @@ const SignUpPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -136,10 +137,36 @@ const SignUpPage: React.FC = () => {
             </div>
           </div>
 
+          <div className="flex items-start">
+            <div className="flex items-center h-5">
+              <input
+                id="terms"
+                name="terms"
+                type="checkbox"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                className="focus:ring-primary-500 h-4 w-4 text-primary-600 border-gray-300 rounded"
+              />
+            </div>
+            <div className="ml-3 text-sm">
+              <label htmlFor="terms" className="text-gray-500 dark:text-gray-400">
+                I agree to the{' '}
+                <Link to="/terms" target="_blank" rel="noopener noreferrer" className="font-medium text-primary-600 hover:text-primary-500">
+                  Terms and Conditions
+                </Link>{' '}
+                and{' '}
+                <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="font-medium text-primary-600 hover:text-primary-500">
+                  Privacy Policy
+                </Link>
+                .
+              </label>
+            </div>
+          </div>
+
           {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
           <div>
-            <Button type="submit" className="w-full" isLoading={isLoading} icon={<UserPlus size={20}/>}>
+            <Button type="submit" className="w-full" isLoading={isLoading} disabled={!agreedToTerms || isLoading} icon={<UserPlus size={20}/>}>
               Sign up
             </Button>
           </div>

@@ -8,6 +8,8 @@ const Footer: React.FC = () => {
         <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
           <p>&copy; {new Date().getFullYear()} Prompter. All rights reserved.</p>
           <div className="flex space-x-4">
+            <Link to="/terms" className="hover:text-primary-500">Terms & Conditions</Link>
+            <Link to="/privacy" className="hover:text-primary-500">Privacy Policy</Link>
             <Link to="/feedback" className="hover:text-primary-500">Feedback</Link>
           </div>
         </div>

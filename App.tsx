@@ -23,6 +23,8 @@ import UpgradePage from './pages/UpgradePage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import FeedbackPage from './pages/FeedbackPage';
+import TermsPage from './pages/TermsPage';
+import PrivacyPage from './pages/PrivacyPage';
 import { Loader } from 'lucide-react';
 import { PromoCodeProvider } from './contexts/PromoCodeContext';
 
@@ -72,6 +74,8 @@ const AppContent: React.FC = () => {
       <Route path="/signup" element={<SignUpPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/terms" element={<TermsPage />} />
+      <Route path="/privacy" element={<PrivacyPage />} />
     </Routes>
   );
 };
