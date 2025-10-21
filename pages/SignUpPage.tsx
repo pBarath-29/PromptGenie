@@ -1,11 +1,10 @@
-
-
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import Button from '../components/Button';
 import { UserPlus, Zap, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import { getFriendlyFirebaseAuthError } from '../utils/firebaseErrors';
+import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
 
 const SignUpPage: React.FC = () => {
   const [name, setName] = useState('');
@@ -18,10 +17,26 @@ const SignUpPage: React.FC = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const { signup } = useAuth();
 
+  const validation = useMemo(() => {
+    return {
+      length: password.length >= 8,
+      lowercase: /[a-z]/.test(password),
+      uppercase: /[A-Z]/.test(password),
+      number: /[0-9]/.test(password),
+      special: /[^A-Za-z0-9]/.test(password),
+    };
+  }, [password]);
+
+  const score = useMemo(() => {
+    if (!password) return 0;
+    return Object.values(validation).filter(Boolean).length;
+  }, [password, validation]);
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters long.");
+    if (score < 5) {
+      setError("Password must be very strong. Please meet all criteria.");
       return;
     }
     setError('');
@@ -76,43 +91,30 @@ const SignUpPage: React.FC = () => {
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="name" className="sr-only">
-                Full Name
-              </label>
+          <div className="space-y-4">
               <input
                 id="name"
                 name="name"
                 type="text"
                 autoComplete="name"
                 required
-                className="relative block w-full appearance-none rounded-none rounded-t-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-primary-500 focus:outline-none focus:ring-primary-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                className="relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-primary-500 focus:outline-none focus:ring-primary-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 placeholder="Full Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
-            </div>
-            <div>
-              <label htmlFor="email-address" className="sr-only">
-                Email address
-              </label>
               <input
                 id="email-address"
                 name="email"
                 type="email"
                 autoComplete="email"
                 required
-                className="relative block w-full appearance-none rounded-none border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-primary-500 focus:outline-none focus:ring-primary-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                className="relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-primary-500 focus:outline-none focus:ring-primary-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
-            </div>
             <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
               <div className="relative">
                 <input
                   id="password"
@@ -120,7 +122,7 @@ const SignUpPage: React.FC = () => {
                   type={isPasswordVisible ? 'text' : 'password'}
                   autoComplete="new-password"
                   required
-                  className="relative block w-full appearance-none rounded-none rounded-b-md border border-gray-300 px-3 py-2 pr-10 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-primary-500 focus:outline-none focus:ring-primary-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  className="relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 pr-10 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-primary-500 focus:outline-none focus:ring-primary-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -134,6 +136,7 @@ const SignUpPage: React.FC = () => {
                   {isPasswordVisible ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
+               <PasswordStrengthIndicator password={password} />
             </div>
           </div>
 
@@ -166,7 +169,7 @@ const SignUpPage: React.FC = () => {
           {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
           <div>
-            <Button type="submit" className="w-full" isLoading={isLoading} disabled={!agreedToTerms || isLoading} icon={<UserPlus size={20}/>}>
+            <Button type="submit" className="w-full" isLoading={isLoading} disabled={!agreedToTerms || isLoading || score < 5} icon={<UserPlus size={20}/>}>
               Sign up
             </Button>
           </div>
