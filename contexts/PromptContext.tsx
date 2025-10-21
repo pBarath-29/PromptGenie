@@ -130,6 +130,7 @@ export const PromptProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         lastSubmissionDate: '',
         hasCompletedTutorial: true,
         votes: {},
+        themePreference: 'light',
     };
 
     const updatePromises = userPrompts.map(prompt => 

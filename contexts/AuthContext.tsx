@@ -139,7 +139,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         (error as any).unverifiedUser = userCredential.user;
         throw error;
       }
-      // If verified, the onAuthStateChanged listener will handle setting the user state.
+      
+      // If verified, log IP address and timestamp
+      try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        if (response.ok) {
+            const data = await response.json();
+            const ip = data.ip;
+            
+            const loginData = {
+                lastLoginIp: ip,
+                lastLoginTimestamp: new Date().toISOString(),
+            };
+    
+            await updateData(`users/${userCredential.user.uid}`, loginData);
+        }
+      } catch (error) {
+          console.error("Failed to log user IP address:", error);
+          // Non-critical error, so we don't block login.
+      }
+      
+      // The onAuthStateChanged listener will handle setting the user state.
   };
 
   const signup = async (name: string, email: string, password?: string): Promise<void> => {

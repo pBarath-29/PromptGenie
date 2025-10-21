@@ -65,6 +65,7 @@ export const CollectionProvider: React.FC<{ children: ReactNode }> = ({ children
         lastSubmissionDate: '',
         hasCompletedTutorial: true,
         votes: {},
+        themePreference: 'light',
     };
 
     const updatePromises = userCollections.map(collection => 
