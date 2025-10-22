@@ -19,8 +19,6 @@ export interface User {
   hasCompletedTutorial: boolean;
   votes?: { [promptId: string]: 'up' | 'down' };
   themePreference?: 'light' | 'dark';
-  lastLoginIp?: string;
-  lastLoginTimestamp?: string;
 }
 
 export interface Comment {

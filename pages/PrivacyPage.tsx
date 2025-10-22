@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 
 const LegalSection: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
@@ -25,7 +26,7 @@ const PrivacyPage: React.FC = () => {
       <LegalSection title="2. Information We Collect">
         <p>We collect several types of information for various purposes to provide and improve our Service to you.</p>
         <div>
-            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">A. Information You Provide to Us</h3>
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Information You Provide to Us</h3>
             <ul>
                 <li><strong>Account Information:</strong> When you register for an account, we collect your name, email address, and a hashed version of your password. You may also voluntarily provide additional profile information, such as a biography and an avatar image.</li>
                 <li><strong>User-Generated Content:</strong> We collect all content you create and submit to the Service, including prompts, prompt collections, descriptions, tags, comments, and feedback messages.</li>
@@ -34,10 +35,9 @@ const PrivacyPage: React.FC = () => {
             </ul>
         </div>
         <div>
-            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">B. Information We Collect Automatically</h3>
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Information We Collect Automatically</h3>
              <ul>
-                <li><strong>Log and Usage Data:</strong> We automatically collect information when you access and use the Service. This includes your Internet Protocol (IP) address, browser type and version, device information, the pages you visit, the time and date of your visit, and how you interact with the Service. We store your last login IP and timestamp for security purposes.</li>
-                <li><strong>Cookies:</strong> We use cookies to operate the Service, such as keeping you logged in. We also use cookies to store your preferences, such as your theme choice (light/dark mode). You can configure your browser to reject cookies, but this may cause some features of the Service to not function properly.</li>
+                <li><strong>Browser Storage:</strong> We use your browser's local storage to enhance your experience. For example, if you are not logged in, we save your theme preference (light/dark mode) in local storage so the site remembers your choice on your next visit. Our authentication provider (Firebase) may also use browser storage mechanisms like IndexedDB to securely manage your login session. This is essential for keeping you logged in. You can clear your browser's storage, but this may log you out or reset your preferences.</li>
             </ul>
         </div>
       </LegalSection>
@@ -77,7 +77,7 @@ const PrivacyPage: React.FC = () => {
           We take reasonable measures to protect your information from loss, theft, misuse, and unauthorized access. We rely on the security infrastructure of our service providers, like Firebase, to safeguard your data. However, no electronic transmission or storage is 100% secure.
         </p>
         <p>
-          We retain your personal information as long as your account is active. If you choose to delete your account, we will delete your personally identifiable information (such as name, email, and IP address logs). Your User-Generated Content (prompts, collections, etc.) will be anonymized by attributing it to a "Deleted User" to maintain the integrity of community interactions.
+          We retain your personal information as long as your account is active. If you choose to delete your account, we will delete your personally identifiable information (such as name and email). Your User-Generated Content (prompts, collections, etc.) will be anonymized by attributing it to a "Deleted User" to maintain the integrity of community interactions.
         </p>
       </LegalSection>
 

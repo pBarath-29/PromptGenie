@@ -10,8 +10,7 @@ const firebaseConfig = {
   projectId: "prompter-5b0d0",
   storageBucket: "prompter-5b0d0.firebasestorage.app",
   messagingSenderId: "877415759939",
-  appId: "1:877415759939:web:a5d378bd6618c79a5d14f6",
-  measurementId: "G-L0XZN2LV8J"
+  appId: "1:877415759939:web:a5d378bd6618c79a5d14f6"
 };
 
 // Initialize Firebase
