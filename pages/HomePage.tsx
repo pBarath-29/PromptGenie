@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Zap, Mic, Copy, Loader, X } from 'lucide-react';
+import { Zap, Mic, Copy, X } from 'lucide-react';
 import { TONES, CATEGORIES, Tone, Category } from '../types';
 import Button from '../components/Button';
 import useSpeechRecognition from '../hooks/useSpeechRecognition';
@@ -13,6 +13,7 @@ import AdModal from '../components/AdModal';
 import TutorialGuide from '../components/TutorialGuide';
 import WelcomeBanner from '../components/WelcomeBanner';
 import CustomDropdown from '../components/CustomDropdown';
+import LogoSpinner from '../components/LogoSpinner';
 
 const tutorialSteps = [
     {
@@ -272,7 +273,7 @@ const HomePage: React.FC = () => {
 
             {isLoading && (
                 <div className="text-center flex flex-col items-center justify-center space-y-4 animate-fade-in">
-                    <Loader size={48} className="animate-spin text-primary-500" />
+                    <LogoSpinner size={48} />
                     <p className="text-lg">Generating your masterpiece...</p>
                 </div>
             )}

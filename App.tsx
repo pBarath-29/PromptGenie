@@ -25,7 +25,7 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import FeedbackPage from './pages/FeedbackPage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
-import { Loader } from 'lucide-react';
+import LogoSpinner from './components/LogoSpinner';
 import { PromoCodeProvider } from './contexts/PromoCodeContext';
 
 const AppContent: React.FC = () => {
@@ -34,7 +34,7 @@ const AppContent: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
-        <Loader size={48} className="animate-spin text-primary-500" />
+        <LogoSpinner size={64} />
       </div>
     );
   }

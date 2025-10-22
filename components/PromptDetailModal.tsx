@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Prompt } from '../types';
 import Modal from './Modal';
 import Button from './Button';
-import { Copy, Loader, Sparkles, Check, Book, Cpu, Tag as TagIcon, MessageSquare } from 'lucide-react';
+import { Copy, Sparkles, Check, Book, Cpu, Tag as TagIcon, MessageSquare } from 'lucide-react';
 import { generateExampleOutput, generateExampleImage } from '../services/geminiService';
 import { usePrompts } from '../contexts/PromptContext';
 import { useAuth } from '../contexts/AuthContext';
 import RatingControl from './StarRating';
 import { useNavigate, Link } from 'react-router-dom';
+import LogoSpinner from './LogoSpinner';
 
 interface PromptDetailModalProps {
   prompt: Prompt | null;
@@ -170,7 +171,7 @@ const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, o
             )}
             {isLoading && (
               <div className="text-center flex flex-col items-center justify-center space-y-2 animate-fade-in">
-                <Loader size={32} className="animate-spin text-primary-500" />
+                <LogoSpinner size={32} />
                 <p className="text-sm text-gray-500 dark:text-gray-400">Generating example...</p>
               </div>
             )}

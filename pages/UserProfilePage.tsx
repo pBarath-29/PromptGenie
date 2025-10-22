@@ -5,10 +5,11 @@ import { usePrompts } from '../contexts/PromptContext';
 import { Prompt, User } from '../types';
 import PromptCard from '../components/PromptCard';
 import PromptDetailModal from '../components/PromptDetailModal';
-import { BookOpen, UserX, Loader } from 'lucide-react';
+import { BookOpen, UserX } from 'lucide-react';
 import Button from '../components/Button';
 import Pagination from '../components/Pagination';
 import UserProfileHeader from '../components/UserProfileHeader';
+import LogoSpinner from '../components/LogoSpinner';
 
 const PROMPTS_PER_PAGE = 6;
 
@@ -55,7 +56,7 @@ const UserProfilePage: React.FC = () => {
     if (isLoading) {
         return (
             <div className="flex justify-center items-center h-64">
-                <Loader size={48} className="animate-spin text-primary-500" />
+                <LogoSpinner size={48} />
             </div>
         )
     }

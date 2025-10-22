@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Button from '../components/Button';
-import { KeyRound, Zap, CheckCircle, AlertTriangle, Loader, Eye, EyeOff } from 'lucide-react';
+import { KeyRound, Zap, CheckCircle, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 import { auth } from '../services/firebase';
 import { confirmPasswordReset, verifyPasswordResetCode } from 'firebase/auth';
 import { getFriendlyFirebaseAuthError } from '../utils/firebaseErrors';
 import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
+import LogoSpinner from '../components/LogoSpinner';
 
 const ResetPasswordPage: React.FC = () => {
   const [password, setPassword] = useState('');
@@ -86,7 +87,7 @@ const ResetPasswordPage: React.FC = () => {
   const renderContent = () => {
     switch (verificationState) {
         case 'verifying':
-            return <div className="flex justify-center p-8"><Loader size={32} className="animate-spin text-primary-500" /></div>;
+            return <div className="flex justify-center p-8"><LogoSpinner size={32} /></div>;
         case 'invalid':
             return (
                 <div className="text-center">
