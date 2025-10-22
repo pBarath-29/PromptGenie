@@ -64,7 +64,7 @@ const ReauthenticationModal: React.FC<ReauthenticationModalProps> = ({
                   type={isPasswordVisible ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full p-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700"
+                  className="w-full p-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 dark:text-white"
                   required
                   autoFocus
               />

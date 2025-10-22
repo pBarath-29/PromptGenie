@@ -347,7 +347,7 @@ const ProfilePage: React.FC = () => {
               rows={4}
               value={bio} 
               onChange={e => setBio(e.target.value)} 
-              className="w-full p-2 border rounded-md bg-gray-100 dark:bg-gray-700 dark:border-gray-600"
+              className="w-full p-2 border rounded-md bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
           </div>
           <div className="flex justify-end pt-2">

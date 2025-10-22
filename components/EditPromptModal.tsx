@@ -74,7 +74,7 @@ const EditPromptModal: React.FC<EditPromptModalProps> = ({ isOpen, onClose, onSu
             value={title} 
             onChange={e => setTitle(e.target.value)} 
             placeholder="e.g., Ultimate Essay Writing Assistant"
-            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700"
+            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
           />
         </div>
 
@@ -86,7 +86,7 @@ const EditPromptModal: React.FC<EditPromptModalProps> = ({ isOpen, onClose, onSu
                 value={promptText}
                 onChange={(e) => setPromptText(e.target.value)}
                 placeholder="Enter the full prompt text here..."
-                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700 font-mono text-sm"
+                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700 font-mono text-sm dark:text-white dark:placeholder-gray-400"
             />
         </div>
 
@@ -98,7 +98,7 @@ const EditPromptModal: React.FC<EditPromptModalProps> = ({ isOpen, onClose, onSu
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Briefly describe what this prompt does."
-                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700"
+                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
             />
         </div>
 
@@ -150,7 +150,7 @@ const EditPromptModal: React.FC<EditPromptModalProps> = ({ isOpen, onClose, onSu
                         value={exampleOutput}
                         onChange={(e) => setExampleOutput(e.target.value)}
                         placeholder="Provide an example of what this prompt might generate."
-                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700"
+                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                     />
                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         An example output is required to help others understand what to expect.
@@ -164,11 +164,11 @@ const EditPromptModal: React.FC<EditPromptModalProps> = ({ isOpen, onClose, onSu
                 <label htmlFor="edit-category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
                 <select
                     id="edit-category"
-                    className="w-full p-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700"
+                    className="w-full p-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700 dark:text-white"
                     value={category}
                     onChange={(e) => setCategory(e.target.value as Category)}
                 >
-                    {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                    {CATEGORIES.map(c => <option key={c} value={c} className="bg-white dark:bg-gray-700">{c}</option>)}
                 </select>
                 <ChevronDown size={20} className="absolute right-3 top-9 text-gray-400 pointer-events-none"/>
             </div>
@@ -176,11 +176,11 @@ const EditPromptModal: React.FC<EditPromptModalProps> = ({ isOpen, onClose, onSu
                 <label htmlFor="edit-model" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">AI Model</label>
                 <select
                     id="edit-model"
-                    className="w-full p-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700"
+                    className="w-full p-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700 dark:text-white"
                     value={model}
                     onChange={(e) => setModel(e.target.value as AIModel)}
                 >
-                    {AI_MODELS.map(m => <option key={m} value={m}>{m}</option>)}
+                    {AI_MODELS.map(m => <option key={m} value={m} className="bg-white dark:bg-gray-700">{m}</option>)}
                 </select>
                 <ChevronDown size={20} className="absolute right-3 top-9 text-gray-400 pointer-events-none"/>
             </div>
@@ -194,7 +194,7 @@ const EditPromptModal: React.FC<EditPromptModalProps> = ({ isOpen, onClose, onSu
             value={tags} 
             onChange={e => setTags(e.target.value)}
             placeholder="e.g., Academic, Students, Writing"
-            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700"
+            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
           />
            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Separate tags with a comma.</p>
         </div>

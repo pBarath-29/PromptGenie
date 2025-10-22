@@ -129,7 +129,7 @@ const CommunityPage: React.FC = () => {
                             placeholder="Search by keyword, tag, author..."
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 border rounded-lg bg-white dark:bg-gray-800 dark:border-gray-700 focus:ring-primary-500 focus:border-primary-500"
+                            className="w-full pl-10 pr-4 py-2 border rounded-lg bg-white dark:bg-gray-800 dark:border-gray-700 focus:ring-primary-500 focus:border-primary-500 dark:text-white dark:placeholder-gray-400"
                         />
                     </div>
                     
@@ -137,10 +137,10 @@ const CommunityPage: React.FC = () => {
                         <select
                             value={selectedCategory}
                             onChange={e => setSelectedCategory(e.target.value as Category | 'all')}
-                            className="w-full md:w-auto p-2 pr-10 border rounded-lg appearance-none bg-white dark:bg-gray-800 dark:border-gray-700 focus:ring-primary-500 focus:border-primary-500"
+                            className="w-full md:w-auto p-2 pr-10 border rounded-lg appearance-none bg-white dark:bg-gray-800 dark:border-gray-700 focus:ring-primary-500 focus:border-primary-500 dark:text-white"
                         >
-                            <option value="all">All Categories</option>
-                            {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                            <option value="all" className="bg-white dark:bg-gray-800">All Categories</option>
+                            {CATEGORIES.map(c => <option key={c} value={c} className="bg-white dark:bg-gray-800">{c}</option>)}
                         </select>
                          <ChevronDown size={20} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"/>
                     </div>
@@ -149,10 +149,10 @@ const CommunityPage: React.FC = () => {
                          <select
                             value={selectedModel}
                             onChange={e => setSelectedModel(e.target.value as AIModel | 'all')}
-                            className="w-full md:w-auto p-2 pr-10 border rounded-lg appearance-none bg-white dark:bg-gray-800 dark:border-gray-700 focus:ring-primary-500 focus:border-primary-500"
+                            className="w-full md:w-auto p-2 pr-10 border rounded-lg appearance-none bg-white dark:bg-gray-800 dark:border-gray-700 focus:ring-primary-500 focus:border-primary-500 dark:text-white"
                         >
-                            <option value="all">All Models</option>
-                            {AI_MODELS.map(m => <option key={m} value={m}>{m}</option>)}
+                            <option value="all" className="bg-white dark:bg-gray-800">All Models</option>
+                            {AI_MODELS.map(m => <option key={m} value={m} className="bg-white dark:bg-gray-800">{m}</option>)}
                         </select>
                         <ChevronDown size={20} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"/>
                     </div>
@@ -161,10 +161,10 @@ const CommunityPage: React.FC = () => {
                          <select
                             value={sortBy}
                             onChange={e => setSortBy(e.target.value as 'popular' | 'newest')}
-                            className="w-full md:w-auto p-2 pr-10 border rounded-lg appearance-none bg-white dark:bg-gray-800 dark:border-gray-700 focus:ring-primary-500 focus:border-primary-500"
+                            className="w-full md:w-auto p-2 pr-10 border rounded-lg appearance-none bg-white dark:bg-gray-800 dark:border-gray-700 focus:ring-primary-500 focus:border-primary-500 dark:text-white"
                         >
-                            <option value="popular">Popular</option>
-                            <option value="newest">Newest</option>
+                            <option value="popular" className="bg-white dark:bg-gray-800">Popular</option>
+                            <option value="newest" className="bg-white dark:bg-gray-800">Newest</option>
                         </select>
                         <ChevronDown size={20} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"/>
                     </div>
