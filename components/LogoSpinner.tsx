@@ -11,7 +11,7 @@ const LogoSpinner: React.FC<LogoSpinnerProps> = ({ size = 48, className = '' }) 
     <Zap
       size={size}
       className={`animate-spin text-primary-500 ${className}`}
-      style={{ animationDuration: '0.8s' }}
+      style={{ animationDuration: '0.5s' }}
     />
   );
 };
