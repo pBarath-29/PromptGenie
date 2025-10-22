@@ -65,11 +65,11 @@ const FeedbackPage: React.FC = () => {
                         </label>
                         <select
                             id="feedback-type"
-                            className="w-full p-3 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700 dark:text-white"
+                            className="w-full p-3 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-primary-500 focus:border-primary-500 bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white"
                             value={type}
                             onChange={(e) => setType(e.target.value as FeedbackType)}
                         >
-                            {FEEDBACK_TYPES.map(t => <option key={t} value={t} className="bg-white dark:bg-gray-700">{t}</option>)}
+                            {FEEDBACK_TYPES.map(t => <option key={t} value={t} className="bg-white text-gray-900 dark:bg-gray-700 dark:text-white">{t}</option>)}
                         </select>
                         <ChevronDown size={20} className="absolute right-3 top-10 text-gray-400 pointer-events-none"/>
                     </div>
@@ -81,7 +81,7 @@ const FeedbackPage: React.FC = () => {
                         <textarea
                             id="feedback-message"
                             rows={6}
-                            className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                            className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                             placeholder="Please provide as much detail as possible..."
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}

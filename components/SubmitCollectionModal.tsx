@@ -108,19 +108,19 @@ const SubmitCollectionModal: React.FC<SubmitCollectionModalProps> = ({ isOpen, o
                 case 1: return (
                     <div>
                         <ProgressBar title="Name Your Collection" />
-                        <input type="text" value={collectionData.name} onChange={e => setCollectionData(p => ({...p, name: e.target.value}))} placeholder="e.g., AI Artistry Master Pack" className="w-full mt-4 p-3 border rounded-lg text-center border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" autoFocus/>
+                        <input type="text" value={collectionData.name} onChange={e => setCollectionData(p => ({...p, name: e.target.value}))} placeholder="e.g., AI Artistry Master Pack" className="w-full mt-4 p-3 border rounded-lg text-center border-gray-300 dark:border-gray-600 bg-gray-50 text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" autoFocus/>
                     </div>
                 );
                 case 2: return (
                     <div>
                         <ProgressBar title="Describe Your Collection" />
-                        <textarea rows={4} value={collectionData.description} onChange={e => setCollectionData(p => ({...p, description: e.target.value}))} placeholder="What is this collection about?" className="w-full mt-4 p-3 border rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" autoFocus/>
+                        <textarea rows={4} value={collectionData.description} onChange={e => setCollectionData(p => ({...p, description: e.target.value}))} placeholder="What is this collection about?" className="w-full mt-4 p-3 border rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" autoFocus/>
                     </div>
                 );
                 case 3: return (
                     <div>
                         <ProgressBar title="Set a Price (USD)" />
-                        <input type="number" value={collectionData.price} onChange={e => setCollectionData(p => ({...p, price: e.target.value === '' ? '' : Number(e.target.value)}))} placeholder="e.g., 19.99" min="0" step="0.01" className="w-full mt-4 p-3 border rounded-lg text-center border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" autoFocus/>
+                        <input type="number" value={collectionData.price} onChange={e => setCollectionData(p => ({...p, price: e.target.value === '' ? '' : Number(e.target.value)}))} placeholder="e.g., 19.99" min="0" step="0.01" className="w-full mt-4 p-3 border rounded-lg text-center border-gray-300 dark:border-gray-600 bg-gray-50 text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" autoFocus/>
                     </div>
                 );
                 case 4: return (
@@ -153,19 +153,19 @@ const SubmitCollectionModal: React.FC<SubmitCollectionModalProps> = ({ isOpen, o
             case 1: return (
                 <div>
                     <ProgressBar title={`New Prompt (${promptStep}/${totalPromptSteps}): Title`} />
-                    <input type="text" value={currentPrompt.title} onChange={e => setCurrentPrompt(p => ({...p, title: e.target.value}))} placeholder="Prompt Title" className="w-full mt-4 p-3 border rounded-lg text-center border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" autoFocus/>
+                    <input type="text" value={currentPrompt.title} onChange={e => setCurrentPrompt(p => ({...p, title: e.target.value}))} placeholder="Prompt Title" className="w-full mt-4 p-3 border rounded-lg text-center border-gray-300 dark:border-gray-600 bg-gray-50 text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" autoFocus/>
                 </div>
             );
             case 2: return (
                 <div>
                     <ProgressBar title={`New Prompt (${promptStep}/${totalPromptSteps}): Prompt Text`} />
-                    <textarea rows={6} value={currentPrompt.prompt} onChange={e => setCurrentPrompt(p => ({...p, prompt: e.target.value}))} placeholder="Full prompt text..." className="w-full mt-4 p-3 border rounded-lg font-mono text-sm border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" autoFocus/>
+                    <textarea rows={6} value={currentPrompt.prompt} onChange={e => setCurrentPrompt(p => ({...p, prompt: e.target.value}))} placeholder="Full prompt text..." className="w-full mt-4 p-3 border rounded-lg font-mono text-sm border-gray-300 dark:border-gray-600 bg-gray-50 text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" autoFocus/>
                 </div>
             );
             case 3: return (
                 <div>
                     <ProgressBar title={`New Prompt (${promptStep}/${totalPromptSteps}): Description`} />
-                    <textarea rows={3} value={currentPrompt.description} onChange={e => setCurrentPrompt(p => ({...p, description: e.target.value}))} placeholder="Prompt description..." className="w-full mt-4 p-3 border rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" autoFocus/>
+                    <textarea rows={3} value={currentPrompt.description} onChange={e => setCurrentPrompt(p => ({...p, description: e.target.value}))} placeholder="Prompt description..." className="w-full mt-4 p-3 border rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" autoFocus/>
                 </div>
             );
             case 4: return (
@@ -173,10 +173,10 @@ const SubmitCollectionModal: React.FC<SubmitCollectionModalProps> = ({ isOpen, o
                      <ProgressBar title={`New Prompt (${promptStep}/${totalPromptSteps}): Category & Model`} />
                      <div className="grid grid-cols-2 gap-4 mt-4">
                         <select value={currentPrompt.category} onChange={e => setCurrentPrompt(p => ({...p, category: e.target.value as Category}))} className="w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
-                            {CATEGORIES.map(c => <option key={c} value={c} className="bg-white dark:bg-gray-700">{c}</option>)}
+                            {CATEGORIES.map(c => <option key={c} value={c} className="bg-white text-gray-900 dark:bg-gray-700 dark:text-white">{c}</option>)}
                         </select>
                         <select value={currentPrompt.model} onChange={e => setCurrentPrompt(p => ({...p, model: e.target.value as AIModel}))} className="w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
-                            {AI_MODELS.map(m => <option key={m} value={m} className="bg-white dark:bg-gray-700">{m}</option>)}
+                            {AI_MODELS.map(m => <option key={m} value={m} className="bg-white text-gray-900 dark:bg-gray-700 dark:text-white">{m}</option>)}
                         </select>
                      </div>
                 </div>
@@ -184,20 +184,20 @@ const SubmitCollectionModal: React.FC<SubmitCollectionModalProps> = ({ isOpen, o
             case 5: return (
                  <div>
                     <ProgressBar title={`New Prompt (${promptStep}/${totalPromptSteps}): Tags`} />
-                    <input type="text" value={currentPrompt.tags} onChange={e => setCurrentPrompt(p => ({...p, tags: e.target.value}))} placeholder="Tags, separated by commas" className="w-full mt-4 p-3 border rounded-lg text-center border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" autoFocus/>
+                    <input type="text" value={currentPrompt.tags} onChange={e => setCurrentPrompt(p => ({...p, tags: e.target.value}))} placeholder="Tags, separated by commas" className="w-full mt-4 p-3 border rounded-lg text-center border-gray-300 dark:border-gray-600 bg-gray-50 text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" autoFocus/>
                  </div>
             );
             case 6: return (
                 <div>
                     <ProgressBar title={`New Prompt (${promptStep}/${totalPromptSteps}): Example Output`} />
                      <div className="flex items-center justify-center space-x-4 my-4">
-                        <label className="flex items-center cursor-pointer"><input type="radio" name="p-outputType" value="text" checked={currentPrompt.outputType === 'text'} onChange={() => setCurrentPrompt(p=>({...p, outputType: 'text', exampleOutput: ''}))} /><span className="ml-2">Text</span></label>
-                        <label className="flex items-center cursor-pointer"><input type="radio" name="p-outputType" value="image" checked={currentPrompt.outputType === 'image'} onChange={() => setCurrentPrompt(p=>({...p, outputType: 'image', exampleOutput: ''}))} /><span className="ml-2">Image</span></label>
+                        <label className="flex items-center cursor-pointer text-gray-900 dark:text-gray-300"><input type="radio" name="p-outputType" value="text" checked={currentPrompt.outputType === 'text'} onChange={() => setCurrentPrompt(p=>({...p, outputType: 'text', exampleOutput: ''}))} /><span className="ml-2">Text</span></label>
+                        <label className="flex items-center cursor-pointer text-gray-900 dark:text-gray-300"><input type="radio" name="p-outputType" value="image" checked={currentPrompt.outputType === 'image'} onChange={() => setCurrentPrompt(p=>({...p, outputType: 'image', exampleOutput: ''}))} /><span className="ml-2">Image</span></label>
                     </div>
                     {currentPrompt.outputType === 'image' ? (
                         <ImageUpload label="" onImageSelect={(val) => setCurrentPrompt(p => ({...p, exampleOutput: val}))} />
                     ) : (
-                        <textarea rows={4} value={currentPrompt.exampleOutput} onChange={(e) => setCurrentPrompt(p => ({...p, exampleOutput: e.target.value}))} placeholder="Paste example output text." className="w-full p-2 border rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" />
+                        <textarea rows={4} value={currentPrompt.exampleOutput} onChange={(e) => setCurrentPrompt(p => ({...p, exampleOutput: e.target.value}))} placeholder="Paste example output text." className="w-full p-2 border rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" />
                     )}
                 </div>
             );

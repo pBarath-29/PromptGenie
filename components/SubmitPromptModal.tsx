@@ -102,7 +102,7 @@ const SubmitPromptModal: React.FC<SubmitPromptModalProps> = ({ isOpen, onClose, 
                           value={formData.title} 
                           onChange={e => setFormData(prev => ({...prev, title: e.target.value}))} 
                           placeholder="e.g., Ultimate Essay Writing Assistant"
-                          className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700 text-center dark:text-white dark:placeholder-gray-400"
+                          className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 text-gray-900 placeholder-gray-500 text-center dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                           autoFocus
                       />
                   </div>
@@ -117,7 +117,7 @@ const SubmitPromptModal: React.FC<SubmitPromptModalProps> = ({ isOpen, onClose, 
                           value={formData.prompt}
                           onChange={(e) => setFormData(prev => ({...prev, prompt: e.target.value}))}
                           placeholder="Enter the full prompt text here..."
-                          className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700 font-mono text-sm dark:text-white dark:placeholder-gray-400"
+                          className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 text-gray-900 placeholder-gray-500 dark:bg-gray-700 font-mono text-sm dark:text-white dark:placeholder-gray-400"
                           autoFocus
                       />
                   </div>
@@ -132,7 +132,7 @@ const SubmitPromptModal: React.FC<SubmitPromptModalProps> = ({ isOpen, onClose, 
                           value={formData.description}
                           onChange={(e) => setFormData(prev => ({...prev, description: e.target.value}))}
                           placeholder="This helps others understand its purpose."
-                          className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                          className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                           autoFocus
                       />
                   </div>
@@ -145,14 +145,14 @@ const SubmitPromptModal: React.FC<SubmitPromptModalProps> = ({ isOpen, onClose, 
                           <div className="relative">
                               <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
                               <select id="category" className="w-full p-2 pr-10 border rounded-lg appearance-none bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white" value={formData.category} onChange={(e) => setFormData(prev => ({...prev, category: e.target.value as Category}))}>
-                                  {CATEGORIES.map(c => <option key={c} value={c} className="bg-white dark:bg-gray-700">{c}</option>)}
+                                  {CATEGORIES.map(c => <option key={c} value={c} className="bg-white text-gray-900 dark:bg-gray-700 dark:text-white">{c}</option>)}
                               </select>
                               <ChevronDown size={20} className="absolute right-3 top-9 text-gray-400 pointer-events-none"/>
                           </div>
                           <div className="relative">
                               <label htmlFor="model" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">AI Model</label>
                               <select id="model" className="w-full p-2 pr-10 border rounded-lg appearance-none bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white" value={formData.model} onChange={(e) => setFormData(prev => ({...prev, model: e.target.value as AIModel}))}>
-                                  {AI_MODELS.map(m => <option key={m} value={m} className="bg-white dark:bg-gray-700">{m}</option>)}
+                                  {AI_MODELS.map(m => <option key={m} value={m} className="bg-white text-gray-900 dark:bg-gray-700 dark:text-white">{m}</option>)}
                               </select>
                               <ChevronDown size={20} className="absolute right-3 top-9 text-gray-400 pointer-events-none"/>
                           </div>
@@ -169,7 +169,7 @@ const SubmitPromptModal: React.FC<SubmitPromptModalProps> = ({ isOpen, onClose, 
                           value={formData.tags} 
                           onChange={e => setFormData(prev => ({...prev, tags: e.target.value}))}
                           placeholder="e.g., Academic, Students, Writing"
-                          className="w-full p-3 border rounded-lg text-center border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                          className="w-full p-3 border rounded-lg text-center border-gray-300 dark:border-gray-600 bg-gray-50 text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                           autoFocus
                       />
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">Separate tags with a comma.</p>
@@ -181,11 +181,11 @@ const SubmitPromptModal: React.FC<SubmitPromptModalProps> = ({ isOpen, onClose, 
                       <h3 className="text-xl font-semibold mb-2 text-center">Provide an example output.</h3>
                       <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 text-center">This is required and helps others understand what to expect.</p>
                       <div className="flex items-center justify-center space-x-4 mb-4">
-                          <label className="flex items-center cursor-pointer">
+                          <label className="flex items-center cursor-pointer text-gray-900 dark:text-gray-300">
                               <input type="radio" name="outputType" value="text" checked={formData.outputType === 'text'} onChange={() => setFormData(prev=>({...prev, outputType: 'text', exampleOutput: ''}))} />
                               <span className="ml-2">Text</span>
                           </label>
-                          <label className="flex items-center cursor-pointer">
+                          <label className="flex items-center cursor-pointer text-gray-900 dark:text-gray-300">
                               <input type="radio" name="outputType" value="image" checked={formData.outputType === 'image'} onChange={() => setFormData(prev=>({...prev, outputType: 'image', exampleOutput: ''}))} />
                               <span className="ml-2">Image</span>
                           </label>
@@ -193,7 +193,7 @@ const SubmitPromptModal: React.FC<SubmitPromptModalProps> = ({ isOpen, onClose, 
                       {formData.outputType === 'image' ? (
                           <ImageUpload label="" onImageSelect={(val) => setFormData(prev => ({...prev, exampleOutput: val}))} />
                       ) : (
-                          <textarea rows={4} value={formData.exampleOutput} onChange={(e) => setFormData(prev => ({...prev, exampleOutput: e.target.value}))} placeholder="Paste or write an example output text." className="w-full p-2 border rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" />
+                          <textarea rows={4} value={formData.exampleOutput} onChange={(e) => setFormData(prev => ({...prev, exampleOutput: e.target.value}))} placeholder="Paste or write an example output text." className="w-full p-2 border rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" />
                       )}
                   </div>
               );

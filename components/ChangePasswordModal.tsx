@@ -89,7 +89,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
                         type={isCurrentPasswordVisible ? 'text' : 'password'}
                         value={currentPassword}
                         onChange={(e) => setCurrentPassword(e.target.value)}
-                        className="w-full p-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 dark:text-white"
+                        className="w-full p-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white"
                         required
                     />
                     <button
@@ -110,7 +110,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
                         type={isNewPasswordVisible ? 'text' : 'password'}
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        className="w-full p-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 dark:text-white"
+                        className="w-full p-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white"
                         required
                     />
                      <button
@@ -131,7 +131,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
                         type={isConfirmPasswordVisible ? 'text' : 'password'}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full p-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 dark:text-white"
+                        className="w-full p-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white"
                         required
                     />
                      <button

@@ -137,7 +137,7 @@ const MarketplacePage: React.FC = () => {
                             placeholder="Search collections by name, creator..."
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 border rounded-lg bg-white dark:bg-gray-800 dark:border-gray-700 focus:ring-primary-500 focus:border-primary-500 dark:text-white dark:placeholder-gray-400"
+                            className="w-full pl-10 pr-4 py-2 border rounded-lg bg-white text-gray-900 placeholder-gray-500 dark:bg-gray-800 dark:border-gray-700 focus:ring-primary-500 focus:border-primary-500 dark:text-white dark:placeholder-gray-400"
                         />
                     </div>
                     
@@ -145,11 +145,11 @@ const MarketplacePage: React.FC = () => {
                          <select
                             value={sortBy}
                             onChange={e => setSortBy(e.target.value as 'prompts-desc' | 'price-asc' | 'price-desc')}
-                            className="w-full md:w-auto p-2 pr-10 border rounded-lg appearance-none bg-white dark:bg-gray-800 dark:border-gray-700 focus:ring-primary-500 focus:border-primary-500 dark:text-white"
+                            className="w-full md:w-auto p-2 pr-10 border rounded-lg appearance-none bg-white text-gray-900 dark:bg-gray-800 dark:border-gray-700 focus:ring-primary-500 focus:border-primary-500 dark:text-white"
                         >
-                            <option value="prompts-desc" className="bg-white dark:bg-gray-800">Most Prompts</option>
-                            <option value="price-asc" className="bg-white dark:bg-gray-800">Price: Low to High</option>
-                            <option value="price-desc" className="bg-white dark:bg-gray-800">Price: High to Low</option>
+                            <option value="prompts-desc" className="bg-white text-gray-900 dark:bg-gray-800 dark:text-white">Most Prompts</option>
+                            <option value="price-asc" className="bg-white text-gray-900 dark:bg-gray-800 dark:text-white">Price: Low to High</option>
+                            <option value="price-desc" className="bg-white text-gray-900 dark:bg-gray-800 dark:text-white">Price: High to Low</option>
                         </select>
                         <ChevronDown size={20} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"/>
                     </div>

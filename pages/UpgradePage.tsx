@@ -145,7 +145,7 @@ const UpgradePage: React.FC = () => {
                                             value={promoCode}
                                             onChange={(e) => setPromoCode(e.target.value)}
                                             placeholder="Enter promo code"
-                                            className="w-full pl-10 pr-4 py-2 border rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                                            className="w-full pl-10 pr-4 py-2 border rounded-lg bg-gray-50 text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
                                             disabled={paymentState === 'processing'}
                                         />
                                    </div>

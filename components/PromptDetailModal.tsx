@@ -249,7 +249,7 @@ const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, o
                     <textarea
                       value={newComment}
                       onChange={e => setNewComment(e.target.value)}
-                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                      className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                       placeholder="Add your comment..."
                       rows={2}
                     />

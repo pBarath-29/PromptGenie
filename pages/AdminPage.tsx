@@ -251,15 +251,15 @@ const AdminPage: React.FC = () => {
                         <form onSubmit={handleCreatePromoCode} className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 space-y-4">
                             <div>
                                 <label htmlFor="codeName" className="block text-sm font-medium mb-1">Code Name</label>
-                                <input id="codeName" type="text" value={newCodeName} onChange={e => setNewCodeName(e.target.value.toUpperCase())} placeholder="e.g., SAVE25" className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"/>
+                                <input id="codeName" type="text" value={newCodeName} onChange={e => setNewCodeName(e.target.value.toUpperCase())} placeholder="e.g., SAVE25" className="w-full p-2 border rounded-md bg-white text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"/>
                             </div>
                             <div>
                                 <label htmlFor="discount" className="block text-sm font-medium mb-1">Discount (%)</label>
-                                <input id="discount" type="number" value={newCodeDiscount} onChange={e => setNewCodeDiscount(e.target.value === '' ? '' : parseInt(e.target.value))} placeholder="e.g., 25" className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"/>
+                                <input id="discount" type="number" value={newCodeDiscount} onChange={e => setNewCodeDiscount(e.target.value === '' ? '' : parseInt(e.target.value))} placeholder="e.g., 25" className="w-full p-2 border rounded-md bg-white text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"/>
                             </div>
                             <div>
                                 <label htmlFor="limit" className="block text-sm font-medium mb-1">Usage Limit</label>
-                                <input id="limit" type="number" value={newCodeLimit} onChange={e => setNewCodeLimit(e.target.value === '' ? '' : parseInt(e.target.value))} placeholder="e.g., 100" className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"/>
+                                <input id="limit" type="number" value={newCodeLimit} onChange={e => setNewCodeLimit(e.target.value === '' ? '' : parseInt(e.target.value))} placeholder="e.g., 100" className="w-full p-2 border rounded-md bg-white text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"/>
                             </div>
                             {promoCodeError && <p className="text-sm text-red-500">{promoCodeError}</p>}
                             <Button type="submit" className="w-full">Create Code</Button>
