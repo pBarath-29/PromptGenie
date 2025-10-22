@@ -28,17 +28,23 @@ const TermsPage: React.FC = () => {
         <p>
           <strong>Account Responsibility:</strong> You are responsible for safeguarding your password and for all activities that occur under your account. You must notify us immediately upon becoming aware of any breach of security or unauthorized use of your account. We are not liable for any loss or damage arising from your failure to comply with this security obligation.
         </p>
+         <p>
+          <strong>Age Requirement:</strong> You must be at least 13 years old to create an account and use the Service. By creating an account, you represent that you meet this requirement.
+        </p>
         <p>
-            <strong>Account Termination:</strong> We reserve the right to suspend or terminate your account at our sole discretion, without prior notice or liability, for any reason, including but not limited to a breach of these Terms. Upon termination, your right to use the Service will immediately cease. If you wish to terminate your own account, you may do so through your profile settings.
+            <strong>Account Termination:</strong> We reserve the right to suspend or terminate your account at our sole discretion, without prior notice or liability, for any reason, including but not to a breach of these Terms. Upon termination, your right to use the Service will immediately cease. If you wish to terminate your own account, you may do so through your profile settings.
         </p>
       </LegalSection>
 
       <LegalSection title="3. User-Generated Content (UGC)">
         <p>
-          <strong>Your Content:</strong> Our Service allows you to create, upload, post, send, and store content, including but not limited to AI prompts, prompt collections, descriptions, tags, comments, and feedback ("User Content"). You retain all ownership rights in the User Content you create.
+          <strong>Your Content:</strong> Our Service allows you to create, upload, post, send, and store content, including but not to AI prompts, prompt collections, descriptions, tags, comments, and feedback ("User Content"). You retain all ownership rights in the User Content you create.
         </p>
         <p>
           <strong>License Grant to Us:</strong> By making any User Content available through the Service, you grant to Prompter a non-exclusive, transferable, worldwide, royalty-free license, with the right to sublicense, to use, copy, modify, create derivative works based upon, distribute, publicly display, and publicly perform your User Content in connection with operating, marketing, and providing the Service to you and to other users. This license is necessary for us to display your prompts in the community, manage marketplace collections, and otherwise operate the platform.
+        </p>
+        <p>
+          <strong>AI-Assisted Content:</strong> You acknowledge that parts of your User Content (such as prompts generated via our tools) may be created with the assistance of AI. Your responsibility for User Content, as outlined in these Terms, extends to any AI-assisted portions.
         </p>
         <p>
           <strong>Content Moderation:</strong> All User Content submitted to public areas of the Service, such as the Community or Marketplace, is subject to review and moderation by us. We reserve the right to approve, reject, or remove any User Content at our sole discretion, for any reason, without notice.
@@ -50,7 +56,7 @@ const TermsPage: React.FC = () => {
 
        <LegalSection title="4. Subscriptions, Marketplace, and Payments">
         <p>
-          <strong>Service Tiers:</strong> We offer both a free and a paid "Pro" subscription tier. The limitations for each tier, including but not limited to the number of AI prompt generations and community submissions per day/month, are outlined on our Upgrade page and are subject to change.
+          <strong>Service Tiers:</strong> We offer both a free and a paid "Pro" subscription tier. The limitations for each tier, including but not to the number of AI prompt generations and community submissions per day/month, are outlined on our Upgrade page and are subject to change.
         </p>
         <p>
           <strong>Marketplace Purchases:</strong> The Service includes a marketplace where users can purchase collections of prompts. All purchases are final and non-refundable, except as required by applicable law. Prices are set by the collection creator and are subject to change.
@@ -80,16 +86,16 @@ const TermsPage: React.FC = () => {
       
       <LegalSection title="6. Intellectual Property Rights">
         <p>
-          Excluding your User Content, the Service and its original content (including but not limited to text, graphics, logos, icons, images, software), features, and functionality are and will remain the exclusive property of Prompter and its licensors. The Service is protected by copyright, trademark, and other laws of both Singapore and foreign countries. Our trademarks and trade dress may not be used in connection with any product or service without the prior written consent of Prompter.
+          Excluding your User Content, the Service and its original content (including but not to text, graphics, logos, icons, images, software), features, and functionality are and will remain the exclusive property of Prompter and its licensors. The Service is protected by copyright, trademark, and other laws of both Singapore and foreign countries. Our trademarks and trade dress may not be used in connection with any product or service without the prior written consent of Prompter.
         </p>
       </LegalSection>
 
       <LegalSection title="7. Disclaimers and Limitation of Liability">
         <p>
-          <strong>"AS IS" Service:</strong> THE SERVICE IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS, WITHOUT WARRANTY OF ANY KIND. WE DISCLAIM ALL WARRANTIES, WHETHER EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+          <strong>"AS IS" Service:</strong> THE SERVICE IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS, WITHOUT WARRANTY OF ANY KIND. WE DISCLAIM ALL WARRANTIES, WHETHER EXPRESS OR IMPLIED, INCLUDING, BUT NOT TO, IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
         </p>
         <p>
-          <strong>AI-Generated Content:</strong> Prompter utilizes third-party AI models to generate content. We do not guarantee the accuracy, safety, uniqueness, or quality of any AI-generated prompts or example outputs. The use of any content generated by or through the Service is at your own risk. You are solely responsible for verifying the content and ensuring it is appropriate for your intended use.
+          <strong>AI-Generated Content:</strong> Prompter utilizes third-party AI models, such as the Google Gemini API, to generate content. We do not guarantee the accuracy, safety, uniqueness, or quality of any AI-generated prompts or example outputs. The use of any content generated by or through the Service is at your own risk. You are solely responsible for verifying the content and ensuring it is appropriate for your intended use. You are also responsible for ensuring that your use of any generated content complies with all applicable laws and does not infringe on the rights of any third party.
         </p>
          <p>
           <strong>Limitation of Liability:</strong> TO THE FULLEST EXTENT PERMITTED BY LAW, IN NO EVENT WILL PROMPTER, ITS AFFILIATES, OFFICERS, EMPLOYEES, OR AGENTS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES, RESULTING FROM (I) YOUR USE OF OR INABILITY TO USE THE SERVICE; (II) ANY CONTENT OBTAINED FROM THE SERVICE; OR (III) UNAUTHORIZED ACCESS, USE OR ALTERATION OF YOUR ACCOUNT OR CONTENT.

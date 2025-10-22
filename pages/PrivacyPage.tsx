@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 
 const LegalSection: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
@@ -28,7 +26,7 @@ const PrivacyPage: React.FC = () => {
         <div>
             <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Information You Provide to Us</h3>
             <ul>
-                <li><strong>Account Information:</strong> When you register for an account, we collect your name, email address, and a hashed version of your password. You may also voluntarily provide additional profile information, such as a biography and an avatar image.</li>
+                <li><strong>Account Information:</strong> When you register for an account, we collect your name, email address, and a hashed version of your password. You may also voluntarily provide additional profile information, such as a biography, an avatar image, and a theme preference (light/dark).</li>
                 <li><strong>User-Generated Content:</strong> We collect all content you create and submit to the Service, including prompts, prompt collections, descriptions, tags, comments, and feedback messages.</li>
                 <li><strong>Payment Information:</strong> When you subscribe to our Pro plan or purchase a collection from the marketplace, our third-party payment processor (e.g., Stripe) will collect your payment information. We do not directly store sensitive payment details such as your full credit card number. We only receive a token or confirmation of payment.</li>
                 <li><strong>Communications:</strong> If you contact us directly, such as through our feedback page, we will collect your name, email address, and the contents of your message.</li>
@@ -50,7 +48,7 @@ const PrivacyPage: React.FC = () => {
             <li>Display your public profile and User-Generated Content to other users as part of our community and marketplace features.</li>
             <li>Personalize your experience, for instance, by remembering your theme preference.</li>
             <li>Communicate with you, including sending important account-related emails (like email verification and password resets) and responding to your feedback or inquiries.</li>
-            <li>Analyze usage to understand how our Service is used so we can improve it.</li>
+            <li>Track your prompt generation and submission counts to enforce the limits of your subscription tier.</li>
             <li>Prevent fraud, enforce our Terms and Conditions, and comply with legal obligations.</li>
         </ul>
       </LegalSection>
@@ -62,7 +60,7 @@ const PrivacyPage: React.FC = () => {
             <li><strong>With Third-Party Service Providers:</strong> We share information with third-party vendors who help us operate our Service. These include:
                 <ul>
                   <li><strong>Firebase (Google):</strong> For database hosting, user authentication, and analytics.</li>
-                  <li><strong>Google Gemini API:</strong> When you use our prompt generator, we send the necessary inputs (your description, chosen tone, and category) to the Gemini API to generate the prompt.</li>
+                  <li><strong>Google Gemini API:</strong> When you use our prompt generator, we send the necessary inputs (your description, chosen tone, and category) to the Gemini API to generate the prompt. We do not send any of your personal identifying information (like your name or email) with these API requests; only the content required to generate the prompt is sent.</li>
                   <li><strong>Payment Processors (e.g., Stripe):</strong> To securely handle payments for subscriptions and marketplace purchases.</li>
                 </ul>
                 These providers only have access to the information necessary to perform their functions and are contractually obligated to protect it.

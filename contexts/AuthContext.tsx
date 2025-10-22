@@ -271,8 +271,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const upgradeToPro = () => {
     if (user) {
-      setUser({ ...user, subscriptionTier: 'pro' });
-      updateData(`users/${user.id}`, { subscriptionTier: 'pro' });
+      const updatedUser = {
+        ...user,
+        subscriptionTier: 'pro' as const,
+        promptGenerations: 0, // Reset as it's not needed for Pro
+        lastGenerationReset: '', // Reset as it's not needed for Pro
+      };
+      setUser(updatedUser);
+      updateData(`users/${user.id}`, {
+        subscriptionTier: 'pro',
+        promptGenerations: 0,
+        lastGenerationReset: ''
+      });
     }
   };
 
