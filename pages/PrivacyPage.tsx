@@ -92,7 +92,7 @@ const PrivacyPage: React.FC = () => {
       
       <LegalSection title="7. Children's Privacy">
         <p>
-          Our Service is not directed to individuals under the age of 13. We do not knowingly collect personally identifiable information from children under 13. If you are a parent or guardian and you are aware that your child has provided us with personal data, please contact us.
+          Our Service is not directed to individuals under the age of 14. We do not knowingly collect personally identifiable information from children under 14. If you are a parent or guardian and you are aware that your child has provided us with personal data, please contact us.
         </p>
       </LegalSection>
 

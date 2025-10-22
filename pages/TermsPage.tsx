@@ -29,7 +29,7 @@ const TermsPage: React.FC = () => {
           <strong>Account Responsibility:</strong> You are responsible for safeguarding your password and for all activities that occur under your account. You must notify us immediately upon becoming aware of any breach of security or unauthorized use of your account. We are not liable for any loss or damage arising from your failure to comply with this security obligation.
         </p>
          <p>
-          <strong>Age Requirement:</strong> You must be at least 13 years old to create an account and use the Service. By creating an account, you represent that you meet this requirement.
+          <strong>Age Requirement:</strong> You must be at least 14 years old to create an account and use the Service. By creating an account, you represent that you meet this requirement.
         </p>
         <p>
             <strong>Account Termination:</strong> We reserve the right to suspend or terminate your account at our sole discretion, without prior notice or liability, for any reason, including but not to a breach of these Terms. Upon termination, your right to use the Service will immediately cease. If you wish to terminate your own account, you may do so through your profile settings.
