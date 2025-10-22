@@ -4,12 +4,13 @@ import PromptCard from '../components/PromptCard';
 import PromptDetailModal from '../components/PromptDetailModal';
 import { Prompt, AIModel, Category } from '../types';
 import { AI_MODELS, CATEGORIES } from '../types';
-import { ChevronDown, Search, PlusCircle, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Search, PlusCircle, ArrowLeft, ArrowRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import Button from '../components/Button';
 import SubmitPromptModal from '../components/SubmitPromptModal';
 import { useNavigate } from 'react-router-dom';
 import LimitReachedModal from '../components/LimitReachedModal';
+import CustomDropdown from '../components/CustomDropdown';
 
 
 const CommunityPage: React.FC = () => {
@@ -106,6 +107,13 @@ const CommunityPage: React.FC = () => {
         // The modal will show a success message and the user will close it.
     };
 
+    const categoryOptions = [{ value: 'all', label: 'All Categories' }, ...CATEGORIES.map(c => ({ value: c, label: c }))];
+    const modelOptions = [{ value: 'all', label: 'All Models' }, ...AI_MODELS.map(m => ({ value: m, label: m }))];
+    const sortOptions = [
+        { value: 'popular', label: 'Popular' },
+        { value: 'newest', label: 'Newest' },
+    ];
+
     return (
         <div className="space-y-8">
             <section className="text-center">
@@ -133,41 +141,26 @@ const CommunityPage: React.FC = () => {
                         />
                     </div>
                     
-                    <div className="relative">
-                        <select
-                            value={selectedCategory}
-                            onChange={e => setSelectedCategory(e.target.value as Category | 'all')}
-                            className="w-full md:w-auto p-2 pr-10 border rounded-lg appearance-none bg-white text-gray-900 dark:bg-gray-800 dark:border-gray-700 focus:ring-primary-500 focus:border-primary-500 dark:text-white"
-                        >
-                            <option value="all" className="bg-white text-gray-900 dark:bg-gray-800 dark:text-white">All Categories</option>
-                            {CATEGORIES.map(c => <option key={c} value={c} className="bg-white text-gray-900 dark:bg-gray-800 dark:text-white">{c}</option>)}
-                        </select>
-                         <ChevronDown size={20} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"/>
-                    </div>
+                    <CustomDropdown
+                        className="w-full md:w-48"
+                        options={categoryOptions}
+                        value={selectedCategory}
+                        onChange={v => setSelectedCategory(v as Category | 'all')}
+                    />
                     
-                    <div className="relative">
-                         <select
-                            value={selectedModel}
-                            onChange={e => setSelectedModel(e.target.value as AIModel | 'all')}
-                            className="w-full md:w-auto p-2 pr-10 border rounded-lg appearance-none bg-white text-gray-900 dark:bg-gray-800 dark:border-gray-700 focus:ring-primary-500 focus:border-primary-500 dark:text-white"
-                        >
-                            <option value="all" className="bg-white text-gray-900 dark:bg-gray-800 dark:text-white">All Models</option>
-                            {AI_MODELS.map(m => <option key={m} value={m} className="bg-white text-gray-900 dark:bg-gray-800 dark:text-white">{m}</option>)}
-                        </select>
-                        <ChevronDown size={20} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"/>
-                    </div>
+                    <CustomDropdown
+                        className="w-full md:w-48"
+                        options={modelOptions}
+                        value={selectedModel}
+                        onChange={v => setSelectedModel(v as AIModel | 'all')}
+                    />
 
-                     <div className="relative">
-                         <select
-                            value={sortBy}
-                            onChange={e => setSortBy(e.target.value as 'popular' | 'newest')}
-                            className="w-full md:w-auto p-2 pr-10 border rounded-lg appearance-none bg-white text-gray-900 dark:bg-gray-800 dark:border-gray-700 focus:ring-primary-500 focus:border-primary-500 dark:text-white"
-                        >
-                            <option value="popular" className="bg-white text-gray-900 dark:bg-gray-800 dark:text-white">Popular</option>
-                            <option value="newest" className="bg-white text-gray-900 dark:bg-gray-800 dark:text-white">Newest</option>
-                        </select>
-                        <ChevronDown size={20} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"/>
-                    </div>
+                    <CustomDropdown
+                        className="w-full md:w-48"
+                        options={sortOptions}
+                        value={sortBy}
+                        onChange={v => setSortBy(v as 'popular' | 'newest')}
+                    />
                 </div>
             </div>
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Zap, Mic, Copy, Loader, ChevronDown, X } from 'lucide-react';
+import { Zap, Mic, Copy, Loader, X } from 'lucide-react';
 import { TONES, CATEGORIES, Tone, Category } from '../types';
 import Button from '../components/Button';
 import useSpeechRecognition from '../hooks/useSpeechRecognition';
@@ -12,6 +12,7 @@ import { FREE_TIER_LIMIT } from '../config';
 import AdModal from '../components/AdModal';
 import TutorialGuide from '../components/TutorialGuide';
 import WelcomeBanner from '../components/WelcomeBanner';
+import CustomDropdown from '../components/CustomDropdown';
 
 const tutorialSteps = [
     {
@@ -168,6 +169,10 @@ const HomePage: React.FC = () => {
         completeTutorial();
     };
 
+    const toneOptions = TONES.map(t => ({ value: t, label: t }));
+    const categoryOptions = CATEGORIES.map(c => ({ value: c, label: c }));
+
+
     return (
         <div className="space-y-12">
             {showWelcomeBanner && user && (
@@ -224,32 +229,20 @@ const HomePage: React.FC = () => {
                 </div>
 
                 <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                    <div className="relative">
-                        <label htmlFor="tone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tone</label>
-                        <select
-                            id="tone"
-                            className="w-full p-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-primary-500 focus:border-primary-500 bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white disabled:bg-gray-200 dark:disabled:bg-gray-700/50"
-                            value={tone}
-                            onChange={(e) => setTone(e.target.value as Tone)}
-                            disabled={!user || isLoading}
-                        >
-                            {TONES.map(t => <option key={t} value={t} className="bg-white text-gray-900 dark:bg-gray-700 dark:text-white">{t}</option>)}
-                        </select>
-                        <ChevronDown size={20} className="absolute right-3 top-9 text-gray-400 pointer-events-none"/>
-                    </div>
-                    <div className="relative">
-                        <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
-                        <select
-                            id="category"
-                            className="w-full p-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-primary-500 focus:border-primary-500 bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white disabled:bg-gray-200 dark:disabled:bg-gray-700/50"
-                            value={category}
-                            onChange={(e) => setCategory(e.target.value as Category)}
-                            disabled={!user || isLoading}
-                        >
-                            {CATEGORIES.map(c => <option key={c} value={c} className="bg-white text-gray-900 dark:bg-gray-700 dark:text-white">{c}</option>)}
-                        </select>
-                        <ChevronDown size={20} className="absolute right-3 top-9 text-gray-400 pointer-events-none"/>
-                    </div>
+                    <CustomDropdown
+                        label="Tone"
+                        options={toneOptions}
+                        value={tone}
+                        onChange={(newTone) => setTone(newTone as Tone)}
+                        disabled={!user || isLoading}
+                    />
+                    <CustomDropdown
+                        label="Category"
+                        options={categoryOptions}
+                        value={category}
+                        onChange={(newCategory) => setCategory(newCategory as Category)}
+                        disabled={!user || isLoading}
+                    />
                 </div>
 
                 {user && user.subscriptionTier === 'free' && (

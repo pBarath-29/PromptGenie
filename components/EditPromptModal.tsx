@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 import Button from './Button';
 import { AI_MODELS, CATEGORIES, AIModel, Category, Prompt } from '../types';
-import { ChevronDown } from 'lucide-react';
 import ImageUpload from './ImageUpload';
+import CustomDropdown from './CustomDropdown';
 
 interface EditPromptModalProps {
   isOpen: boolean;
@@ -62,6 +62,9 @@ const EditPromptModal: React.FC<EditPromptModalProps> = ({ isOpen, onClose, onSu
       exampleOutput: exampleOutput.trim(),
     });
   };
+
+  const categoryOptions = CATEGORIES.map(c => ({ value: c, label: c }));
+  const modelOptions = AI_MODELS.map(m => ({ value: m, label: m }));
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Edit Prompt">
@@ -160,30 +163,18 @@ const EditPromptModal: React.FC<EditPromptModalProps> = ({ isOpen, onClose, onSu
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="relative">
-                <label htmlFor="edit-category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
-                <select
-                    id="edit-category"
-                    className="w-full p-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-primary-500 focus:border-primary-500 bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value as Category)}
-                >
-                    {CATEGORIES.map(c => <option key={c} value={c} className="bg-white text-gray-900 dark:bg-gray-700 dark:text-white">{c}</option>)}
-                </select>
-                <ChevronDown size={20} className="absolute right-3 top-9 text-gray-400 pointer-events-none"/>
-            </div>
-             <div className="relative">
-                <label htmlFor="edit-model" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">AI Model</label>
-                <select
-                    id="edit-model"
-                    className="w-full p-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-primary-500 focus:border-primary-500 bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white"
-                    value={model}
-                    onChange={(e) => setModel(e.target.value as AIModel)}
-                >
-                    {AI_MODELS.map(m => <option key={m} value={m} className="bg-white text-gray-900 dark:bg-gray-700 dark:text-white">{m}</option>)}
-                </select>
-                <ChevronDown size={20} className="absolute right-3 top-9 text-gray-400 pointer-events-none"/>
-            </div>
+            <CustomDropdown
+                label="Category"
+                options={categoryOptions}
+                value={category}
+                onChange={v => setCategory(v as Category)}
+            />
+            <CustomDropdown
+                label="AI Model"
+                options={modelOptions}
+                value={model}
+                onChange={v => setModel(v as AIModel)}
+            />
         </div>
         
         <div>

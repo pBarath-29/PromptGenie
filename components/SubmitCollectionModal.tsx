@@ -3,8 +3,9 @@ import Modal from './Modal';
 import Button from './Button';
 import { Collection, Prompt, AIModel, Category } from '../types';
 import { AI_MODELS, CATEGORIES } from '../types';
-import { ChevronDown, PlusCircle, Trash2, CheckCircle, ArrowLeft, ArrowRight, Package } from 'lucide-react';
+import { PlusCircle, Trash2, CheckCircle, ArrowLeft, ArrowRight, Package } from 'lucide-react';
 import ImageUpload from './ImageUpload';
+import CustomDropdown from './CustomDropdown';
 
 type NewPromptData = Omit<Prompt, 'id' | 'author' | 'upvotes' | 'downvotes' | 'comments' | 'createdAt' | 'isPublic' | 'status'>;
 type NewCollectionData = Omit<Collection, 'id' | 'creator' | 'promptCount' | 'promptIds' | 'status'>;
@@ -101,6 +102,9 @@ const SubmitCollectionModal: React.FC<SubmitCollectionModalProps> = ({ isOpen, o
         }
     };
     
+    const categoryOptions = CATEGORIES.map(c => ({ value: c, label: c }));
+    const modelOptions = AI_MODELS.map(m => ({ value: m, label: m }));
+
     const renderContent = () => {
         // Collection Steps
         if (step <= 5) {
@@ -172,12 +176,16 @@ const SubmitCollectionModal: React.FC<SubmitCollectionModalProps> = ({ isOpen, o
                 <div>
                      <ProgressBar title={`New Prompt (${promptStep}/${totalPromptSteps}): Category & Model`} />
                      <div className="grid grid-cols-2 gap-4 mt-4">
-                        <select value={currentPrompt.category} onChange={e => setCurrentPrompt(p => ({...p, category: e.target.value as Category}))} className="w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
-                            {CATEGORIES.map(c => <option key={c} value={c} className="bg-white text-gray-900 dark:bg-gray-700 dark:text-white">{c}</option>)}
-                        </select>
-                        <select value={currentPrompt.model} onChange={e => setCurrentPrompt(p => ({...p, model: e.target.value as AIModel}))} className="w-full p-2 border rounded-md bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
-                            {AI_MODELS.map(m => <option key={m} value={m} className="bg-white text-gray-900 dark:bg-gray-700 dark:text-white">{m}</option>)}
-                        </select>
+                        <CustomDropdown
+                            options={categoryOptions}
+                            value={currentPrompt.category}
+                            onChange={v => setCurrentPrompt(p => ({...p, category: v as Category}))}
+                        />
+                        <CustomDropdown
+                            options={modelOptions}
+                            value={currentPrompt.model}
+                            onChange={v => setCurrentPrompt(p => ({...p, model: v as AIModel}))}
+                        />
                      </div>
                 </div>
             );

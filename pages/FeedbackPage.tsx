@@ -4,7 +4,8 @@ import { useFeedback } from '../contexts/FeedbackContext';
 import { FeedbackType } from '../types';
 import { FEEDBACK_TYPES } from '../types';
 import Button from '../components/Button';
-import { ChevronDown, CheckCircle, Send } from 'lucide-react';
+import { CheckCircle, Send } from 'lucide-react';
+import CustomDropdown from '../components/CustomDropdown';
 
 const FeedbackPage: React.FC = () => {
     const { user } = useAuth();
@@ -48,6 +49,8 @@ const FeedbackPage: React.FC = () => {
         )
     }
 
+    const feedbackTypeOptions = FEEDBACK_TYPES.map(t => ({ value: t, label: t }));
+
     return (
         <div className="space-y-8">
             <section className="text-center">
@@ -59,20 +62,12 @@ const FeedbackPage: React.FC = () => {
             
             <div className="max-w-2xl mx-auto p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl">
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="relative">
-                        <label htmlFor="feedback-type" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Feedback Type
-                        </label>
-                        <select
-                            id="feedback-type"
-                            className="w-full p-3 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-primary-500 focus:border-primary-500 bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white"
-                            value={type}
-                            onChange={(e) => setType(e.target.value as FeedbackType)}
-                        >
-                            {FEEDBACK_TYPES.map(t => <option key={t} value={t} className="bg-white text-gray-900 dark:bg-gray-700 dark:text-white">{t}</option>)}
-                        </select>
-                        <ChevronDown size={20} className="absolute right-3 top-10 text-gray-400 pointer-events-none"/>
-                    </div>
+                    <CustomDropdown
+                        label="Feedback Type"
+                        options={feedbackTypeOptions}
+                        value={type}
+                        onChange={v => setType(v as FeedbackType)}
+                    />
                     
                     <div>
                         <label htmlFor="feedback-message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">

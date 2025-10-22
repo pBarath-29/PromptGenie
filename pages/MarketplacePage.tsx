@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import CollectionCard from '../components/CollectionCard';
-import { ChevronDown, Search, PackagePlus } from 'lucide-react';
+import { Search, PackagePlus } from 'lucide-react';
 import { useCollections } from '../contexts/CollectionContext';
 import { useAuth } from '../contexts/AuthContext';
 import { usePrompts } from '../contexts/PromptContext';
@@ -10,6 +10,7 @@ import Button from '../components/Button';
 import { useNavigate } from 'react-router-dom';
 import CollectionPreviewModal from '../components/CollectionPreviewModal';
 import Pagination from '../components/Pagination';
+import CustomDropdown from '../components/CustomDropdown';
 
 type NewPromptData = Omit<Prompt, 'id' | 'author' | 'upvotes' | 'downvotes' | 'comments' | 'createdAt' | 'isPublic' | 'status'>;
 type NewCollectionData = Omit<Collection, 'id' | 'creator' | 'promptCount' | 'promptIds' | 'status'>;
@@ -113,6 +114,11 @@ const MarketplacePage: React.FC = () => {
         setCollectionToPreview(null);
     };
 
+    const sortOptions = [
+        { value: 'prompts-desc', label: 'Most Prompts' },
+        { value: 'price-asc', label: 'Price: Low to High' },
+        { value: 'price-desc', label: 'Price: High to Low' },
+    ];
 
     return (
         <div className="space-y-8">
@@ -141,18 +147,12 @@ const MarketplacePage: React.FC = () => {
                         />
                     </div>
                     
-                    <div className="relative">
-                         <select
-                            value={sortBy}
-                            onChange={e => setSortBy(e.target.value as 'prompts-desc' | 'price-asc' | 'price-desc')}
-                            className="w-full md:w-auto p-2 pr-10 border rounded-lg appearance-none bg-white text-gray-900 dark:bg-gray-800 dark:border-gray-700 focus:ring-primary-500 focus:border-primary-500 dark:text-white"
-                        >
-                            <option value="prompts-desc" className="bg-white text-gray-900 dark:bg-gray-800 dark:text-white">Most Prompts</option>
-                            <option value="price-asc" className="bg-white text-gray-900 dark:bg-gray-800 dark:text-white">Price: Low to High</option>
-                            <option value="price-desc" className="bg-white text-gray-900 dark:bg-gray-800 dark:text-white">Price: High to Low</option>
-                        </select>
-                        <ChevronDown size={20} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"/>
-                    </div>
+                    <CustomDropdown
+                        className="w-full md:w-56"
+                        options={sortOptions}
+                        value={sortBy}
+                        onChange={v => setSortBy(v as 'prompts-desc' | 'price-asc' | 'price-desc')}
+                    />
                 </div>
             </div>
 
