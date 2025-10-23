@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { Collection, Prompt } from '../types';
 import Modal from './Modal';
@@ -127,13 +128,13 @@ const CollectionPreviewModal: React.FC<CollectionPreviewModalProps> = ({ collect
 
             </div>
             
-            <div className="flex justify-between items-center pt-4 mt-4 border-t dark:border-gray-700">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 mt-4 border-t dark:border-gray-700">
                 {!isAdminPreview ? (
                     <>
                         <span className="text-3xl font-bold text-primary-500">${collection.price.toFixed(2)}</span>
-                        <div className="flex items-center space-x-2">
-                            <Button variant="secondary" onClick={onClose}>Close</Button>
-                            <Button icon={<ShoppingCart size={16} />} onClick={handlePurchase}>
+                        <div className="flex items-center space-x-2 w-full sm:w-auto">
+                            <Button variant="secondary" onClick={onClose} className="w-full sm:w-auto">Close</Button>
+                            <Button icon={<ShoppingCart size={16} />} onClick={handlePurchase} className="w-full sm:w-auto">
                                 Get Full Access
                             </Button>
                         </div>

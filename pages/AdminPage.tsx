@@ -131,7 +131,7 @@ const AdminPage: React.FC = () => {
             </p>
         </div>
         
-        <div className="border-b border-gray-200 dark:border-gray-700 flex space-x-2">
+        <div className="border-b border-gray-200 dark:border-gray-700 flex flex-wrap">
           <TabButton 
             label="Pending Prompts" 
             count={pendingPrompts.length} 
@@ -174,7 +174,7 @@ const AdminPage: React.FC = () => {
                         </p>
                         <p className="text-xs text-gray-400 mt-1 flex items-center"><Clock size={12} className="mr-1.5"/> Submitted on {new Date(prompt.createdAt).toLocaleDateString()}</p>
                     </div>
-                    <div className="flex space-x-2 flex-shrink-0">
+                    <div className="flex flex-col sm:flex-row gap-2 self-stretch sm:self-auto">
                         <Button variant="secondary" onClick={() => setPromptToPreview(prompt)} icon={<Eye size={16}/>}>Preview</Button>
                         <Button onClick={() => updatePromptStatus(prompt.id, 'approved')} icon={<CheckCircle size={16}/>}>Approve</Button>
                         <Button variant="danger" onClick={() => updatePromptStatus(prompt.id, 'rejected')} icon={<XCircle size={16}/>}>Reject</Button>
@@ -200,7 +200,7 @@ const AdminPage: React.FC = () => {
                         </p>
                          <p className="text-xs text-gray-400 mt-1 flex items-center"><Clock size={12} className="mr-1.5"/> Submitted on {new Date(collection.creator.lastSubmissionDate).toLocaleDateString()}</p>
                     </div>
-                    <div className="flex space-x-2 flex-shrink-0">
+                    <div className="flex flex-col sm:flex-row gap-2 self-stretch sm:self-auto">
                         <Button variant="secondary" onClick={() => setCollectionToPreview(collection)} icon={<Eye size={16}/>}>Preview</Button>
                         <Button onClick={() => updateCollectionStatus(collection.id, 'approved')} icon={<CheckCircle size={16}/>}>Approve</Button>
                         <Button variant="danger" onClick={() => updateCollectionStatus(collection.id, 'rejected')} icon={<XCircle size={16}/>}>Reject</Button>

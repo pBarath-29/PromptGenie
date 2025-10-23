@@ -194,7 +194,7 @@ const HomePage: React.FC = () => {
                 </p>
             </section>
 
-            <div id="prompt-generator-card" className="max-w-4xl mx-auto p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl space-y-6">
+            <div id="prompt-generator-card" className="max-w-4xl mx-auto p-4 sm:p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl space-y-6">
                 <div className={`${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     <div className="mb-1">
                         <label htmlFor="request" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Describe your goal</label>
@@ -279,7 +279,7 @@ const HomePage: React.FC = () => {
             )}
 
             {generatedPrompt && (
-                <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg animate-fade-in">
+                <div className="max-w-4xl mx-auto p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg animate-fade-in">
                     <h2 className="text-2xl font-bold mb-4">{generatedPrompt.title}</h2>
                     <div className="relative p-4 bg-gray-100 dark:bg-gray-900 rounded-lg">
                         <p className="whitespace-pre-wrap font-mono text-sm leading-relaxed">{generatedPrompt.prompt}</p>

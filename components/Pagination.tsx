@@ -22,26 +22,25 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
   };
 
   return (
-    <div className="flex justify-center items-center space-x-4 pt-4">
+    <div className="flex justify-center items-center space-x-2 sm:space-x-4 pt-4">
       <Button
         variant="secondary"
         onClick={handlePrev}
         disabled={currentPage === 1}
-        icon={<ArrowLeft size={16} />}
       >
-        Previous
+        <ArrowLeft size={16} />
+        <span className="hidden sm:inline ml-2">Previous</span>
       </Button>
-      <span className="font-medium text-gray-700 dark:text-gray-300">
+      <span className="font-medium text-gray-700 dark:text-gray-300 text-sm">
         Page {currentPage} of {totalPages}
       </span>
       <Button
         variant="secondary"
         onClick={handleNext}
         disabled={currentPage === totalPages}
-        className="!flex-row-reverse" // To put icon on the right
-        icon={<ArrowRight size={16} />}
       >
-        Next
+        <span className="hidden sm:inline mr-2">Next</span>
+        <ArrowRight size={16} />
       </Button>
     </div>
   );

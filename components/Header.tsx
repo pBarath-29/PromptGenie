@@ -51,7 +51,7 @@ const Header: React.FC = () => {
       <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-8">
+            <div className="flex items-center space-x-4 md:space-x-8">
               <NavLink to={user?.role === 'admin' ? '/admin' : '/'} className="flex items-center space-x-2 text-xl font-bold text-primary-600 dark:text-primary-400">
                 <Zap size={24} />
                 <span>Prompter</span>
@@ -64,7 +64,7 @@ const Header: React.FC = () => {
                 </nav>
               )}
             </div>
-            <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <button
                 onClick={toggleTheme}
                 className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"

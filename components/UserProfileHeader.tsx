@@ -41,24 +41,24 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ user, isEditable,
   }, [user.role, approvedPrompts]);
 
   return (
-    <div className="p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
-      <img src={user.avatar} alt={user.name} className="w-32 h-32 rounded-full ring-4 ring-primary-500 object-cover" />
+    <div className="p-4 sm:p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
+      <img src={user.avatar} alt={user.name} className="w-24 h-24 sm:w-32 sm:h-32 rounded-full ring-4 ring-primary-500 object-cover flex-shrink-0" />
       <div className="text-center md:text-left flex-grow">
-        <div className="flex items-center justify-center md:justify-start space-x-4">
-          <h1 className="text-4xl font-extrabold">{user.name}</h1>
+        <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
+          <h1 className="text-3xl sm:text-4xl font-extrabold">{user.name}</h1>
           {isEditable && (
-            <div className="flex items-center space-x-2">
-              <Button variant="secondary" onClick={onEditProfileClick} icon={<Edit size={16}/>}>
+            <div className="flex flex-col sm:flex-row items-center gap-2">
+              <Button variant="secondary" onClick={onEditProfileClick} icon={<Edit size={16}/>} className="w-full sm:w-auto">
                 Edit Profile
               </Button>
-              <Button variant="secondary" onClick={onChangePasswordClick} icon={<KeyRound size={16}/>}>
+              <Button variant="secondary" onClick={onChangePasswordClick} icon={<KeyRound size={16}/>} className="w-full sm:w-auto">
                 Change Password
               </Button>
             </div>
           )}
         </div>
-        <p className="text-gray-500 dark:text-gray-400 mt-2 max-w-xl">{user.bio}</p>
-        <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-4">
+        <p className="text-gray-500 dark:text-gray-400 mt-2 max-w-xl mx-auto md:mx-0">{user.bio}</p>
+        <div className="flex flex-wrap justify-center md:justify-start gap-2 sm:gap-4 mt-4">
           <div className="flex items-center px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-200 text-sm font-semibold rounded-full">
               <BookOpen size={16} className="mr-1.5" />
               <span>{approvedPrompts.length} Prompts Submitted</span>

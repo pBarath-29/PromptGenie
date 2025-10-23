@@ -100,9 +100,9 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, onClick, onEdit, onDele
       onClick={handleCardClick}
     >
       <div className="p-6 flex-grow">
-        <div className="flex justify-between items-start">
-          <div className="flex-1">
-            <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 mb-2">
+        <div className="flex flex-col-reverse sm:flex-row justify-between items-start">
+          <div className="flex-1 mt-4 sm:mt-0">
+            <div className="flex items-center flex-wrap gap-2 text-sm text-gray-500 dark:text-gray-400 mb-2">
               <span className="font-semibold px-2 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 rounded-full">{prompt.category}</span>
               <span className="font-semibold px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full">{prompt.model}</span>
               {!prompt.isPublic && (
@@ -115,7 +115,7 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, onClick, onEdit, onDele
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{prompt.title}</h3>
             <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{prompt.description}</p>
           </div>
-          <div className="flex items-center space-x-2 ml-4 flex-shrink-0">
+          <div className="flex items-center space-x-2 sm:ml-4 flex-shrink-0 self-end sm:self-auto">
             {user?.id !== prompt.author.id ? (
               <Link to={`/profile/${prompt.author.id}`} onClick={(e) => e.stopPropagation()} className="group">
                 <img src={prompt.author.avatar} alt={prompt.author.name} className="w-10 h-10 rounded-full group-hover:ring-2 group-hover:ring-primary-400 transition-all" />
@@ -132,7 +132,7 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, onClick, onEdit, onDele
           ))}
         </div>
       </div>
-      <div className="bg-gray-50 dark:bg-gray-700/50 px-6 py-3 flex justify-between items-center">
+      <div className="bg-gray-50 dark:bg-gray-700/50 px-6 py-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-2">
         <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
           <RatingControl
             upvotes={prompt.upvotes}
@@ -144,12 +144,12 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, onClick, onEdit, onDele
               <MessageSquare size={16} />
               <span>{prompt.comments?.length || 0}</span>
           </div>
-          <div className="hidden sm:flex items-center space-x-1.5">
+          <div className="flex items-center space-x-1.5">
               <Clock size={16} />
               <span>{timeAgo(prompt.createdAt)}</span>
           </div>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 self-end sm:self-auto">
           {isAuthor && onEdit && onDelete && (
             <>
               <button onClick={handleEdit} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" title="Edit Prompt">
