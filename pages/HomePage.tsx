@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Zap, Mic, Copy, X } from 'lucide-react';
+import { Zap, Mic, Copy, Eraser, TrendingUp, Check } from 'lucide-react';
 import { TONES, CATEGORIES, Tone, Category } from '../types';
 import Button from '../components/Button';
 import useSpeechRecognition from '../hooks/useSpeechRecognition';
@@ -14,6 +14,8 @@ import TutorialGuide from '../components/TutorialGuide';
 import WelcomeBanner from '../components/WelcomeBanner';
 import CustomDropdown from '../components/CustomDropdown';
 import LogoSpinner from '../components/LogoSpinner';
+import PromptComparison from '../components/PromptComparison';
+import Modal from '../components/Modal';
 
 const tutorialSteps = [
     {
@@ -54,10 +56,12 @@ const HomePage: React.FC = () => {
     const [generatedPrompt, setGeneratedPrompt] = useState<{ title: string; prompt: string; tags: string[] } | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [copied, setCopied] = useState(false);
     const { addToHistory } = useHistory();
     const { user, getGenerationsLeft, incrementGenerationCount, completeTutorial } = useAuth();
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
     const [isAdModalOpen, setIsAdModalOpen] = useState(false);
+    const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
     const [isTutorialActive, setIsTutorialActive] = useState(false);
     const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
     
@@ -157,6 +161,8 @@ const HomePage: React.FC = () => {
     const handleCopy = () => {
         if (generatedPrompt) {
             navigator.clipboard.writeText(generatedPrompt.prompt);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
         }
     };
 
@@ -217,15 +223,6 @@ const HomePage: React.FC = () => {
                         >
                             <Mic size={20} />
                         </button>
-                        {request && !isLoading && (
-                            <button
-                                onClick={handleClear}
-                                className="absolute bottom-3 right-3 p-2 rounded-full bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors"
-                                title="Clear"
-                            >
-                                <X size={16} />
-                            </button>
-                        )}
                     </div>
                 </div>
 
@@ -252,15 +249,26 @@ const HomePage: React.FC = () => {
                     </div>
                 )}
 
-                <Button 
-                    onClick={handleGenerate} 
-                    isLoading={isLoading} 
-                    className="w-full !py-3 !text-base" 
-                    icon={<Zap size={20}/>}
-                    disabled={!user || isLoading}
-                >
-                    {user ? 'Generate Prompt' : 'Login to Generate Prompts'}
-                </Button>
+                <div className="flex flex-col-reverse sm:flex-row gap-4 pt-2">
+                    <Button
+                        variant="secondary"
+                        onClick={handleClear}
+                        disabled={!user || isLoading || !request.trim()}
+                        icon={<Eraser size={18} />}
+                        className="w-full sm:w-auto"
+                    >
+                        Clear
+                    </Button>
+                    <Button 
+                        onClick={handleGenerate} 
+                        isLoading={isLoading} 
+                        className="w-full sm:flex-1 !py-3 !text-base" 
+                        icon={<Zap size={20}/>}
+                        disabled={!user || isLoading || !request.trim()}
+                    >
+                        {user ? 'Generate Prompt' : 'Login to Generate Prompts'}
+                    </Button>
+                </div>
 
                  {!user && (
                     <p className="text-center text-sm text-yellow-600 dark:text-yellow-400 mt-2 p-3 bg-yellow-100/50 dark:bg-yellow-900/30 rounded-lg">
@@ -278,20 +286,50 @@ const HomePage: React.FC = () => {
                 </div>
             )}
 
-            {generatedPrompt && (
-                <div className="max-w-4xl mx-auto p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg animate-fade-in">
-                    <h2 className="text-2xl font-bold mb-4">{generatedPrompt.title}</h2>
-                    <div className="relative p-4 bg-gray-100 dark:bg-gray-900 rounded-lg">
-                        <p className="whitespace-pre-wrap font-mono text-sm leading-relaxed">{generatedPrompt.prompt}</p>
-                        <button onClick={handleCopy} className="absolute top-2 right-2 p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" title="Copy prompt">
-                            <Copy size={16} />
-                        </button>
+            {generatedPrompt && !isLoading && (
+                <div className="animate-fade-in">
+                    <div className="max-w-4xl mx-auto p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
+                        <h2 className="text-2xl font-bold mb-4">{generatedPrompt.title}</h2>
+                        <div className="p-4 bg-gray-100 dark:bg-gray-900 rounded-lg">
+                            <p className="whitespace-pre-wrap font-mono text-sm leading-relaxed">{generatedPrompt.prompt}</p>
+                        </div>
+                        <div className="flex flex-wrap gap-2 mt-4">
+                            {generatedPrompt.tags.map(tag => (
+                                <span key={tag} className="px-2 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 text-xs font-medium rounded-full">{tag}</span>
+                            ))}
+                        </div>
+                        <div className="mt-4 pt-4 border-t dark:border-gray-700 flex flex-col sm:flex-row items-center justify-end space-y-2 sm:space-y-0 sm:space-x-2">
+                             <Button
+                                variant="secondary"
+                                onClick={() => setIsAnalysisModalOpen(true)}
+                                icon={<TrendingUp size={16}/>}
+                                className="w-full sm:w-auto"
+                            >
+                                Analyze Prompt
+                            </Button>
+                            <Button
+                                onClick={handleCopy}
+                                icon={copied ? <Check size={16}/> : <Copy size={16}/>}
+                                className="w-full sm:w-auto"
+                            >
+                                {copied ? 'Copied!' : 'Copy Prompt'}
+                            </Button>
+                        </div>
                     </div>
-                    <div className="flex flex-wrap gap-2 mt-4">
-                        {generatedPrompt.tags.map(tag => (
-                            <span key={tag} className="px-2 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 text-xs font-medium rounded-full">{tag}</span>
-                        ))}
-                    </div>
+                    
+                    <Modal
+                        isOpen={isAnalysisModalOpen}
+                        onClose={() => setIsAnalysisModalOpen(false)}
+                        title="Prompt Analysis"
+                        size="4xl"
+                    >
+                        {isAnalysisModalOpen && (
+                            <PromptComparison 
+                                userRequest={request}
+                                generatedPrompt={generatedPrompt}
+                            />
+                        )}
+                    </Modal>
                 </div>
             )}
 
