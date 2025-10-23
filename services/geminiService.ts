@@ -1,12 +1,6 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import { Category, Prompt, Tone } from '../types';
 
-if (!process.env.API_KEY) {
-  console.warn("API_KEY environment variable not set. Prompt generation will fail.");
-}
-
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
-
 const handleGeminiError = (error: unknown, context: string): Error => {
     console.error(`Error calling Gemini API for ${context}:`, error);
     const errorMessage = String(error).toLowerCase();
@@ -66,6 +60,7 @@ Return your response as a single JSON object.`;
   };
   
   try {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: userInput,
@@ -93,6 +88,7 @@ The prompt is: "${prompt.prompt}"
 Your task is to generate a concise and relevant example of what this prompt might produce. Keep the output clean and directly related to the prompt's instructions.`;
     
     try {
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: prompt.prompt,
@@ -109,6 +105,7 @@ Your task is to generate a concise and relevant example of what this prompt migh
 
 export const generateExampleImage = async (promptText: string): Promise<string> => {
   try {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
     const response = await ai.models.generateImages({
       model: 'imagen-4.0-generate-001',
       prompt: promptText,
