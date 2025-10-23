@@ -21,6 +21,56 @@ const handleGeminiError = (error: unknown, context: string): Error => {
     return new Error(`An unexpected error occurred while ${context}. Please try again.`);
 };
 
+export const validateUserInput = async (
+  userInput: string
+): Promise<{ isValid: boolean; reason: string }> => {
+  const systemInstruction = `You are an input validation assistant for an AI prompt generator.
+Analyze the following user request to determine if it's a coherent, understandable request for a prompt, or if it's likely nonsense, spam, or gibberish.
+
+The user's input is: "${userInput}"
+
+Your response must be a single, valid JSON object and nothing else.`;
+
+  const responseSchema = {
+    type: Type.OBJECT,
+    properties: {
+      is_valid: {
+        type: Type.BOOLEAN,
+        description: "True if the input is a coherent request, false if it is gibberish or nonsense."
+      },
+      reason: {
+        type: Type.STRING,
+        description: "A brief, user-friendly explanation for why the input is invalid. If valid, this can be a short confirmation like 'Coherent request.'"
+      }
+    },
+    required: ["is_valid", "reason"]
+  };
+
+  try {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: userInput,
+      config: {
+        systemInstruction,
+        responseMimeType: "application/json",
+        responseSchema: responseSchema,
+      },
+    });
+
+    const jsonText = response.text.trim();
+    const parsedJson = JSON.parse(jsonText);
+    
+    return {
+        isValid: parsedJson.is_valid,
+        reason: parsedJson.reason
+    };
+
+  } catch (error) {
+    throw handleGeminiError(error, 'validating your input');
+  }
+};
+
 
 export const generateOptimizedPrompt = async (
   userInput: string,

@@ -3,7 +3,7 @@ import { Zap, Mic, Copy, Eraser, TrendingUp, Check } from 'lucide-react';
 import { TONES, CATEGORIES, Tone, Category } from '../types';
 import Button from '../components/Button';
 import useSpeechRecognition from '../hooks/useSpeechRecognition';
-import { generateOptimizedPrompt } from '../services/geminiService';
+import { generateOptimizedPrompt, validateUserInput } from '../services/geminiService';
 import { useHistory } from '../contexts/HistoryContext';
 import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
@@ -55,6 +55,7 @@ const HomePage: React.FC = () => {
     const [category, setCategory] = useState<Category>('Coding');
     const [generatedPrompt, setGeneratedPrompt] = useState<{ title: string; prompt: string; tags: string[] } | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [loadingText, setLoadingText] = useState('Generating your masterpiece...');
     const [error, setError] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
     const { addToHistory } = useHistory();
@@ -112,6 +113,7 @@ const HomePage: React.FC = () => {
 
     const proceedWithGeneration = async () => {
         setIsLoading(true);
+        setLoadingText('Generating your masterpiece...');
         setError(null);
         setGeneratedPrompt(null);
         try {
@@ -151,10 +153,40 @@ const HomePage: React.FC = () => {
             return;
         }
         
-        if (user.subscriptionTier === 'free') {
-            setIsAdModalOpen(true);
-        } else {
-            proceedWithGeneration();
+        if (request.trim().length < 15) {
+            setError('Please provide a more detailed description (at least 15 characters).');
+            return;
+        }
+        
+        // Start validation phase
+        setIsLoading(true);
+        setLoadingText('Validating your request...');
+        setError(null);
+        setGeneratedPrompt(null);
+
+        try {
+            const validationResult = await validateUserInput(request);
+
+            if (!validationResult.isValid) {
+                setError("Your request seems unclear. Please try describing your goal in more detail.");
+                setIsLoading(false); // Stop loading on validation failure
+                return;
+            }
+
+            // Validation successful, move to next step
+            if (user.subscriptionTier === 'free') {
+                setIsAdModalOpen(true);
+                // Stop loading here, as user needs to interact with the ad modal.
+                // The ad modal's close handler will trigger the generation.
+                setIsLoading(false); 
+            } else {
+                // For Pro users, proceed directly to generation.
+                // proceedWithGeneration will handle the loading state from here.
+                await proceedWithGeneration();
+            }
+        } catch (err) {
+            setError((err as Error).message);
+            setIsLoading(false); // Stop loading on any error during validation
         }
     };
     
@@ -282,7 +314,7 @@ const HomePage: React.FC = () => {
             {isLoading && (
                 <div className="text-center flex flex-col items-center justify-center space-y-4 animate-fade-in">
                     <LogoSpinner size={48} />
-                    <p className="text-lg">Generating your masterpiece...</p>
+                    <p className="text-lg">{loadingText}</p>
                 </div>
             )}
 
