@@ -262,7 +262,6 @@ const HomePage: React.FC = () => {
         setContext(template.context);
         setTone(template.tone);
         setCategory(template.category);
-        document.getElementById('prompt-generator-card')?.scrollIntoView({ behavior: 'smooth' });
     };
 
     const toneOptions = TONES.map(t => ({ value: t, label: t }));
@@ -290,6 +289,35 @@ const HomePage: React.FC = () => {
             </section>
 
             <div id="prompt-generator-card" className="max-w-4xl mx-auto p-4 sm:p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl space-y-6">
+                <div className={`${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                    <div className="text-center">
+                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Need inspiration? Start with a template.</p>
+                        <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3">
+                            {templates.map((template) => (
+                                <button
+                                    key={template.title}
+                                    onClick={() => handleTemplateClick(template)}
+                                    disabled={!user}
+                                    className="flex flex-col items-center justify-center p-3 text-center bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed group"
+                                    title={template.description}
+                                >
+                                    <template.icon size={24} className="text-primary-500 mb-2 transition-transform group-hover:scale-110" />
+                                    <h4 className="font-semibold text-xs text-gray-800 dark:text-gray-200">{template.title}</h4>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="relative">
+                    <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                        <div className="w-full border-t border-gray-200 dark:border-gray-700" />
+                    </div>
+                    <div className="relative flex justify-center">
+                        <span className="bg-white dark:bg-gray-800 px-2 text-sm text-gray-500 dark:text-gray-400">OR</span>
+                    </div>
+                </div>
+
                 <div className={`${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     <div className="mb-1">
                         <label htmlFor="request" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Describe your goal</label>
@@ -382,24 +410,6 @@ const HomePage: React.FC = () => {
                     </p>
                 )}
             </div>
-            
-            <section className="max-w-4xl mx-auto animate-fade-in">
-                <h2 className="text-2xl font-bold text-center mb-6">Quick Start Templates</h2>
-                <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                    {templates.map((template) => (
-                        <button
-                            key={template.title}
-                            onClick={() => handleTemplateClick(template)}
-                            disabled={!user}
-                            className="p-4 text-left bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-md"
-                        >
-                            <template.icon size={24} className="text-primary-500 mb-2" />
-                            <h3 className="font-bold text-gray-900 dark:text-white">{template.title}</h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{template.description}</p>
-                        </button>
-                    ))}
-                </div>
-            </section>
             
             <div ref={resultsContainerRef} className="scroll-mt-8">
                 {error && <div className="text-center text-red-500">{error}</div>}
