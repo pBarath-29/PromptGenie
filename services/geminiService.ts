@@ -75,12 +75,15 @@ Your response must be a single, valid JSON object and nothing else.`;
 export const generateOptimizedPrompt = async (
   userInput: string,
   tone: Tone,
-  category: Category
+  category: Category,
+  context?: string
 ): Promise<{ title: string; prompt: string; tags: string[] }> => {
   
+  const contextInstruction = context ? `\nIt should also incorporate the following context: "${context}".` : '';
+
   const systemInstruction = `You are Prompter, an expert in AI prompt engineering. A user wants a prompt for an AI model.
 The user's goal is: "${userInput}".
-The prompt should have a "${tone}" tone and be in the category: "${category}".
+The prompt should have a "${tone}" tone and be in the category: "${category}".${contextInstruction}
 
 Based on this, generate a complete, structured, and optimized prompt. The prompt should be creative, detailed, and follow best practices for writing high-quality prompts.
 

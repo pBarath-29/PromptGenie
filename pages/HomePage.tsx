@@ -51,6 +51,7 @@ const tutorialSteps = [
 
 const HomePage: React.FC = () => {
     const [request, setRequest] = useState('');
+    const [context, setContext] = useState('');
     const [tone, setTone] = useState<Tone>('Professional');
     const [category, setCategory] = useState<Category>('Coding');
     const [generatedPrompt, setGeneratedPrompt] = useState<{ title: string; prompt: string; tags: string[] } | null>(null);
@@ -89,6 +90,7 @@ const HomePage: React.FC = () => {
         } else {
             // When user logs out, clear the generator state
             setRequest('');
+            setContext('');
             setGeneratedPrompt(null);
             setError(null);
             setShowWelcomeBanner(false);
@@ -107,6 +109,7 @@ const HomePage: React.FC = () => {
 
     const handleClear = () => {
         setRequest('');
+        setContext('');
         setGeneratedPrompt(null);
         setError(null);
     };
@@ -117,7 +120,7 @@ const HomePage: React.FC = () => {
         setError(null);
         setGeneratedPrompt(null);
         try {
-            const result = await generateOptimizedPrompt(request, tone, category);
+            const result = await generateOptimizedPrompt(request, tone, category, context);
             // CRITICAL CHECK: After the API call returns, check if the user is still logged in.
             if (userRef.current) {
                 setGeneratedPrompt(result);
@@ -258,6 +261,23 @@ const HomePage: React.FC = () => {
                     </div>
                 </div>
 
+                <div className={`${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                    <div className="mb-1">
+                        <label htmlFor="context" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Context (optional)</label>
+                    </div>
+                    <div className="relative">
+                        <textarea
+                            id="context"
+                            rows={2}
+                            className="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 disabled:bg-gray-200 dark:disabled:bg-gray-700/50"
+                            placeholder="e.g., 'The coffee brand is organic, fair-trade, and targets young professionals.'"
+                            value={context}
+                            onChange={(e) => setContext(e.target.value)}
+                            disabled={!user || isLoading}
+                        />
+                    </div>
+                </div>
+
                 <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     <CustomDropdown
                         label="Tone"
@@ -357,7 +377,7 @@ const HomePage: React.FC = () => {
                     >
                         {isAnalysisModalOpen && (
                             <PromptComparison 
-                                userRequest={request}
+                                userRequest={context ? `${request}\n\nContext: ${context}` : request}
                                 generatedPrompt={generatedPrompt}
                             />
                         )}
