@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Zap, Mic, Copy, Eraser, TrendingUp, Check } from 'lucide-react';
+import { Zap, Mic, Copy, Eraser, TrendingUp, Check, ListOrdered, Share2, Code, PenSquare } from 'lucide-react';
 import { TONES, CATEGORIES, Tone, Category } from '../types';
 import Button from '../components/Button';
 import useSpeechRecognition from '../hooks/useSpeechRecognition';
@@ -45,6 +45,45 @@ const tutorialSteps = [
     {
         title: "You're All Set!",
         content: "That's the basics. Feel free to explore and start creating. Happy prompting!",
+    }
+];
+
+const templates = [
+    {
+        icon: ListOrdered,
+        title: "Blog Post Outline",
+        description: "Generate a structured outline for your next article.",
+        request: "Create a detailed blog post outline for an article titled '[Your Title Here]'.",
+        context: "The target audience is [Your Audience Here], and the key takeaways should be [Key Takeaway 1], [Key Takeaway 2].",
+        tone: 'Professional' as Tone,
+        category: 'Marketing' as Category,
+    },
+    {
+        icon: Share2,
+        title: "Social Media Post",
+        description: "Craft an engaging post for your social media channels.",
+        request: "Write a short, engaging social media post for [Platform, e.g., Twitter, LinkedIn] about [Your Topic Here].",
+        context: "The goal is to drive engagement and clicks to our website. Include a call to action to 'Learn More'.",
+        tone: 'Casual' as Tone,
+        category: 'Marketing' as Category,
+    },
+    {
+        icon: Code,
+        title: "Code Explainer",
+        description: "Get a simple explanation for a complex code snippet.",
+        request: "Explain the following code snippet in simple terms, line by line: [Paste Your Code Here].",
+        context: "Assume the reader is a beginner programmer.",
+        tone: 'Academic' as Tone,
+        category: 'Coding' as Category,
+    },
+    {
+        icon: PenSquare,
+        title: "Creative Story Idea",
+        description: "Brainstorm a unique plot for a short story.",
+        request: "Generate a unique story plot based on the theme of [Your Theme Here].",
+        context: "The story should be set in a [Your Setting, e.g., futuristic city] and feature a protagonist who is a [Protagonist's Role].",
+        tone: 'Creative' as Tone,
+        category: 'Fun' as Category,
     }
 ];
 
@@ -210,6 +249,15 @@ const HomePage: React.FC = () => {
         setIsTutorialActive(false);
         completeTutorial();
     };
+    
+    const handleTemplateClick = (template: typeof templates[0]) => {
+        if (!user) return;
+        setRequest(template.request);
+        setContext(template.context);
+        setTone(template.tone);
+        setCategory(template.category);
+        document.getElementById('prompt-generator-card')?.scrollIntoView({ behavior: 'smooth' });
+    };
 
     const toneOptions = TONES.map(t => ({ value: t, label: t }));
     const categoryOptions = CATEGORIES.map(c => ({ value: c, label: c }));
@@ -328,6 +376,24 @@ const HomePage: React.FC = () => {
                     </p>
                 )}
             </div>
+            
+            <section className="max-w-4xl mx-auto animate-fade-in">
+                <h2 className="text-2xl font-bold text-center mb-6">Quick Start Templates</h2>
+                <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                    {templates.map((template) => (
+                        <button
+                            key={template.title}
+                            onClick={() => handleTemplateClick(template)}
+                            disabled={!user}
+                            className="p-4 text-left bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-md"
+                        >
+                            <template.icon size={24} className="text-primary-500 mb-2" />
+                            <h3 className="font-bold text-gray-900 dark:text-white">{template.title}</h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{template.description}</p>
+                        </button>
+                    ))}
+                </div>
+            </section>
 
             {error && <div className="text-center text-red-500">{error}</div>}
 
