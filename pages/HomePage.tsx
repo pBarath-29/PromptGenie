@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Zap, Mic, Copy, Eraser, TrendingUp, Check, ListOrdered, Share2, Code, PenSquare } from 'lucide-react';
+import { Zap, Mic, Copy, Eraser, Check, ListOrdered, Share2, Code, PenSquare } from 'lucide-react';
 import { TONES, CATEGORIES, Tone, Category } from '../types';
 import Button from '../components/Button';
 import useSpeechRecognition from '../hooks/useSpeechRecognition';
@@ -14,7 +14,6 @@ import TutorialGuide from '../components/TutorialGuide';
 import WelcomeBanner from '../components/WelcomeBanner';
 import CustomDropdown from '../components/CustomDropdown';
 import LogoSpinner from '../components/LogoSpinner';
-import PromptComparison from '../components/PromptComparison';
 import Modal from '../components/Modal';
 
 const tutorialSteps = [
@@ -102,9 +101,9 @@ const HomePage: React.FC = () => {
     const { user, getGenerationsLeft, incrementGenerationCount, completeTutorial } = useAuth();
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
     const [isAdModalOpen, setIsAdModalOpen] = useState(false);
-    const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
     const [isTutorialActive, setIsTutorialActive] = useState(false);
     const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
+    const resultsContainerRef = useRef<HTMLDivElement>(null);
     
     // Ref to track the current user state to prevent race conditions on logout
     const userRef = useRef(user);
@@ -135,6 +134,13 @@ const HomePage: React.FC = () => {
             setShowWelcomeBanner(false);
         }
     }, [user]);
+    
+    useEffect(() => {
+        // Scroll to results when a prompt is generated successfully
+        if (generatedPrompt && !isLoading) {
+            resultsContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, [generatedPrompt, isLoading]);
 
     const generationsLeft = user ? getGenerationsLeft() : 0;
     const canGenerate = generationsLeft > 0;
@@ -394,62 +400,42 @@ const HomePage: React.FC = () => {
                     ))}
                 </div>
             </section>
+            
+            <div ref={resultsContainerRef} className="scroll-mt-8">
+                {error && <div className="text-center text-red-500">{error}</div>}
 
-            {error && <div className="text-center text-red-500">{error}</div>}
+                {isLoading && (
+                    <div className="text-center flex flex-col items-center justify-center space-y-4 animate-fade-in">
+                        <LogoSpinner size={48} />
+                        <p className="text-lg">{loadingText}</p>
+                    </div>
+                )}
 
-            {isLoading && (
-                <div className="text-center flex flex-col items-center justify-center space-y-4 animate-fade-in">
-                    <LogoSpinner size={48} />
-                    <p className="text-lg">{loadingText}</p>
-                </div>
-            )}
-
-            {generatedPrompt && !isLoading && (
-                <div className="animate-fade-in">
-                    <div className="max-w-4xl mx-auto p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
-                        <h2 className="text-2xl font-bold mb-4">{generatedPrompt.title}</h2>
-                        <div className="p-4 bg-gray-100 dark:bg-gray-900 rounded-lg">
-                            <p className="whitespace-pre-wrap font-mono text-sm leading-relaxed">{generatedPrompt.prompt}</p>
-                        </div>
-                        <div className="flex flex-wrap gap-2 mt-4">
-                            {generatedPrompt.tags.map(tag => (
-                                <span key={tag} className="px-2 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 text-xs font-medium rounded-full">{tag}</span>
-                            ))}
-                        </div>
-                        <div className="mt-4 pt-4 border-t dark:border-gray-700 flex flex-col sm:flex-row items-center justify-end space-y-2 sm:space-y-0 sm:space-x-2">
-                             <Button
-                                variant="secondary"
-                                onClick={() => setIsAnalysisModalOpen(true)}
-                                icon={<TrendingUp size={16}/>}
-                                className="w-full sm:w-auto"
-                            >
-                                Analyze Prompt
-                            </Button>
-                            <Button
-                                onClick={handleCopy}
-                                icon={copied ? <Check size={16}/> : <Copy size={16}/>}
-                                className="w-full sm:w-auto"
-                            >
-                                {copied ? 'Copied!' : 'Copy Prompt'}
-                            </Button>
+                {generatedPrompt && !isLoading && (
+                    <div className="animate-fade-in">
+                        <div className="max-w-4xl mx-auto p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
+                            <h2 className="text-2xl font-bold mb-4">{generatedPrompt.title}</h2>
+                            <div className="p-4 bg-gray-100 dark:bg-gray-900 rounded-lg">
+                                <p className="whitespace-pre-wrap font-mono text-sm leading-relaxed">{generatedPrompt.prompt}</p>
+                            </div>
+                            <div className="flex flex-wrap gap-2 mt-4">
+                                {generatedPrompt.tags.map(tag => (
+                                    <span key={tag} className="px-2 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 text-xs font-medium rounded-full">{tag}</span>
+                                ))}
+                            </div>
+                            <div className="mt-4 pt-4 border-t dark:border-gray-700 flex flex-col sm:flex-row items-center justify-end">
+                                <Button
+                                    onClick={handleCopy}
+                                    icon={copied ? <Check size={16}/> : <Copy size={16}/>}
+                                    className="w-full sm:w-auto"
+                                >
+                                    {copied ? 'Copied!' : 'Copy Prompt'}
+                                </Button>
+                            </div>
                         </div>
                     </div>
-                    
-                    <Modal
-                        isOpen={isAnalysisModalOpen}
-                        onClose={() => setIsAnalysisModalOpen(false)}
-                        title="Prompt Analysis"
-                        size="4xl"
-                    >
-                        {isAnalysisModalOpen && (
-                            <PromptComparison 
-                                userRequest={context ? `${request}\n\nContext: ${context}` : request}
-                                generatedPrompt={generatedPrompt}
-                            />
-                        )}
-                    </Modal>
-                </div>
-            )}
+                )}
+            </div>
 
             <UpgradeModal 
                 isOpen={isUpgradeModalOpen}
