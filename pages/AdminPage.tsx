@@ -12,6 +12,7 @@ import ConfirmationModal from '../components/ConfirmationModal';
 import { usePromoCodes } from '../contexts/PromoCodeContext';
 import { useAuth } from '../contexts/AuthContext';
 import LogoSpinner from '../components/LogoSpinner';
+import CustomDropdown from '../components/CustomDropdown';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -61,7 +62,9 @@ const AdminPage: React.FC = () => {
     const filteredPrompts = prompts.filter(p => promptStatusFilter === 'all' || p.status === promptStatusFilter);
     const filteredCollections = collections.filter(c => collectionStatusFilter === 'all' || c.status === collectionStatusFilter);
     const pendingFeedback = feedback.filter(f => f.status === 'pending');
-    const filteredUsers = users.filter(u => u.name.toLowerCase().includes(userSearch.toLowerCase()) || u.email.toLowerCase().includes(userSearch.toLowerCase()));
+    const filteredUsers = users
+        .filter(u => u.role !== 'admin')
+        .filter(u => u.name.toLowerCase().includes(userSearch.toLowerCase()) || u.email.toLowerCase().includes(userSearch.toLowerCase()));
 
     const paginate = <T,>(items: T[], page: number): { totalPages: number, paginatedItems: T[] } => {
         const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE);
@@ -132,6 +135,15 @@ const AdminPage: React.FC = () => {
         await updateUserStatus(user.id, status);
         setUsers(prevUsers => prevUsers.map(u => u.id === user.id ? { ...u, status } : u));
     };
+
+    const promptFilterOptions = [
+        { value: 'pending' as const, label: 'Pending' },
+        { value: 'all' as const, label: 'All Prompts' },
+    ];
+    const collectionFilterOptions = [
+        { value: 'pending' as const, label: 'Pending' },
+        { value: 'all' as const, label: 'All Collections' },
+    ];
 
     const TabButton: React.FC<{
         label: string;
@@ -205,10 +217,12 @@ const AdminPage: React.FC = () => {
             {activeTab === 'prompts' && (
             <div className="space-y-4">
                  <div className="flex justify-end">
-                    <select value={promptStatusFilter} onChange={e => setPromptStatusFilter(e.target.value as any)} className="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-md p-2 text-sm">
-                        <option value="pending">Pending</option>
-                        <option value="all">All Prompts</option>
-                    </select>
+                    <CustomDropdown
+                        options={promptFilterOptions}
+                        value={promptStatusFilter}
+                        onChange={setPromptStatusFilter}
+                        className="w-48"
+                    />
                  </div>
                 {paginatedPrompts.map(prompt => (
                 <div key={prompt.id} className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700">
@@ -244,10 +258,12 @@ const AdminPage: React.FC = () => {
             {activeTab === 'collections' && (
             <div className="space-y-4">
                  <div className="flex justify-end">
-                    <select value={collectionStatusFilter} onChange={e => setCollectionStatusFilter(e.target.value as any)} className="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-md p-2 text-sm">
-                        <option value="pending">Pending</option>
-                        <option value="all">All Collections</option>
-                    </select>
+                    <CustomDropdown
+                        options={collectionFilterOptions}
+                        value={collectionStatusFilter}
+                        onChange={setCollectionStatusFilter}
+                        className="w-48"
+                    />
                  </div>
                 {paginatedCollections.map(collection => (
                 <div key={collection.id} className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700">
