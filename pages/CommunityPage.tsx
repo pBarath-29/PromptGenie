@@ -29,6 +29,8 @@ const CommunityPage: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const promptsPerPage = 9;
 
+    const isBanned = user?.status === 'banned';
+
     const filteredPrompts = useMemo(() => {
         return prompts
             .filter(p => p.isPublic && p.status === 'approved') // Only show approved public prompts
@@ -81,6 +83,7 @@ const CommunityPage: React.FC = () => {
             navigate('/login');
             return;
         }
+        if (isBanned) return;
 
         if (getSubmissionsLeft() > 0) {
             setIsSubmitModalOpen(true);
@@ -122,7 +125,7 @@ const CommunityPage: React.FC = () => {
                     Discover, share, and vote on the best AI prompts from our growing community.
                 </p>
                 <div className="mt-6">
-                    <Button onClick={handleOpenSubmitModal} icon={<PlusCircle size={18}/>}>
+                    <Button onClick={handleOpenSubmitModal} icon={<PlusCircle size={18}/>} disabled={isBanned} title={isBanned ? "Submissions are disabled for banned accounts" : "Submit a new prompt"}>
                         Submit Your Prompt
                     </Button>
                 </div>

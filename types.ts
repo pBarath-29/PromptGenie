@@ -1,5 +1,6 @@
 
 
+
 export interface User {
   id: string;
   name: string;
@@ -12,6 +13,7 @@ export interface User {
   createdCollections?: string[];
   subscriptionTier: 'free' | 'pro';
   role: 'user' | 'admin';
+  status: 'active' | 'banned';
   promptGenerations: number;
   lastGenerationReset: string; // Format 'YYYY-MM'
   promptsSubmittedToday: number;
@@ -19,6 +21,11 @@ export interface User {
   hasCompletedTutorial: boolean;
   votes?: { [promptId: string]: 'up' | 'down' };
   themePreference?: 'light' | 'dark';
+}
+
+export interface BannedEmail {
+  email: string;
+  bannedAt: string;
 }
 
 export interface Comment {

@@ -120,6 +120,8 @@ export const PromptProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         avatar: 'https://www.gravatar.com/avatar/?d=mp',
         subscriptionTier: 'free',
         role: 'user',
+        // FIX: Added missing 'status' property to conform to the User type.
+        status: 'active',
         bio: '',
         submittedPrompts: [],
         purchasedCollections: [],

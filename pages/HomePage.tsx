@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Zap, Mic, Copy, Eraser, Check, ListOrdered, Share2, Code, PenSquare } from 'lucide-react';
+import { Zap, Mic, Copy, Eraser, Check, ListOrdered, Share2, Code, PenSquare, ShieldAlert } from 'lucide-react';
 import { TONES, CATEGORIES, Tone, Category } from '../types';
 import Button from '../components/Button';
 import useSpeechRecognition from '../hooks/useSpeechRecognition';
@@ -111,6 +111,8 @@ const HomePage: React.FC = () => {
         userRef.current = user;
     }, [user]);
 
+    const isBanned = user?.status === 'banned';
+
     useEffect(() => {
         if (user) {
             // Handle new user greeting banner
@@ -192,6 +194,10 @@ const HomePage: React.FC = () => {
             setError("Please log in to generate prompts.");
             return;
         }
+        if (isBanned) {
+            setError("Your account is banned. You cannot generate prompts.");
+            return;
+        }
         if (!canGenerate) {
             setIsUpgradeModalOpen(true);
             return;
@@ -257,7 +263,7 @@ const HomePage: React.FC = () => {
     };
     
     const handleTemplateClick = (template: typeof templates[0]) => {
-        if (!user) return;
+        if (!user || isBanned) return;
         setRequest(template.request);
         setContext(template.context);
         setTone(template.tone);
@@ -289,7 +295,7 @@ const HomePage: React.FC = () => {
             </section>
 
             <div id="prompt-generator-card" className="max-w-4xl mx-auto p-4 sm:p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl space-y-6">
-                <div className={`${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                <div className={`${!user || isBanned ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     <div className="text-center">
                         <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Need inspiration? Start with a template.</p>
                         <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -297,7 +303,7 @@ const HomePage: React.FC = () => {
                                 <button
                                     key={template.title}
                                     onClick={() => handleTemplateClick(template)}
-                                    disabled={!user}
+                                    disabled={!user || isBanned}
                                     className="flex flex-col items-center justify-center p-3 text-center bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed group"
                                     title={template.description}
                                 >
@@ -318,7 +324,7 @@ const HomePage: React.FC = () => {
                     </div>
                 </div>
 
-                <div className={`${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                <div className={`${!user || isBanned ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     <div className="mb-1">
                         <label htmlFor="request" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Describe your goal</label>
                     </div>
@@ -330,20 +336,20 @@ const HomePage: React.FC = () => {
                             placeholder="e.g., 'A marketing campaign slogan for a new coffee brand'"
                             value={request}
                             onChange={(e) => setRequest(e.target.value)}
-                            disabled={!user || isLoading}
+                            disabled={!user || isLoading || isBanned}
                         />
                         <button 
                             onClick={isListening ? stopListening : startListening}
                             className={`absolute top-3 right-3 p-2 rounded-full transition-colors ${isListening ? 'bg-red-500 text-white animate-pulse' : 'hover:bg-gray-200 dark:hover:bg-gray-600'}`}
                             title={isListening ? 'Stop recording' : 'Start recording'}
-                            disabled={!user || isLoading}
+                            disabled={!user || isLoading || isBanned}
                         >
                             <Mic size={20} />
                         </button>
                     </div>
                 </div>
 
-                <div className={`${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                <div className={`${!user || isBanned ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     <div className="mb-1">
                         <label htmlFor="context" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Context (optional)</label>
                     </div>
@@ -355,29 +361,29 @@ const HomePage: React.FC = () => {
                             placeholder="e.g., 'The coffee brand is organic, fair-trade, and targets young professionals.'"
                             value={context}
                             onChange={(e) => setContext(e.target.value)}
-                            disabled={!user || isLoading}
+                            disabled={!user || isLoading || isBanned}
                         />
                     </div>
                 </div>
 
-                <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${!user || isBanned ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     <CustomDropdown
                         label="Tone"
                         options={toneOptions}
                         value={tone}
                         onChange={(newTone) => setTone(newTone as Tone)}
-                        disabled={!user || isLoading}
+                        disabled={!user || isLoading || isBanned}
                     />
                     <CustomDropdown
                         label="Category"
                         options={categoryOptions}
                         value={category}
                         onChange={(newCategory) => setCategory(newCategory as Category)}
-                        disabled={!user || isLoading}
+                        disabled={!user || isLoading || isBanned}
                     />
                 </div>
 
-                {user && user.subscriptionTier === 'free' && (
+                {user && !isBanned && user.subscriptionTier === 'free' && (
                     <div className="text-center text-sm text-gray-500 dark:text-gray-400 p-3 bg-gray-100 dark:bg-gray-700/50 rounded-lg">
                         You have <span className="font-bold text-primary-500">{generationsLeft}</span> of {FREE_TIER_LIMIT} free generations left this month.
                     </div>
@@ -387,7 +393,7 @@ const HomePage: React.FC = () => {
                     <Button
                         variant="secondary"
                         onClick={handleClear}
-                        disabled={!user || isLoading || !request.trim()}
+                        disabled={!user || isLoading || !request.trim() || isBanned}
                         icon={<Eraser size={18} />}
                         className="w-full sm:w-auto"
                     >
@@ -398,15 +404,20 @@ const HomePage: React.FC = () => {
                         isLoading={isLoading} 
                         className="w-full sm:flex-1 !py-3 !text-base" 
                         icon={<Zap size={20}/>}
-                        disabled={!user || isLoading || !request.trim()}
+                        disabled={!user || isLoading || !request.trim() || isBanned}
                     >
-                        {user ? 'Generate Prompt' : 'Login to Generate Prompts'}
+                        {user ? (isBanned ? 'Generator Disabled' : 'Generate Prompt') : 'Login to Generate Prompts'}
                     </Button>
                 </div>
 
                  {!user && (
                     <p className="text-center text-sm text-yellow-600 dark:text-yellow-400 mt-2 p-3 bg-yellow-100/50 dark:bg-yellow-900/30 rounded-lg">
                         Please <Link to="/login" className="font-bold underline hover:text-yellow-500">log in</Link> or <Link to="/signup" className="font-bold underline hover:text-yellow-500">sign up</Link> to generate prompts.
+                    </p>
+                )}
+                {isBanned && (
+                    <p className="text-center text-sm text-red-600 dark:text-red-400 mt-2 p-3 bg-red-100/50 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
+                        <ShieldAlert size={16} className="mr-2"/> Your account is banned. You cannot generate prompts.
                     </p>
                 )}
             </div>

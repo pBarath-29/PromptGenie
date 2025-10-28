@@ -27,6 +27,7 @@ import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
 import LogoSpinner from './components/LogoSpinner';
 import { PromoCodeProvider } from './contexts/PromoCodeContext';
+import BanBanner from './components/BanBanner';
 
 const AppContent: React.FC = () => {
   const { user, loading } = useAuth();
@@ -42,6 +43,7 @@ const AppContent: React.FC = () => {
   const mainLayout = (children: React.ReactNode) => (
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
       <Header />
+      {user && user.status === 'banned' && <BanBanner />}
       <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>

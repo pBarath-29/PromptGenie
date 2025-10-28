@@ -28,6 +28,7 @@ const MarketplacePage: React.FC = () => {
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
     const [collectionToPreview, setCollectionToPreview] = useState<Collection | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
+    const isBanned = user?.status === 'banned';
 
     const filteredCollections = useMemo(() => {
         return collections
@@ -66,7 +67,7 @@ const MarketplacePage: React.FC = () => {
     const handleOpenSubmitModal = () => {
         if (!user) {
             navigate('/login');
-        } else {
+        } else if (!isBanned) {
             setIsSubmitModalOpen(true);
         }
     };
@@ -128,7 +129,7 @@ const MarketplacePage: React.FC = () => {
                     Browse and purchase curated collections of high-quality prompts from expert creators.
                 </p>
                 <div className="mt-6">
-                    <Button onClick={handleOpenSubmitModal} icon={<PackagePlus size={18}/>}>
+                    <Button onClick={handleOpenSubmitModal} icon={<PackagePlus size={18}/>} disabled={isBanned} title={isBanned ? "Submissions are disabled for banned accounts" : "Submit a new collection"}>
                         Submit a Collection
                     </Button>
                 </div>

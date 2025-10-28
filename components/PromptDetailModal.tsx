@@ -32,6 +32,7 @@ const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, o
   const { handlePromptVote, addComment } = usePrompts();
   const { user, handleVote: handleUserVote } = useAuth();
   const navigate = useNavigate();
+  const isBanned = user?.status === 'banned';
 
   useEffect(() => {
     // Reset state on open or prompt change to avoid showing stale data
@@ -95,7 +96,7 @@ const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, o
 
   const handleCommentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !newComment.trim()) return;
+    if (!user || !newComment.trim() || isBanned) return;
     addComment(prompt.id, { author: user, text: newComment });
     setNewComment('');
   };
@@ -205,6 +206,7 @@ const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, o
                     userVote={user?.votes?.[prompt.id]}
                     onVote={handleVote}
                     size={28}
+                    disabled={isBanned}
                   />
                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                     {prompt.upvotes} upvotes, {prompt.downvotes} downvotes
@@ -251,11 +253,12 @@ const PromptDetailModal: React.FC<PromptDetailModalProps> = ({ prompt, isOpen, o
                       value={newComment}
                       onChange={e => setNewComment(e.target.value)}
                       className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 bg-gray-50 text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
-                      placeholder="Add your comment..."
+                      placeholder={isBanned ? "Commenting is disabled for banned accounts." : "Add your comment..."}
                       rows={2}
+                      disabled={isBanned}
                     />
                     <div className="flex justify-end mt-2">
-                      <Button type="submit" disabled={!newComment.trim()}>Post Comment</Button>
+                      <Button type="submit" disabled={!newComment.trim() || isBanned}>Post Comment</Button>
                     </div>
                   </div>
                 </form>

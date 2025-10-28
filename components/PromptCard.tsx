@@ -52,6 +52,7 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, onClick, onEdit, onDele
   const navigate = useNavigate();
   const isSaved = user?.savedPrompts?.includes(prompt.id);
   const isAuthor = user?.id === prompt.author.id;
+  const isBanned = user?.status === 'banned';
 
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -139,6 +140,7 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, onClick, onEdit, onDele
             downvotes={prompt.downvotes}
             userVote={user?.votes?.[prompt.id]}
             onVote={handleVote}
+            disabled={isBanned}
           />
           <div className="flex items-center space-x-1">
               <MessageSquare size={16} />

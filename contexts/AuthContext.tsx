@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import { User as AppUser } from '../types';
+import { User as AppUser, BannedEmail } from '../types';
 import { FREE_TIER_LIMIT, FREE_TIER_POST_LIMIT, PRO_TIER_POST_LIMIT } from '../config';
 import { getData, setData, updateData, deleteData } from '../services/firebaseService';
-import { auth } from '../services/firebase';
+import { auth, db } from '../services/firebase';
 import { 
   onAuthStateChanged, 
   createUserWithEmailAndPassword, 
@@ -15,6 +15,7 @@ import {
   EmailAuthProvider,
   deleteUser,
 } from 'firebase/auth';
+import { ref, onValue } from 'firebase/database';
 
 
 interface AuthContextType {
@@ -42,6 +43,8 @@ interface AuthContextType {
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
   deleteAccount: (password: string) => Promise<void>;
   updateUserThemePreference: (theme: 'light' | 'dark') => void;
+  getAllUsers: () => Promise<AppUser[]>;
+  updateUserStatus: (userId: string, status: 'active' | 'banned') => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -77,6 +80,10 @@ const checkAndResetSubmissionCount = (currentUser: AppUser | null): AppUser | nu
     return currentUser;
 };
 
+// Helper to sanitize email for Firebase keys
+const sanitizeEmail = (email: string) => email.toLowerCase().replace(/\./g, ',');
+
+
 // Helper to ensure user object is consistent, especially for users from older localStorage versions.
 const normalizeUser = (userToNormalize: AppUser | any): AppUser | null => {
     if (!userToNormalize) return null;
@@ -95,6 +102,10 @@ const normalizeUser = (userToNormalize: AppUser | any): AppUser | null => {
         normalizedUser.themePreference = 'light';
     }
 
+    if (typeof normalizedUser.status === 'undefined') {
+      normalizedUser.status = 'active';
+    }
+
     const userWithGenReset = checkAndResetGenerationCount(normalizedUser);
     const userWithSubReset = checkAndResetSubmissionCount(userWithGenReset);
     
@@ -107,25 +118,46 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
-      if (firebaseUser && firebaseUser.emailVerified) {
-        // User is signed in and verified. Fetch our custom user profile.
-        const userProfile = await getData<AppUser>(`users/${firebaseUser.uid}`);
-        if (userProfile) {
-          setUser(normalizeUser(userProfile));
-        } else {
-            console.warn(`No user profile found in DB for UID: ${firebaseUser.uid}. Logging out.`);
-            await signOut(auth);
-            setUser(null);
-        }
-      } else {
-        // User is signed out or not verified.
-        setUser(null);
+    let userProfileListener: (() => void) | null = null;
+
+    const authListener = onAuthStateChanged(auth, (firebaseUser) => {
+      // Clean up previous user listener if it exists
+      if (userProfileListener) {
+        userProfileListener();
       }
-      setLoading(false);
+
+      if (firebaseUser && firebaseUser.emailVerified) {
+        const userRef = ref(db, `users/${firebaseUser.uid}`);
+        
+        // Set up a real-time listener for the user's profile
+        userProfileListener = onValue(userRef, (snapshot) => {
+          const userProfile = snapshot.val();
+          if (userProfile) {
+            setUser(normalizeUser(userProfile));
+          } else {
+            console.warn(`User profile not found for UID: ${firebaseUser.uid}. Logging out.`);
+            signOut(auth);
+          }
+          setLoading(false); // Data loaded or confirmed non-existent
+        }, (error) => {
+          console.error("Error listening to user data:", error);
+          setUser(null);
+          setLoading(false);
+        });
+      } else {
+        // User is not signed in or not verified
+        setUser(null);
+        setLoading(false);
+      }
     });
 
-    return () => unsubscribe();
+    // Cleanup function for the component unmount
+    return () => {
+      authListener(); // Unsubscribe from auth changes
+      if (userProfileListener) {
+        userProfileListener(); // Unsubscribe from user profile changes
+      }
+    };
   }, []);
 
   const login = async (email: string, password?: string): Promise<void> => {
@@ -145,6 +177,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const signup = async (name: string, email: string, password?: string): Promise<void> => {
       if (!password) throw new Error("Password is required for signup.");
+
+      const sanitized = sanitizeEmail(email);
+      const isBanned = await getData<BannedEmail>(`bannedEmails/${sanitized}`);
+      if (isBanned) {
+        throw new Error("This email address has been banned and cannot be used to create new accounts.");
+      }
+
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
       
@@ -164,6 +203,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           createdCollections: [],
           subscriptionTier: isAdminByEmail ? 'pro' : 'free',
           role: isAdminByEmail ? 'admin' : 'user',
+          status: 'active',
           promptGenerations: isAdminByEmail ? 999 : 0,
           lastGenerationReset: `${new Date().getFullYear()}-${new Date().getMonth()}`,
           promptsSubmittedToday: 0,
@@ -349,6 +389,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Re-authenticate before sensitive operation
     await reauthenticateWithCredential(firebaseUser, credential);
     
+    const appUser = await getData<AppUser>(`users/${firebaseUser.uid}`);
+    if (appUser?.status === 'banned') {
+      const sanitized = sanitizeEmail(appUser.email);
+      const bannedEmail: BannedEmail = { email: appUser.email, bannedAt: new Date().toISOString() };
+      await setData(`bannedEmails/${sanitized}`, bannedEmail);
+    }
+
     // Delete user's DB records
     await deleteData(`users/${firebaseUser.uid}`);
     await deleteData(`user-history/${firebaseUser.uid}`);
@@ -365,8 +412,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const getAllUsers = async (): Promise<AppUser[]> => {
+    const usersData = await getData<{ [key: string]: AppUser }>('users');
+    return usersData ? Object.values(usersData) : [];
+  };
+
+  const updateUserStatus = async (userId: string, status: 'active' | 'banned') => {
+    await updateData(`users/${userId}`, { status });
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout, resendVerificationEmail, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, handleVote, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro, getSubmissionsLeft, incrementSubmissionCount, completeTutorial, cancelSubscription, getUserById, changePassword, deleteAccount, updateUserThemePreference }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout, resendVerificationEmail, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, handleVote, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro, getSubmissionsLeft, incrementSubmissionCount, completeTutorial, cancelSubscription, getUserById, changePassword, deleteAccount, updateUserThemePreference, getAllUsers, updateUserStatus }}>
       {children}
     </AuthContext.Provider>
   );

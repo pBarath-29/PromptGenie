@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Collection, User } from '../types';
-import { getData, setData, updateData, performMultiPathUpdate } from '../services/firebaseService';
+import { getData, setData, updateData, deleteData, performMultiPathUpdate } from '../services/firebaseService';
 
 interface CollectionContextType {
   collections: Collection[];
   addCollection: (collection: Collection) => void;
   updateCollectionStatus: (collectionId: string, status: 'approved' | 'rejected') => void;
+  deleteCollection: (collectionId: string) => void;
   anonymizeUserCollections: (userId: string) => Promise<void>;
   propagateUserUpdates: (updatedUser: User) => Promise<void>;
 }
@@ -43,6 +44,12 @@ export const CollectionProvider: React.FC<{ children: ReactNode }> = ({ children
     );
     updateData(`collections/${collectionId}`, { status }).catch(error => console.error("Failed to update collection status:", error));
   };
+  
+  const deleteCollection = (collectionId: string) => {
+    setCollections(prevCollections => prevCollections.filter(c => c.id !== collectionId));
+    deleteData(`collections/${collectionId}`).catch(error => console.error("Failed to delete collection:", error));
+  };
+
 
   const anonymizeUserCollections = async (userId: string) => {
     const userCollections = collections.filter(c => c.creator.id === userId);
@@ -55,6 +62,7 @@ export const CollectionProvider: React.FC<{ children: ReactNode }> = ({ children
         avatar: 'https://www.gravatar.com/avatar/?d=mp',
         subscriptionTier: 'free',
         role: 'user',
+        status: 'active',
         bio: '',
         submittedPrompts: [],
         purchasedCollections: [],
@@ -109,7 +117,7 @@ export const CollectionProvider: React.FC<{ children: ReactNode }> = ({ children
 
 
   return (
-    <CollectionContext.Provider value={{ collections, addCollection, updateCollectionStatus, anonymizeUserCollections, propagateUserUpdates }}>
+    <CollectionContext.Provider value={{ collections, addCollection, updateCollectionStatus, deleteCollection, anonymizeUserCollections, propagateUserUpdates }}>
       {children}
     </CollectionContext.Provider>
   );
