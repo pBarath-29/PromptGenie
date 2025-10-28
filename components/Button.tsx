@@ -4,7 +4,7 @@ import LogoSpinner from './LogoSpinner';
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
   icon?: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'danger';
+  variant?: 'primary' | 'secondary' | 'danger' | 'success';
   isLoading?: boolean;
 }
 
@@ -22,12 +22,14 @@ const Button: React.FC<ButtonProps> = ({
     primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500',
     secondary: 'bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 focus:ring-gray-500',
     danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
+    success: 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500',
   };
 
   const spinnerColorClass = {
       primary: 'text-white',
       secondary: 'text-gray-800 dark:text-gray-200',
-      danger: 'text-white'
+      danger: 'text-white',
+      success: 'text-white'
   };
 
   return (

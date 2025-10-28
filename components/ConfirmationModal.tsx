@@ -10,7 +10,7 @@ interface ConfirmationModalProps {
   title: string;
   message: string;
   confirmButtonText?: string;
-  confirmButtonVariant?: 'primary' | 'danger';
+  confirmButtonVariant?: 'primary' | 'danger' | 'success';
 }
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({

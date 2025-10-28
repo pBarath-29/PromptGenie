@@ -27,6 +27,7 @@ const AdminPage: React.FC = () => {
     const [promptToPreview, setPromptToPreview] = useState<Prompt | null>(null);
     const [collectionToPreview, setCollectionToPreview] = useState<Collection | null>(null);
     const [itemToDelete, setItemToDelete] = useState<{ type: 'prompt' | 'collection' | 'feedback' | 'promo', id: string, name?: string } | null>(null);
+    const [userToConfirm, setUserToConfirm] = useState<{ user: User; action: 'ban' | 'unban' } | null>(null);
     
     const [users, setUsers] = useState<User[]>([]);
     const [usersLoading, setUsersLoading] = useState(true);
@@ -59,7 +60,10 @@ const AdminPage: React.FC = () => {
     const [promoCodesPage, setPromoCodesPage] = useState(1);
     const [usersPage, setUsersPage] = useState(1);
 
-    const filteredPrompts = prompts.filter(p => promptStatusFilter === 'all' || p.status === promptStatusFilter);
+    const filteredPrompts = prompts
+        .filter(p => p.isPublic) // Only show community prompts
+        .filter(p => promptStatusFilter === 'all' || p.status === promptStatusFilter);
+
     const filteredCollections = collections.filter(c => collectionStatusFilter === 'all' || c.status === collectionStatusFilter);
     const pendingFeedback = feedback.filter(f => f.status === 'pending');
     const filteredUsers = users
@@ -134,6 +138,7 @@ const AdminPage: React.FC = () => {
     const handleUpdateUserStatus = async (user: User, status: 'active' | 'banned') => {
         await updateUserStatus(user.id, status);
         setUsers(prevUsers => prevUsers.map(u => u.id === user.id ? { ...u, status } : u));
+        setUserToConfirm(null); // Close modal after action
     };
 
     const promptFilterOptions = [
@@ -180,7 +185,7 @@ const AdminPage: React.FC = () => {
         <div className="border-b border-gray-200 dark:border-gray-700 flex flex-wrap">
           <TabButton 
             label="Prompts" 
-            count={prompts.filter(p=> p.status === 'pending').length}
+            count={prompts.filter(p=> p.isPublic && p.status === 'pending').length}
             isActive={activeTab === 'prompts'}
             onClick={() => setActiveTab('prompts')}
             icon={<Inbox size={18} />}
@@ -383,21 +388,37 @@ const AdminPage: React.FC = () => {
                     />
                     {usersLoading ? <div className="flex justify-center py-8"><LogoSpinner size={40} /></div> : (
                         paginatedUsers.map((user: User) => (
-                            <div key={user.id} className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700">
+                            <div key={user.id} className={`p-4 rounded-lg shadow-sm border transition-colors ${
+                                user.status === 'banned' 
+                                ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' 
+                                : 'bg-white dark:bg-gray-800 dark:border-gray-700'
+                            }`}>
                                 <div className="flex flex-col md:flex-row justify-between md:items-center">
                                     <div className="flex items-center space-x-3 mb-4 md:mb-0">
                                         <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full" />
                                         <div>
-                                            <p className="font-bold text-lg">{user.name}</p>
+                                            <div className="flex items-center space-x-2">
+                                                <p className="font-bold text-lg">{user.name}</p>
+                                                {user.status === 'banned' ? (
+                                                    <span className="flex items-center text-xs font-semibold text-red-800 bg-red-100 dark:text-red-200 dark:bg-red-900/50 px-2 py-0.5 rounded-full">
+                                                        <ShieldAlert size={12} className="mr-1" />
+                                                        Banned
+                                                    </span>
+                                                ) : (
+                                                    <span className="flex items-center text-xs font-semibold text-green-800 bg-green-100 dark:text-green-200 dark:bg-green-900/50 px-2 py-0.5 rounded-full">
+                                                        <ShieldCheck size={12} className="mr-1" />
+                                                        Active
+                                                    </span>
+                                                )}
+                                            </div>
                                             <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
-                                            {user.status === 'banned' && <p className="text-xs font-bold text-red-500 mt-1">BANNED</p>}
                                         </div>
                                     </div>
                                     <div className="flex gap-2 self-stretch sm:self-auto">
                                         {user.status === 'active' ? (
-                                            <Button variant="danger" onClick={() => handleUpdateUserStatus(user, 'banned')} icon={<ShieldAlert size={16} />}>Ban User</Button>
+                                            <Button variant="danger" onClick={() => setUserToConfirm({ user, action: 'ban' })} icon={<ShieldAlert size={16} />}>Ban User</Button>
                                         ) : (
-                                            <Button onClick={() => handleUpdateUserStatus(user, 'active')} icon={<ShieldCheck size={16} />}>Unban User</Button>
+                                            <Button variant="success" onClick={() => setUserToConfirm({ user, action: 'unban' })} icon={<ShieldCheck size={16} />}>Unban User</Button>
                                         )}
                                     </div>
                                 </div>
@@ -429,6 +450,23 @@ const AdminPage: React.FC = () => {
             message={`Are you sure you want to permanently delete this ${itemToDelete?.type}: "${itemToDelete?.name || itemToDelete?.id}"? This action cannot be undone.`}
             confirmButtonText="Delete"
             confirmButtonVariant="danger"
+        />
+        <ConfirmationModal
+            isOpen={!!userToConfirm}
+            onClose={() => setUserToConfirm(null)}
+            onConfirm={() => {
+                if (userToConfirm) {
+                    handleUpdateUserStatus(userToConfirm.user, userToConfirm.action === 'ban' ? 'banned' : 'active');
+                }
+            }}
+            title={`${userToConfirm?.action === 'ban' ? 'Ban' : 'Unban'} User`}
+            message={
+                userToConfirm?.action === 'ban'
+                ? `Are you sure you want to ban ${userToConfirm?.user.name}? They will lose the ability to generate prompts, submit content, and comment.`
+                : `Are you sure you want to unban ${userToConfirm?.user.name}? They will regain full access to their account.`
+            }
+            confirmButtonText={userToConfirm?.action === 'ban' ? 'Yes, Ban User' : 'Yes, Unban User'}
+            confirmButtonVariant={userToConfirm?.action === 'ban' ? 'danger' : 'success'}
         />
       </div>
     );
