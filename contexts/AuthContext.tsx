@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback, useMemo } from 'react';
 import { User as AppUser, BannedEmail } from '../types';
 import { FREE_TIER_LIMIT, FREE_TIER_POST_LIMIT, PRO_TIER_POST_LIMIT } from '../config';
 import { getData, setData, updateData, deleteData } from '../services/firebaseService';
@@ -116,51 +116,49 @@ const normalizeUser = (userToNormalize: AppUser | any): AppUser | null => {
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(() => auth.currentUser);
 
+  // Effect 1: Manages the Firebase Auth user state.
   useEffect(() => {
-    let userProfileListener: (() => void) | null = null;
-
-    const authListener = onAuthStateChanged(auth, (firebaseUser) => {
-      // Clean up previous user listener if it exists
-      if (userProfileListener) {
-        userProfileListener();
-      }
-
-      if (firebaseUser && firebaseUser.emailVerified) {
-        const userRef = ref(db, `users/${firebaseUser.uid}`);
-        
-        // Set up a real-time listener for the user's profile
-        userProfileListener = onValue(userRef, (snapshot) => {
-          const userProfile = snapshot.val();
-          if (userProfile) {
-            setUser(normalizeUser(userProfile));
-          } else {
-            console.warn(`User profile not found for UID: ${firebaseUser.uid}. Logging out.`);
-            signOut(auth);
-          }
-          setLoading(false); // Data loaded or confirmed non-existent
-        }, (error) => {
-          console.error("Error listening to user data:", error);
-          setUser(null);
-          setLoading(false);
-        });
-      } else {
-        // User is not signed in or not verified
-        setUser(null);
-        setLoading(false);
-      }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setFirebaseUser(user);
     });
-
-    // Cleanup function for the component unmount
-    return () => {
-      authListener(); // Unsubscribe from auth changes
-      if (userProfileListener) {
-        userProfileListener(); // Unsubscribe from user profile changes
-      }
-    };
+    return unsubscribe; // Cleanup on unmount
   }, []);
 
-  const login = async (email: string, password?: string): Promise<void> => {
+  // Effect 2: Manages the database listener based on the Firebase Auth user.
+  useEffect(() => {
+    // This effect runs whenever `firebaseUser` changes.
+    if (firebaseUser && firebaseUser.emailVerified) {
+      const userRef = ref(db, `users/${firebaseUser.uid}`);
+      // Set up the real-time listener.
+      const unsubscribe = onValue(userRef, (snapshot) => {
+        const userProfile = snapshot.val();
+        if (userProfile) {
+          setUser(normalizeUser(userProfile));
+        } else {
+          // If the user is authenticated but has no profile in DB, something is wrong. Log them out.
+          signOut(auth);
+        }
+        setLoading(false);
+      }, (error) => {
+        console.error("Error listening to user data:", error);
+        setUser(null);
+        setLoading(false);
+      });
+
+      // Return the cleanup function for this listener.
+      // It will be called when `firebaseUser` changes (e.g., on logout) or when the component unmounts.
+      return () => unsubscribe();
+    } else {
+      // If there's no authenticated user, or they aren't verified,
+      // ensure the app's user state is null and we're not in a loading state.
+      setUser(null);
+      setLoading(false);
+    }
+  }, [firebaseUser]);
+
+  const login = useCallback(async (email: string, password?: string): Promise<void> => {
       if (!password) throw new Error("Password is required for login.");
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
 
@@ -173,9 +171,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
       
       // The onAuthStateChanged listener will handle setting the user state.
-  };
+  }, []);
 
-  const signup = async (name: string, email: string, password?: string): Promise<void> => {
+  const signup = useCallback(async (name: string, email: string, password?: string): Promise<void> => {
       if (!password) throw new Error("Password is required for signup.");
 
       const sanitized = sanitizeEmail(email);
@@ -215,17 +213,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       await setData(`users/${firebaseUser.uid}`, newUser);
       await signOut(auth); // Force user to login after verifying email
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     await signOut(auth);
-  };
+  }, []);
 
-  const resendVerificationEmail = async (unverifiedUser: FirebaseUser) => {
+  const resendVerificationEmail = useCallback(async (unverifiedUser: FirebaseUser) => {
     await sendEmailVerification(unverifiedUser);
-  };
+  }, []);
   
-  const updateUserProfile = async (data: { bio?: string; avatar?: string }): Promise<AppUser | null> => {
+  const updateUserProfile = useCallback(async (data: { bio?: string; avatar?: string }): Promise<AppUser | null> => {
     if (user) {
       const updatedUser = { ...user, ...data };
       setUser(updatedUser);
@@ -233,33 +231,33 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return updatedUser;
     }
     return null;
-  };
+  }, [user]);
 
-  const purchaseCollection = (collectionId: string) => {
+  const purchaseCollection = useCallback((collectionId: string) => {
     if (user && !user.purchasedCollections?.includes(collectionId)) {
       const updatedCollections = [...(user.purchasedCollections || []), collectionId];
       setUser({ ...user, purchasedCollections: updatedCollections });
       updateData(`users/${user.id}`, { purchasedCollections: updatedCollections }).catch(err => console.error("Failed to sync purchase", err));
     }
-  };
+  }, [user]);
   
-  const addSubmittedPrompt = (promptId: string) => {
+  const addSubmittedPrompt = useCallback((promptId: string) => {
       if (user) {
           const updatedPrompts = [...(user.submittedPrompts || []), promptId];
           setUser({ ...user, submittedPrompts: updatedPrompts });
           updateData(`users/${user.id}`, { submittedPrompts: updatedPrompts }).catch(err => console.error("Failed to sync submitted prompt", err));
       }
-  };
+  }, [user]);
 
-  const removeSubmittedPrompt = (promptId: string) => {
+  const removeSubmittedPrompt = useCallback((promptId: string) => {
     if (user) {
       const updatedPrompts = user.submittedPrompts?.filter(id => id !== promptId);
       setUser({ ...user, submittedPrompts: updatedPrompts });
       updateData(`users/${user.id}`, { submittedPrompts: updatedPrompts }).catch(err => console.error("Failed to sync prompt removal", err));
     }
-  };
+  }, [user]);
 
-  const toggleSavePrompt = (promptId: string) => {
+  const toggleSavePrompt = useCallback((promptId: string) => {
     if (!user) return;
     
     const savedPrompts = user.savedPrompts || [];
@@ -268,9 +266,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     setUser({ ...user, savedPrompts: newSavedPrompts });
     updateData(`users/${user.id}`, { savedPrompts: newSavedPrompts }).catch(err => console.error("Failed to sync saved prompt", err));
-  };
+  }, [user]);
 
-  const handleVote = (promptId: string, voteType: 'up' | 'down') => {
+  const handleVote = useCallback((promptId: string, voteType: 'up' | 'down') => {
     if (!user) return;
     
     const currentVotes = { ...(user.votes || {}) };
@@ -280,25 +278,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     setUser({ ...user, votes: currentVotes });
     updateData(`users/${user.id}`, { votes: currentVotes }).catch(err => console.error("Failed to sync vote", err));
-  };
+  }, [user]);
 
-  const addCreatedCollection = (collectionId: string) => {
+  const addCreatedCollection = useCallback((collectionId: string) => {
     if (user) {
       const updatedCollections = [...(user.createdCollections || []), collectionId];
       setUser({ ...user, createdCollections: updatedCollections });
       updateData(`users/${user.id}`, { createdCollections: updatedCollections }).catch(err => console.error("Failed to sync created collection", err));
     }
-  };
+  }, [user]);
 
-  const getGenerationsLeft = (): number => {
+  const getGenerationsLeft = useCallback((): number => {
     if (!user || user.subscriptionTier === 'pro') return Infinity;
     const now = new Date();
     const currentMonthYear = `${now.getFullYear()}-${now.getMonth()}`;
     const generations = user.lastGenerationReset === currentMonthYear ? user.promptGenerations : 0;
     return FREE_TIER_LIMIT - generations;
-  }
+  }, [user]);
 
-  const incrementGenerationCount = () => {
+  const incrementGenerationCount = useCallback(() => {
     if (user && user.subscriptionTier === 'free') {
       const now = new Date();
       const currentMonthYear = `${now.getFullYear()}-${now.getMonth()}`;
@@ -307,9 +305,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUser(updatedUser);
       updateData(`users/${user.id}`, { promptGenerations: updatedUser.promptGenerations, lastGenerationReset: updatedUser.lastGenerationReset });
     }
-  };
+  }, [user]);
 
-  const upgradeToPro = () => {
+  const upgradeToPro = useCallback(() => {
     if (user) {
       const updatedUser = {
         ...user,
@@ -324,24 +322,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         lastGenerationReset: ''
       });
     }
-  };
+  }, [user]);
 
-  const cancelSubscription = () => {
+  const cancelSubscription = useCallback(() => {
     if (user && user.subscriptionTier === 'pro') {
         setUser({ ...user, subscriptionTier: 'free' });
         updateData(`users/${user.id}`, { subscriptionTier: 'free' });
     }
-  };
+  }, [user]);
 
-  const getSubmissionsLeft = (): number => {
+  const getSubmissionsLeft = useCallback((): number => {
     if (!user) return 0;
     const limit = user.subscriptionTier === 'pro' ? PRO_TIER_POST_LIMIT : FREE_TIER_POST_LIMIT;
     const today = new Date().toISOString().split('T')[0];
     const submissions = user.lastSubmissionDate === today ? user.promptsSubmittedToday : 0;
     return limit - submissions;
-  }
+  }, [user]);
 
-  const incrementSubmissionCount = () => {
+  const incrementSubmissionCount = useCallback(() => {
     if (user) {
       const today = new Date().toISOString().split('T')[0];
       const currentSubmissions = user.lastSubmissionDate === today ? user.promptsSubmittedToday : 0;
@@ -349,21 +347,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUser(updatedUser);
       updateData(`users/${user.id}`, { promptsSubmittedToday: updatedUser.promptsSubmittedToday, lastSubmissionDate: updatedUser.lastSubmissionDate });
     }
-  };
+  }, [user]);
 
-  const completeTutorial = () => {
+  const completeTutorial = useCallback(() => {
       if (user) {
           setUser({ ...user, hasCompletedTutorial: true });
           updateData(`users/${user.id}`, { hasCompletedTutorial: true });
       }
-  };
+  }, [user]);
   
   const getUserById = useCallback(async (userId: string): Promise<AppUser | undefined> => {
       const user = await getData<AppUser>(`users/${userId}`);
       return user || undefined;
   }, []);
 
-  const changePassword = async (currentPassword: string, newPassword: string) => {
+  const changePassword = useCallback(async (currentPassword: string, newPassword: string) => {
     const firebaseUser = auth.currentUser;
     if (!firebaseUser || !firebaseUser.email) {
         throw new Error("No user is currently signed in or user email is not available.");
@@ -376,9 +374,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     // If re-authentication is successful, update the password
     await updatePassword(firebaseUser, newPassword);
-  };
+  }, []);
 
-  const deleteAccount = async (password: string) => {
+  const deleteAccount = useCallback(async (password: string) => {
     const firebaseUser = auth.currentUser;
     if (!firebaseUser || !firebaseUser.email) {
         throw new Error("No user is currently signed in.");
@@ -402,27 +400,83 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     // Finally, delete the auth user
     await deleteUser(firebaseUser); // This will trigger onAuthStateChanged
-  };
+  }, []);
 
-  const updateUserThemePreference = (theme: 'light' | 'dark') => {
+  const updateUserThemePreference = useCallback((theme: 'light' | 'dark') => {
     if (user) {
       const updatedUser = { ...user, themePreference: theme };
       setUser(updatedUser);
       updateData(`users/${user.id}`, { themePreference: theme }).catch(err => console.error("Failed to sync theme preference", err));
     }
-  };
+  }, [user]);
 
-  const getAllUsers = async (): Promise<AppUser[]> => {
+  const getAllUsers = useCallback(async (): Promise<AppUser[]> => {
     const usersData = await getData<{ [key: string]: AppUser }>('users');
     return usersData ? Object.values(usersData) : [];
-  };
+  }, []);
 
-  const updateUserStatus = async (userId: string, status: 'active' | 'banned') => {
+  const updateUserStatus = useCallback(async (userId: string, status: 'active' | 'banned') => {
     await updateData(`users/${userId}`, { status });
-  };
+  }, []);
+
+  const contextValue = useMemo(() => ({
+    user,
+    loading,
+    login,
+    signup,
+    logout,
+    resendVerificationEmail,
+    updateUserProfile,
+    purchaseCollection,
+    addSubmittedPrompt,
+    removeSubmittedPrompt,
+    toggleSavePrompt,
+    handleVote,
+    addCreatedCollection,
+    incrementGenerationCount,
+    upgradeToPro,
+    getGenerationsLeft,
+    getSubmissionsLeft,
+    incrementSubmissionCount,
+    completeTutorial,
+    cancelSubscription,
+    getUserById,
+    changePassword,
+    deleteAccount,
+    updateUserThemePreference,
+    getAllUsers,
+    updateUserStatus,
+  }), [
+    user,
+    loading,
+    login,
+    signup,
+    logout,
+    resendVerificationEmail,
+    updateUserProfile,
+    purchaseCollection,
+    addSubmittedPrompt,
+    removeSubmittedPrompt,
+    toggleSavePrompt,
+    handleVote,
+    addCreatedCollection,
+    incrementGenerationCount,
+    upgradeToPro,
+    getGenerationsLeft,
+    getSubmissionsLeft,
+    incrementSubmissionCount,
+    completeTutorial,
+    cancelSubscription,
+    getUserById,
+    changePassword,
+    deleteAccount,
+    updateUserThemePreference,
+    getAllUsers,
+    updateUserStatus
+  ]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout, resendVerificationEmail, updateUserProfile, purchaseCollection, addSubmittedPrompt, removeSubmittedPrompt, toggleSavePrompt, handleVote, addCreatedCollection, getGenerationsLeft, incrementGenerationCount, upgradeToPro, getSubmissionsLeft, incrementSubmissionCount, completeTutorial, cancelSubscription, getUserById, changePassword, deleteAccount, updateUserThemePreference, getAllUsers, updateUserStatus }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
