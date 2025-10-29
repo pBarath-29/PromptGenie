@@ -54,7 +54,7 @@ const SignUpPage: React.FC = () => {
   if (isSuccess) {
     return (
       <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="w-full max-w-md space-y-8 text-center">
+        <div className="w-full max-w-md space-y-8 text-center animate-pop-in">
           <CheckCircle size={56} className="mx-auto text-green-500" />
           <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
             Account Created!
@@ -74,7 +74,7 @@ const SignUpPage: React.FC = () => {
 
   return (
     <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8">
+      <div className="w-full max-w-md space-y-8 animate-slide-in-up">
         <div>
             <div className="flex justify-center items-center space-x-2 text-3xl font-bold text-primary-600 dark:text-primary-400">
                 <Zap size={32} />

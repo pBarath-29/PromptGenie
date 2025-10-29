@@ -154,7 +154,7 @@ const ProfilePage: React.FC = () => {
         onChangePasswordClick={() => setIsChangePasswordModalOpen(true)}
       />
 
-      <section>
+      <section className="animate-slide-in-up" style={{ animationDelay: '100ms' }}>
         <h2 className="text-2xl font-bold mb-4 flex items-center"><CreditCard className="mr-3 text-primary-500"/> My Subscription</h2>
         <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           {user.subscriptionTier === 'pro' ? (
@@ -193,7 +193,7 @@ const ProfilePage: React.FC = () => {
         </div>
       </section>
 
-      <section>
+      <section className="animate-slide-in-up" style={{ animationDelay: '200ms' }}>
         <h2 className="text-2xl font-bold mb-4 flex items-center"><History className="mr-3 text-primary-500"/> My Generation History</h2>
         {history.length > 0 ? (
           <>
@@ -226,7 +226,7 @@ const ProfilePage: React.FC = () => {
         )}
       </section>
       
-      <section>
+      <section className="animate-slide-in-up" style={{ animationDelay: '300ms' }}>
         <h2 className="text-2xl font-bold mb-4 flex items-center"><BookOpen className="mr-3 text-primary-500"/> My Community Prompts</h2>
         {userCommunityPrompts.length > 0 ? (
           <>
@@ -253,7 +253,7 @@ const ProfilePage: React.FC = () => {
         )}
       </section>
 
-      <section>
+      <section className="animate-slide-in-up" style={{ animationDelay: '400ms' }}>
         <h2 className="text-2xl font-bold mb-4 flex items-center"><Package className="mr-3 text-primary-500"/> My Created Collections</h2>
         {userCreatedCollections.length > 0 ? (
           <>
@@ -274,7 +274,7 @@ const ProfilePage: React.FC = () => {
         )}
       </section>
 
-      <section>
+      <section className="animate-slide-in-up" style={{ animationDelay: '500ms' }}>
         <h2 className="text-2xl font-bold mb-4 flex items-center"><Bookmark className="mr-3 text-primary-500"/> My Saved Prompts</h2>
         {savedPrompts.length > 0 ? (
           <>
@@ -299,7 +299,7 @@ const ProfilePage: React.FC = () => {
         )}
       </section>
 
-      <section>
+      <section className="animate-slide-in-up" style={{ animationDelay: '600ms' }}>
         <h2 className="text-2xl font-bold mb-4 flex items-center"><ShoppingBag className="mr-3 text-primary-500"/> My Purchased Collections</h2>
         {userPurchasedCollections.length > 0 ? (
           <>
@@ -320,7 +320,7 @@ const ProfilePage: React.FC = () => {
         )}
       </section>
       
-      <section>
+      <section className="animate-slide-in-up" style={{ animationDelay: '700ms' }}>
         <h2 className="text-2xl font-bold mb-4 flex items-center text-red-600 dark:text-red-400"><AlertTriangle className="mr-3"/> Danger Zone</h2>
         <div className="p-6 bg-red-50 dark:bg-red-900/20 rounded-lg shadow-sm border border-red-200 dark:border-red-800 flex flex-col md:flex-row justify-between md:items-center gap-4">
             <div>

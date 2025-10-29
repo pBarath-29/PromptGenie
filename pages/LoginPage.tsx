@@ -1,5 +1,6 @@
 
 
+
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
@@ -64,7 +65,7 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8">
+      <div className="w-full max-w-md space-y-8 animate-slide-in-up">
         <div>
            <div className="flex justify-center items-center space-x-2 text-3xl font-bold text-primary-600 dark:text-primary-400">
                 <Zap size={32} />

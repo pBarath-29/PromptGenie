@@ -11,7 +11,7 @@ const LegalSection: React.FC<{ title: string; children: React.ReactNode }> = ({ 
 
 const TermsPage: React.FC = () => {
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+    <div className="max-w-4xl mx-auto py-8 px-4 bg-white dark:bg-gray-800 rounded-lg shadow-md animate-fade-in">
       <h1 className="text-4xl font-extrabold text-center mb-8 text-gray-900 dark:text-white">Terms and Conditions</h1>
       <p className="mb-8 text-sm text-center text-gray-500 dark:text-gray-400">Last updated: {new Date().toLocaleDateString()}</p>
       

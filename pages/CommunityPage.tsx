@@ -170,12 +170,13 @@ const CommunityPage: React.FC = () => {
             {currentPrompts.length > 0 ? (
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {currentPrompts.map(prompt => (
-                            <PromptCard 
-                                key={prompt.id} 
-                                prompt={prompt} 
-                                onClick={handlePromptClick}
-                            />
+                        {currentPrompts.map((prompt, index) => (
+                            <div key={prompt.id} className="animate-slide-in-up" style={{ animationDelay: `${index * 75}ms`}}>
+                                <PromptCard 
+                                    prompt={prompt} 
+                                    onClick={handlePromptClick}
+                                />
+                             </div>
                         ))}
                     </div>
                     {totalPages > 1 && (

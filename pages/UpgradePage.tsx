@@ -119,7 +119,7 @@ const UpgradePage: React.FC = () => {
                 <div className="space-y-6">
                     <h2 className="text-2xl font-bold">What you get with Pro:</h2>
                     {benefits.map((benefit, index) => (
-                        <div key={index} className="flex items-start space-x-4">
+                        <div key={index} className="flex items-start space-x-4 animate-slide-in-up" style={{ animationDelay: `${index * 100}ms` }}>
                             <div className="flex-shrink-0 mt-1">{benefit.icon}</div>
                             <div>
                                 <h3 className="font-semibold text-lg">{benefit.title}</h3>

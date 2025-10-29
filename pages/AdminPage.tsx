@@ -218,7 +218,7 @@ const AdminPage: React.FC = () => {
           />
         </div>
         
-        <div className="transition-opacity duration-300">
+        <div key={activeTab} className="animate-fade-in">
             {activeTab === 'prompts' && (
             <div className="space-y-4">
                  <div className="flex justify-end">

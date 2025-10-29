@@ -97,7 +97,7 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, onClick, onEdit, onDele
 
   return (
     <div 
-      className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col cursor-pointer"
+      className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col cursor-pointer transform hover:-translate-y-1"
       onClick={handleCardClick}
     >
       <div className="p-6 flex-grow">

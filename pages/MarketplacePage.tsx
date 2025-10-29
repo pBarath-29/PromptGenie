@@ -160,12 +160,13 @@ const MarketplacePage: React.FC = () => {
             {paginatedCollections.length > 0 ? (
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {paginatedCollections.map(collection => (
-                            <CollectionCard 
-                            key={collection.id} 
-                            collection={collection} 
-                            onPreview={handlePreviewClick}
-                            />
+                        {paginatedCollections.map((collection, index) => (
+                            <div key={collection.id} className="animate-slide-in-up" style={{ animationDelay: `${index * 75}ms` }}>
+                                <CollectionCard 
+                                collection={collection} 
+                                onPreview={handlePreviewClick}
+                                />
+                            </div>
                         ))}
                     </div>
                     <Pagination

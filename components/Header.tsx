@@ -134,8 +134,7 @@ const Header: React.FC = () => {
           </div>
         </div>
         
-        {isMobileMenuOpen && (
-          <div className="md:hidden" id="mobile-menu">
+        <div className={`md:hidden transition-all duration-300 ease-in-out overflow-y-auto ${isMobileMenuOpen ? 'max-h-[80vh] opacity-100' : 'max-h-0 opacity-0'}`} id="mobile-menu">
             {user?.role !== 'admin' && (
                 <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                     <NavLink to="/" className={mobileNavLinkClass} onClick={closeMobileMenu}>Generator</NavLink>
@@ -186,7 +185,6 @@ const Header: React.FC = () => {
               )}
             </div>
           </div>
-        )}
       </header>
       <ConfirmationModal
         isOpen={isLogoutModalOpen}

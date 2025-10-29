@@ -285,7 +285,7 @@ const HomePage: React.FC = () => {
                     onComplete={handleTutorialComplete}
                 />
             )}
-            <section className="text-center">
+            <section className="text-center animate-slide-in-up">
                 <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white">
                     Generate Smarter Prompts <span className="text-primary-500">Instantly</span>
                 </h1>
@@ -294,7 +294,7 @@ const HomePage: React.FC = () => {
                 </p>
             </section>
 
-            <div id="prompt-generator-card" className="max-w-4xl mx-auto p-4 sm:p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl space-y-6">
+            <div id="prompt-generator-card" className="max-w-4xl mx-auto p-4 sm:p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl space-y-6 animate-slide-in-up" style={{ animationDelay: '150ms' }}>
                 <div className={`${!user || isBanned ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     <div className="text-center">
                         <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Need inspiration? Start with a template.</p>
@@ -304,7 +304,7 @@ const HomePage: React.FC = () => {
                                     key={template.title}
                                     onClick={() => handleTemplateClick(template)}
                                     disabled={!user || isBanned}
-                                    className="flex flex-col items-center justify-center p-3 text-center bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed group"
+                                    className="flex flex-col items-center justify-center p-3 text-center bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group"
                                     title={template.description}
                                 >
                                     <template.icon size={24} className="text-primary-500 mb-2 transition-transform group-hover:scale-110" />

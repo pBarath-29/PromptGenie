@@ -38,7 +38,7 @@ const CollectionCard: React.FC<{ collection: Collection; onPreview?: (collection
   };
 
   return (
-    <div onClick={handleCardClick} className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden group flex flex-col cursor-pointer">
+    <div onClick={handleCardClick} className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden group flex flex-col cursor-pointer transform hover:-translate-y-1">
       <div className="relative">
         <img src={collection.coverImage} alt={collection.name} className="w-full h-48 object-cover" />
         <div className="absolute top-2 right-2 flex items-center bg-black/50 text-white text-xs font-bold px-2 py-1 rounded-full">

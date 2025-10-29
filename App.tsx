@@ -45,7 +45,7 @@ const AppContent: React.FC = () => {
       <Header />
       {user && user.status === 'banned' && <BanBanner />}
       <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {children}
+        <div className="animate-fade-in">{children}</div>
       </main>
       <Footer />
     </div>
