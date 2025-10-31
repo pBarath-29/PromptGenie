@@ -15,7 +15,7 @@ import {
   EmailAuthProvider,
   deleteUser,
 } from 'firebase/auth';
-import { ref, onValue } from 'firebase/database';
+import { ref, onValue, Unsubscribe } from 'firebase/database';
 
 
 interface AuthContextType {
@@ -116,47 +116,51 @@ const normalizeUser = (userToNormalize: AppUser | any): AppUser | null => {
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(() => auth.currentUser);
 
-  // Effect 1: Manages the Firebase Auth user state.
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setFirebaseUser(user);
-    });
-    return unsubscribe; // Cleanup on unmount
-  }, []);
+    let unsubscribeFromDb: Unsubscribe | undefined;
 
-  // Effect 2: Manages the database listener based on the Firebase Auth user.
-  useEffect(() => {
-    // This effect runs whenever `firebaseUser` changes.
-    if (firebaseUser && firebaseUser.emailVerified) {
-      const userRef = ref(db, `users/${firebaseUser.uid}`);
-      // Set up the real-time listener.
-      const unsubscribe = onValue(userRef, (snapshot) => {
-        const userProfile = snapshot.val();
-        if (userProfile) {
-          setUser(normalizeUser(userProfile));
-        } else {
-          // If the user is authenticated but has no profile in DB, something is wrong. Log them out.
-          signOut(auth);
-        }
-        setLoading(false);
-      }, (error) => {
-        console.error("Error listening to user data:", error);
+    const unsubscribeFromAuth = onAuthStateChanged(auth, (firebaseUser) => {
+      // When auth state changes, first unsubscribe from any existing database listener.
+      if (unsubscribeFromDb) {
+        unsubscribeFromDb();
+      }
+
+      if (firebaseUser && firebaseUser.emailVerified) {
+        const userRef = ref(db, `users/${firebaseUser.uid}`);
+        
+        // Set up a new listener for the user's profile data.
+        unsubscribeFromDb = onValue(userRef, (snapshot) => {
+          const userProfile = snapshot.val();
+          if (userProfile) {
+            setUser(normalizeUser(userProfile));
+          } else {
+            // Edge case: auth user exists but no profile in DB. Safest to sign out.
+            signOut(auth);
+            setUser(null);
+          }
+          // Only set loading to false after we've got the profile data.
+          setLoading(false);
+        }, (error) => {
+          console.error("Error fetching user profile:", error);
+          setUser(null);
+          setLoading(false);
+        });
+      } else {
+        // User is not logged in or not verified.
         setUser(null);
         setLoading(false);
-      });
+      }
+    });
 
-      // Return the cleanup function for this listener.
-      // It will be called when `firebaseUser` changes (e.g., on logout) or when the component unmounts.
-      return () => unsubscribe();
-    } else {
-      // If there's no authenticated user, or they aren't verified,
-      // ensure the app's user state is null and we're not in a loading state.
-      setUser(null);
-      setLoading(false);
-    }
-  }, [firebaseUser]);
+    // Cleanup function for the effect.
+    return () => {
+      unsubscribeFromAuth();
+      if (unsubscribeFromDb) {
+        unsubscribeFromDb();
+      }
+    };
+  }, []);
 
   const login = useCallback(async (email: string, password?: string): Promise<void> => {
       if (!password) throw new Error("Password is required for login.");
