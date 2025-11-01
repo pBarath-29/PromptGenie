@@ -11,41 +11,9 @@ import UpgradeModal from '../components/UpgradeModal';
 import { FREE_TIER_LIMIT } from '../config';
 import AdModal from '../components/AdModal';
 import TutorialGuide from '../components/TutorialGuide';
-import WelcomeBanner from '../components/WelcomeBanner';
 import CustomDropdown from '../components/CustomDropdown';
 import LogoSpinner from '../components/LogoSpinner';
 import Modal from '../components/Modal';
-
-const tutorialSteps = [
-    {
-        title: "Welcome to Prompter!",
-        content: "Let's take a quick tour of the main features to get you started.",
-    },
-    {
-        selector: "#prompt-generator-card",
-        title: "The Prompt Generator",
-        content: "This is where the magic happens! Describe your goal, select a tone and category, and our AI will craft a high-quality, optimized prompt for you."
-    },
-    {
-        selector: "#nav-community",
-        title: "Community Prompts",
-        content: "Explore a vast library of prompts created and shared by our community. You can also share your own creations here!"
-    },
-    {
-        selector: "#nav-marketplace",
-        title: "The Marketplace",
-        content: "Discover and purchase curated collections of premium prompts from expert creators for your specific needs."
-    },
-    {
-        selector: "#user-menu-button",
-        title: "Your Account",
-        content: "Access your profile, saved prompts, and manage your account settings right here."
-    },
-    {
-        title: "You're All Set!",
-        content: "That's the basics. Feel free to explore and start creating. Happy prompting!",
-    }
-];
 
 const templates = [
     {
@@ -102,7 +70,6 @@ const HomePage: React.FC = () => {
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
     const [isAdModalOpen, setIsAdModalOpen] = useState(false);
     const [isTutorialActive, setIsTutorialActive] = useState(false);
-    const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
     const resultsContainerRef = useRef<HTMLDivElement>(null);
     
     // Ref to track the current user state to prevent race conditions on logout
@@ -115,13 +82,6 @@ const HomePage: React.FC = () => {
 
     useEffect(() => {
         if (user) {
-            // Handle new user greeting banner
-            const isNewUser = sessionStorage.getItem('newUserGreeting');
-            if (isNewUser === 'true') {
-                setShowWelcomeBanner(true);
-                sessionStorage.removeItem('newUserGreeting');
-            }
-
             // Launch tutorial for new users
             if (!user.hasCompletedTutorial) {
                 // A small delay to ensure the page has rendered
@@ -133,7 +93,6 @@ const HomePage: React.FC = () => {
             setContext('');
             setGeneratedPrompt(null);
             setError(null);
-            setShowWelcomeBanner(false);
         }
     }, [user]);
     
@@ -276,15 +235,10 @@ const HomePage: React.FC = () => {
 
     return (
         <div className="space-y-12">
-            {showWelcomeBanner && user && (
-                <WelcomeBanner name={user.name} onDismiss={() => setShowWelcomeBanner(false)} />
-            )}
-             {isTutorialActive && (
-                <TutorialGuide
-                    steps={tutorialSteps}
-                    onComplete={handleTutorialComplete}
-                />
-            )}
+            <TutorialGuide
+                isOpen={isTutorialActive}
+                onComplete={handleTutorialComplete}
+            />
             <section className="text-center animate-slide-in-up">
                 <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white">
                     Generate Smarter Prompts <span className="text-primary-500">Instantly</span>

@@ -1,177 +1,60 @@
-import React, { useState, useLayoutEffect, useRef, useCallback } from 'react';
+import React from 'react';
+import Modal from './Modal';
 import Button from './Button';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
-
-interface TutorialStep {
-    selector?: string;
-    title: string;
-    content: string;
-}
+import { Zap, Users, ShoppingBag, PartyPopper } from 'lucide-react';
 
 interface TutorialGuideProps {
-    steps: TutorialStep[];
-    onComplete: () => void;
+  isOpen: boolean;
+  onComplete: () => void;
 }
 
-const TutorialGuide: React.FC<TutorialGuideProps> = ({ steps, onComplete }) => {
-    const [currentStep, setCurrentStep] = useState(0);
-    const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
-    const tooltipRef = useRef<HTMLDivElement>(null);
+const Feature: React.FC<{ icon: React.ReactNode; title: string; children: React.ReactNode }> = ({ icon, title, children }) => (
+  <div className="flex items-start space-x-4">
+    <div className="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-primary-100 dark:bg-primary-900 text-primary-500">
+      {icon}
+    </div>
+    <div>
+      <h4 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h4>
+      <p className="text-gray-600 dark:text-gray-400">{children}</p>
+    </div>
+  </div>
+);
 
-    const step = steps[currentStep];
-    const isFirstStep = currentStep === 0;
-    const isLastStep = currentStep === steps.length - 1;
 
-    const updatePosition = useCallback(() => {
-        if (step.selector) {
-            const element = document.querySelector(step.selector) as HTMLElement;
-            if (element) {
-                setTargetRect(element.getBoundingClientRect());
-            } else {
-                setTargetRect(null);
-            }
-        } else {
-            setTargetRect(null); // For modal-like steps
-        }
-    }, [step.selector]);
+const TutorialGuide: React.FC<TutorialGuideProps> = ({ isOpen, onComplete }) => {
+  if (!isOpen) {
+    return null;
+  }
 
-    useLayoutEffect(() => {
-        updatePosition();
+  return (
+    <Modal isOpen={isOpen} onClose={onComplete} title="">
+      <div className="text-center p-4">
+        <PartyPopper size={48} className="mx-auto text-primary-500 mb-4 animate-pop-in" />
+        <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2">Welcome to Prompter!</h2>
+        <p className="text-lg text-gray-500 dark:text-gray-400 mb-8">
+          Here’s a quick overview to get you started.
+        </p>
         
-        if (step.selector) {
-            const element = document.querySelector(step.selector) as HTMLElement;
-            if (element) {
-                element.style.zIndex = '10001';
-                element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-            }
-        }
-
-        window.addEventListener('resize', updatePosition);
-        window.addEventListener('scroll', updatePosition, true); // Use capture to get scroll events early
-        
-        return () => {
-            if (step.selector) {
-                const element = document.querySelector(step.selector) as HTMLElement;
-                if (element) element.style.zIndex = '';
-            }
-            window.removeEventListener('resize', updatePosition);
-            window.removeEventListener('scroll', updatePosition, true);
-        };
-    }, [currentStep, step.selector, updatePosition]);
-
-    const handleNext = () => {
-        if (!isLastStep) {
-            setCurrentStep(currentStep + 1);
-        } else {
-            onComplete();
-        }
-    };
-
-    const handlePrev = () => {
-        if (!isFirstStep) {
-            setCurrentStep(currentStep - 1);
-        }
-    };
-    
-    const getTooltipStyle = (): React.CSSProperties => {
-        if (!targetRect) {
-            // Centered modal style
-            return {
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                position: 'fixed',
-            };
-        }
-
-        const tooltipHeight = tooltipRef.current?.offsetHeight || 200; // Use ref height or fallback
-        const tooltipWidth = 320; // from max-w-sm
-        const margin = 15;
-        let top: number;
-        let left = targetRect.left + targetRect.width / 2;
-        let transform = 'translateX(-50%)';
-
-        // Vertical placement
-        if (targetRect.bottom + tooltipHeight + margin > window.innerHeight && targetRect.top > tooltipHeight + margin) {
-            // Not enough space below, place above
-            top = targetRect.top - margin;
-            transform += ' translateY(-100%)';
-        } else {
-            // Place below
-            top = targetRect.bottom + margin;
-        }
-
-        // Correct for horizontal overflow
-        if (left - (tooltipWidth / 2) < margin) {
-            left = margin;
-            transform = transform.replace('translateX(-50%)', 'translateX(0)');
-        }
-        if (left + (tooltipWidth / 2) > window.innerWidth - margin) {
-            left = window.innerWidth - margin;
-            transform = transform.replace('translateX(-50%)', 'translateX(-100%)');
-        }
-
-        return {
-            top: `${top}px`,
-            left: `${left}px`,
-            position: 'fixed',
-            transform,
-        };
-    };
-
-    return (
-        <div className="fixed inset-0 z-[10000]">
-            {/* Overlay */}
-            <div 
-                className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-all duration-300"
-                style={{
-                    clipPath: targetRect 
-                        ? `path(evenodd, 'M0 0 H ${window.innerWidth} V ${window.innerHeight} H 0 Z M ${targetRect.left - 5} ${targetRect.top - 5} H ${targetRect.right + 5} V ${targetRect.bottom + 5} H ${targetRect.left - 5} Z')`
-                        : 'none'
-                }}
-            ></div>
-
-            {/* Tooltip */}
-            <div
-                ref={tooltipRef}
-                style={getTooltipStyle()}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-6 w-full max-w-sm animate-fade-in transition-all duration-300"
-            >
-                <h3 className="text-xl font-bold mb-2">{step.title}</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">{step.content}</p>
-
-                <div className="flex justify-between items-center">
-                    <button onClick={onComplete} className="text-sm text-gray-500 hover:underline">
-                        Skip Tutorial
-                    </button>
-                    <div className="flex items-center space-x-2">
-                        {!isFirstStep && (
-                             <Button variant="secondary" onClick={handlePrev} icon={<ArrowLeft size={16}/>}>
-                                Prev
-                            </Button>
-                        )}
-                        <Button 
-                            onClick={handleNext} 
-                            icon={!isLastStep ? <ArrowRight size={16}/> : undefined}
-                            className={!isLastStep ? '!flex-row-reverse' : ''}
-                        >
-                            {isLastStep ? 'Finish' : 'Next'}
-                        </Button>
-                    </div>
-                </div>
-                <div className="flex justify-center mt-4">
-                    <div className="flex space-x-2">
-                        {steps.map((_, index) => (
-                            <div
-                                key={index}
-                                className={`w-2 h-2 rounded-full transition-colors ${currentStep === index ? 'bg-primary-500' : 'bg-gray-300 dark:bg-gray-600'}`}
-                            ></div>
-                        ))}
-                    </div>
-                </div>
-            </div>
+        <div className="space-y-6 text-left">
+            <Feature icon={<Zap size={24} />} title="Prompt Generator">
+                Craft perfect prompts with AI assistance. Just describe your goal and we'll optimize it for you.
+            </Feature>
+            <Feature icon={<Users size={24} />} title="Community Hub">
+                Explore, share, and vote on prompts from a vibrant community of creators.
+            </Feature>
+            <Feature icon={<ShoppingBag size={24} />} title="Marketplace">
+                Discover premium, curated prompt collections for specialized tasks and projects.
+            </Feature>
         </div>
-    );
+        
+        <div className="mt-10">
+          <Button onClick={onComplete} className="w-full sm:w-auto !py-3 !px-8 !text-base">
+            Let's Get Started!
+          </Button>
+        </div>
+      </div>
+    </Modal>
+  );
 };
 
 export default TutorialGuide;
